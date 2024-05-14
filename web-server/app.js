@@ -6,13 +6,13 @@ const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const cors = require("cors");
 
-const usersRouter = require("./routes/users");
+const usersRouter = require("./routes/usersRouter");
 
 const app = express();
 
 app.use(cors());
 
-// Povezava z bazo
+// Connect to DB
 const mongoose = require("mongoose");
 mongoose.connect(process.env.DB_URI);
 
@@ -24,16 +24,13 @@ db.on("open", () => {
     console.log("Connected to DB");
 });
 
-// view engine setup
-app.set("views", path.join(__dirname, "views"));
-app.set("view engine", "jade");
-
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
+// Add routers
 app.use("/users", usersRouter);
 
 // catch 404 and forward to error handler
