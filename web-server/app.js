@@ -1,12 +1,28 @@
+require("dotenv").config();
 const createError = require("http-errors");
 const express = require("express");
 const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
+const cors = require("cors");
 
 const usersRouter = require("./routes/users");
 
 const app = express();
+
+app.use(cors());
+
+// Povezava z bazo
+const mongoose = require("mongoose");
+mongoose.connect(process.env.DB_URI);
+
+const db = mongoose.connection;
+db.on("error", () => {
+    console.error.bind(console, "Failed to connect to DB");
+});
+db.on("open", () => {
+    console.log("Connected to DB");
+});
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
