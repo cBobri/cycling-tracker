@@ -2,7 +2,7 @@ const calculateWattage = (
     distance,
     verticalDistance,
     time,
-    cyclistWeight,
+    cyclistWeight = 70,
     pro = false
 ) => {
     const BIKE_WEIGHT = pro ? 7 : 11;

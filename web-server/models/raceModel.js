@@ -9,16 +9,13 @@ const wattageSchema = new Schema({
 
 const raceSchema = new Schema({
     name: String,
+    date: String,
     category: String,
     distance: Number,
     verticalMeters: Number,
-    winner: {
-        type: Schema.Types.ObjectId,
-        ref: "rider",
-    },
+    winner: String,
     winnerWattage: wattageSchema,
     averageWattage: wattageSchema,
-    startedAt: Date,
     postedAt: Date,
     createdAt: {
         type: Date,
