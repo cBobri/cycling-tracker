@@ -49,8 +49,4 @@ app.use(function (err, req, res, next) {
     res.render("error");
 });
 
-const calculateWattage = require("./helpers/calculateWattage");
-
-console.log(calculateWattage(142000, 3029, 3 * 3600 + 43 * 60 + 50, 52));
-
 module.exports = app;
