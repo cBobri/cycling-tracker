@@ -29,6 +29,8 @@ const scraper = {
         const HTML = response.data;
         const $ = cheerio.load(HTML);
 
+        let count = 0;
+
         $("table > tbody > tr").each(async (index, row) => {
             const raceClass = $(row).children("td:nth-child(3)").text();
             if (raceClass == "NC") return;
@@ -81,16 +83,17 @@ const scraper = {
                 postedAt: Date.now() - secondsDifference,
             });
 
-            console.log(race);
+            console.log("New race:", race);
 
             try {
                 await race.save();
+                count++;
             } catch (err) {
                 console.log("Failed to save race:", err);
             }
         });
 
-        console.log("Finished scraping races...");
+        console.log(`Finished scraping - ${count} races were added`);
     },
     scrapeRace: async (URL) => {
         let response;
