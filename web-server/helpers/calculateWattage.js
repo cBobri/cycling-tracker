@@ -32,7 +32,7 @@ const calculateWattage = (
 
     const power = (1 - DRIVETAIN_LOSS / 100) * forceResistance * speed;
     const powerRatio = power / cyclistWeight;
-    const energy = work / 4.18 / 0.28 / 1000;
+    const energy = (power * time) / 4.18 / 0.28 / 1000;
 
     /*
     console.log("Distance (m):", distance);
