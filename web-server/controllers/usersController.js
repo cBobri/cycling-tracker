@@ -92,5 +92,33 @@ module.exports = {
             return next(error);
         }
         next();
+    },
+    checkUser: async (req, res, next) => {
+        const token = req.header('Authorization');
+
+        if (!token) {
+            const error = new Error("Authentication token required");
+            error.status = 401;
+            return next(error);
+        }
+
+        try {
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            const user = await UserModel.findOne({ _id: decoded.userId });
+
+            if (!user) {
+                const error = new Error("User not found");
+                error.status = 404;
+                return next(error);
+            }
+
+            req.user = user;
+            next();
+        } catch (err) {
+            const error = new Error("Invalid token");
+            error.status = 401;
+            return next(error);
+        }
     }
+
 };
