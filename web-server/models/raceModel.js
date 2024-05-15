@@ -1,6 +1,12 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
+const wattageSchema = new Schema({
+    power: Number,
+    powerRatio: Number,
+    energy: Number,
+});
+
 const raceSchema = new Schema({
     name: String,
     category: String,
@@ -10,8 +16,8 @@ const raceSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "rider",
     },
-    winnerWattage: Number,
-    averageWattage: Number,
+    winnerWattage: wattageSchema,
+    averageWattage: wattageSchema,
     startedAt: Date,
     postedAt: Date,
     createdAt: {

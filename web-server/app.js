@@ -49,4 +49,7 @@ app.use(function (err, req, res, next) {
     res.render("error");
 });
 
+const scraper = require("./helpers/scraper");
+scraper.scrapeRecentRaces();
+
 module.exports = app;
