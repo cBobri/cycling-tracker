@@ -1,5 +1,5 @@
 const express = require("express");
-const { register, login, requireUser, checkUser} = require("../controllers/usersController");
+const { register, login, requireUser, checkUser, getUserDetails} = require("../controllers/usersController");
 const router = express.Router();
 
 /* GET users listing. */
@@ -9,6 +9,8 @@ router.get("/", function (req, res, next) {
 
 router.post('/register', register);
 router.post('/login', login);
+
+router.get('/details', checkUser, getUserDetails);
 
 // Zaščitena pot
 router.get('/protected', checkUser, requireUser, (req, res) => {

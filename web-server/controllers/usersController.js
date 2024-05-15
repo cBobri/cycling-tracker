@@ -119,6 +119,14 @@ module.exports = {
             error.status = 401;
             return next(error);
         }
+    },
+    getUserDetails: (req, res, next) => {
+        if (!req.user) {
+            const error = new Error("User not authenticated");
+            error.status = 401;
+            return next(error);
+        }
+        return res.status(200).json(req.user);
     }
 
 };
