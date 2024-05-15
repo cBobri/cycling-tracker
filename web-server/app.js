@@ -5,6 +5,7 @@ const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const cors = require("cors");
+const cron = require("node-cron");
 
 const usersRouter = require("./routes/usersRouter");
 
@@ -48,5 +49,8 @@ app.use(function (err, req, res, next) {
     res.status(err.status || 500);
     res.render("error");
 });
+
+const scraper = require("./helpers/scraper");
+cron.schedule("*/15 * * * *", scraper.scrapeRecentRaces);
 
 module.exports = app;
