@@ -70,6 +70,7 @@ const scraper = {
             );
 
             const details = await scraper.scrapeRace(BASE_URL + link);
+            if (!details) return;
 
             const race = new RaceModel({
                 name: name,
@@ -80,20 +81,20 @@ const scraper = {
                 winner: details.winner,
                 winnerWattage: details.winnerWattage,
                 averageWattage: details.averageWattage,
-                postedAt: Date.now() - secondsDifference,
+                postedAt: Date.now() - secondsDifference * 1000,
             });
 
             console.log("New race:", race);
+            console.log(details.winnerWattage);
+            console.log(details.averageWattage);
 
             try {
                 await race.save();
                 count++;
             } catch (err) {
-                console.log("Failed to save race:", err);
+                //console.log("Failed to save race:", err);
             }
         });
-
-        console.log(`Finished scraping - ${count} races were added`);
     },
     scrapeRace: async (URL) => {
         let response;
@@ -112,15 +113,26 @@ const scraper = {
             "ul.infolist > li:nth-child(4) > div:nth-child(2)"
         ).text();
 
+        const avgSpeedWinner = $(
+            "ul.infolist > li:nth-child(3) > div:nth-child(2)"
+        ).text();
+        if (
+            avgSpeedWinner == "-" ||
+            avgSpeedWinner == undefined ||
+            avgSpeedWinner == null
+        )
+            return null;
+
         const distance = parseFloat(
             $("ul.infolist > li:nth-child(5) > div:nth-child(2)")
                 .text()
                 .replace(" km", "")
         );
 
-        const verticalMeters = parseInt(
+        let verticalMeters = parseInt(
             $("ul.infolist > li:nth-child(10) > div:nth-child(2)").text()
         );
+        if (isNaN(verticalMeters)) verticalMeters = 0;
 
         const riders = [];
 
@@ -212,7 +224,7 @@ const scraper = {
         });
 
         let winner;
-        let winnerWattage;
+        let winnerWattage = null;
         const averageWattage = {
             power: 0,
             powerRatio: 0,
@@ -228,7 +240,7 @@ const scraper = {
                 true
             );
 
-            if (index === 0) {
+            if (winnerWattage == null) {
                 winner = rider.firstname + " " + rider.lastname;
                 winnerWattage = riderWattage;
             }
