@@ -34,7 +34,44 @@ const calculateWattage = (
     const powerRatio = power / cyclistWeight;
     const energy = (power * time) / 4.18 / 0.28 / 1000;
 
-    /*
+    log(
+        distance,
+        verticalDistance,
+        time,
+        speed,
+        cyclistWeight,
+        BIKE_WEIGHT,
+        weight,
+        forceGravity,
+        forceRolling,
+        forceDrag,
+        power,
+        powerRatio,
+        energy
+    );
+
+    return {
+        power,
+        powerRatio,
+        energy,
+    };
+};
+
+const log = (
+    distance,
+    verticalDistance,
+    time,
+    speed,
+    cyclistWeight,
+    BIKE_WEIGHT,
+    weight,
+    forceGravity,
+    forceRolling,
+    forceDrag,
+    power,
+    powerRatio,
+    energy
+) => {
     console.log("Distance (m):", distance);
     console.log("Vertical meters (m):", verticalDistance);
     console.log("Time (s):", time);
@@ -50,13 +87,6 @@ const calculateWattage = (
     console.log("Average Power (W):", power);
     console.log("Power/Weight (W/kg):", powerRatio);
     console.log("Calories burnt (kcal):", energy);
-    */
-
-    return {
-        power,
-        powerRatio,
-        energy,
-    };
 };
 
 module.exports = calculateWattage;
