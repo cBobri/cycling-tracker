@@ -84,15 +84,15 @@ const scraper = {
                 postedAt: Date.now() - secondsDifference * 1000,
             });
 
-            console.log("New race:", race);
-            console.log(details.winnerWattage);
-            console.log(details.averageWattage);
+            //console.log("New race:", race);
+            //console.log(details.winnerWattage);
+            //console.log(details.averageWattage);
 
             try {
                 await race.save();
                 count++;
             } catch (err) {
-                //console.log("Failed to save race:", err);
+                console.log("Failed to save race:", err);
             }
         });
     },

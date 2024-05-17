@@ -10,7 +10,7 @@ const calculateWattage = (
     const ROLLING_COEFFICIENT = 0.005;
     const HEADWIND = 0;
     const AIR_DENSITY = 1.22601;
-    const CDA = pro ? 0.3 : 0.4;
+    const CDA = pro ? 0.25 : 0.4;
     const DRIVETAIN_LOSS = pro ? 2 : 3;
 
     const speed = (distance + verticalDistance) / time;
@@ -34,7 +34,44 @@ const calculateWattage = (
     const powerRatio = power / cyclistWeight;
     const energy = (power * time) / 4.18 / 0.28 / 1000;
 
-    /*
+    /*log(
+        distance,
+        verticalDistance,
+        time,
+        speed,
+        cyclistWeight,
+        BIKE_WEIGHT,
+        weight,
+        forceGravity,
+        forceRolling,
+        forceDrag,
+        power,
+        powerRatio,
+        energy
+    );*/
+
+    return {
+        power,
+        powerRatio,
+        energy,
+    };
+};
+
+const log = (
+    distance,
+    verticalDistance,
+    time,
+    speed,
+    cyclistWeight,
+    BIKE_WEIGHT,
+    weight,
+    forceGravity,
+    forceRolling,
+    forceDrag,
+    power,
+    powerRatio,
+    energy
+) => {
     console.log("Distance (m):", distance);
     console.log("Vertical meters (m):", verticalDistance);
     console.log("Time (s):", time);
@@ -50,13 +87,7 @@ const calculateWattage = (
     console.log("Average Power (W):", power);
     console.log("Power/Weight (W/kg):", powerRatio);
     console.log("Calories burnt (kcal):", energy);
-    */
-
-    return {
-        power,
-        powerRatio,
-        energy,
-    };
+    console.log("---------------------------------------------------------");
 };
 
 module.exports = calculateWattage;
