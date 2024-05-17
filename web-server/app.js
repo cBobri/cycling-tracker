@@ -55,11 +55,6 @@ app.use(function (err, req, res, next) {
 });
 
 const scraper = require("./helpers/scraper");
-const calculateWattage = require("./helpers/calculateWattage");
 cron.schedule("*/15 * * * *", scraper.scrapeRecentRaces);
-
-calculateWattage(193 * 1000, 2162, 4 * 3600 + 7 * 60 + 44, 62, true);
-calculateWattage(169.78 * 1000, 1680, 3 * 3600 + 53 * 60 + 42, 80, true);
-calculateWattage(114.9 * 1000, 1788, 3 * 3600 + 3 * 60 + 34, 55, true);
 
 module.exports = app;
