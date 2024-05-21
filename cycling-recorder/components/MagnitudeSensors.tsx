@@ -109,20 +109,20 @@ export default function MagnitudeSensors() {
         });
     };
 
-    const { ax, ay, az, gx, gy, gz } = data;
+    // const { ax, ay, az, gx, gy, gz } = data;
 
     return (
         <View style={styles.container}>
-            <Text style={styles.text}>Accelerometer Data:</Text>
+            {/* <Text style={styles.text}>Accelerometer Data:</Text>
             <Text style={styles.text}>x: {ax.toFixed(2)}</Text>
             <Text style={styles.text}>y: {ay.toFixed(2)}</Text>
             <Text style={styles.text}>z: {az.toFixed(2)}</Text>
             <Text style={styles.text}>Gyroscope Data:</Text>
             <Text style={styles.text}>x: {gx.toFixed(2)}</Text>
             <Text style={styles.text}>y: {gy.toFixed(2)}</Text>
-            <Text style={styles.text}>z: {gz.toFixed(2)}</Text>
+            <Text style={styles.text}>z: {gz.toFixed(2)}</Text> */}
             <Text style={styles.text}>
-                Average Magnitude ({dataArray.length}):{" "}
+                Average Magnitude ({dataArray.length} readings):{" "}
                 {avgMagnitude.toFixed(2)}
             </Text>
             <Text style={styles.text}>Shaking Level: {shakingLevel}</Text>
