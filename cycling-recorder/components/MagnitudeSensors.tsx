@@ -22,7 +22,11 @@ const getShakingLevel = (magnitude: number) => {
     return 0; // No shaking
 };
 
-export default function MagnitudeSensors() {
+type Props = {
+    handleNewResult: (data: any) => void;
+};
+
+export default function MagnitudeSensors({ handleNewResult }: Props) {
     const [data, setData] = useState({
         ax: 0,
         ay: 0,
@@ -34,6 +38,12 @@ export default function MagnitudeSensors() {
     const [avgMagnitude, setAvgMagnitude] = useState(0);
     const [shakingLevel, setShakingLevel] = useState(0);
     const [dataArray, setDataArray] = useState([]);
+
+    useEffect(() => {
+        if (avgMagnitude != 0) {
+            handleNewResult({ value: avgMagnitude, level: shakingLevel });
+        }
+    }, [avgMagnitude]);
 
     useEffect(() => {
         // Subscribe to sensor updates
@@ -112,7 +122,7 @@ export default function MagnitudeSensors() {
     // const { ax, ay, az, gx, gy, gz } = data;
 
     return (
-        <View style={styles.container}>
+        <>
             {/* <Text style={styles.text}>Accelerometer Data:</Text>
             <Text style={styles.text}>x: {ax.toFixed(2)}</Text>
             <Text style={styles.text}>y: {ay.toFixed(2)}</Text>
@@ -126,7 +136,7 @@ export default function MagnitudeSensors() {
                 {avgMagnitude.toFixed(2)}
             </Text>
             <Text style={styles.text}>Shaking Level: {shakingLevel}</Text>
-        </View>
+        </>
     );
 }
 
