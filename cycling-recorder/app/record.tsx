@@ -10,6 +10,7 @@ const Record = () => {
     const [magnitude, setMagnitude] = useState<any>(null);
     const [GPS, setGPS] = useState<any>(null);
     const [distance, setDistance] = useState<number>(0);
+    const [speed, setSpeed] = useState<number>(0);
     const [recordingStart, setRecordingStart] = useState<number | null>(null);
 
     useEffect(() => {
@@ -52,7 +53,12 @@ const Record = () => {
 
     const updateGPS = async () => {
         const data = await getLocation();
-        if (GPS) setDistance(distance + haversineDistance(data, GPS));
+        if (GPS) {
+            const entryDistance = haversineDistance(data, GPS);
+            setDistance(distance + entryDistance);
+            setSpeed((entryDistance / 10) * 3.6);
+        }
+
         setGPS(data);
     };
 
@@ -66,6 +72,7 @@ const Record = () => {
                 <>
                     <MagnitudeSensors handleNewResult={handleMagnitudeData} />
                     <Text style={styles.text}>Distance: {distance} meters</Text>
+                    <Text style={styles.text}>Speed: {speed} km/h</Text>
                     <Text style={styles.text}>
                         {`Time: ${formatTime(Date.now() - recordingStart!)}`}
                     </Text>
