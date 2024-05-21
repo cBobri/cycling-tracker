@@ -38,10 +38,12 @@ export default function MagnitudeSensors({ handleNewResult }: Props) {
     const [avgMagnitude, setAvgMagnitude] = useState(0);
     const [shakingLevel, setShakingLevel] = useState(0);
     const [dataArray, setDataArray] = useState([]);
+    const [previousUpdate, setPreviousUpdate] = useState<number>(Date.now());
 
     useEffect(() => {
-        if (avgMagnitude != 0) {
+        if (avgMagnitude != 0 && Date.now() - previousUpdate > 1000) {
             handleNewResult({ value: avgMagnitude, level: shakingLevel });
+            setPreviousUpdate(Date.now());
         }
     }, [avgMagnitude]);
 
