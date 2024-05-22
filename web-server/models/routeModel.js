@@ -1,13 +1,27 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-const routeSchema = new mongoose.Schema({
-    entries: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Entry' }],
-    avg_speed: Number,
+const statsSchema = new mongoose.Schema({
+    avgSpeed: Number,
     elevation: Number,
-    distance: Number,
-    travel_time: Number,
-    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    created_at: { type: Date, default: Date.now },
+    power: Number,
+    powerRatio: Number,
+    energy: Number,
 });
 
-module.exports = mongoose.model('Route', routeSchema);
+const routeSchema = new mongoose.Schema({
+    entries: [{ type: mongoose.Schema.Types.ObjectId, ref: "entry" }],
+    isProcessed: Boolean,
+    bikeWeight: Number,
+    cyclistWeight: Number,
+    distance: Number,
+    travelTime: Number,
+    q1: statsSchema,
+    q2: statsSchema,
+    q3: statsSchema,
+    q4: statsSchema,
+    stats: statsSchema,
+    user: { type: mongoose.Schema.Types.ObjectId, ref: "user" },
+    createdAt: { type: Date, default: Date.now },
+});
+
+module.exports = mongoose.model("route", routeSchema);
