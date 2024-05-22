@@ -13,6 +13,8 @@ const statsSchema = new mongoose.Schema({
 const routeSchema = new mongoose.Schema({
     entries: [{ type: mongoose.Schema.Types.ObjectId, ref: "dataEntry" }],
     isProcessed: Boolean,
+    isPublic: Boolean,
+    isDoneRecording: Boolean,
     bikeWeight: Number,
     cyclistWeight: Number,
     q1: statsSchema,
