@@ -1,21 +1,17 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const entrySchema = new mongoose.Schema({
-    gps: {
-      latitude: Number,
-      longitude: Number,
+    coordinates: {
+        latitude: Number,
+        longitude: Number,
+        altitude: Number,
     },
-    accelerometer: {
-      x: Number,
-      y: Number,
-      z: Number,
+    magnitude: {
+        value: Number,
+        level: Number,
     },
-    gyroscope: {
-      alpha: Number,
-      beta: Number,
-      gamma: Number,
-    },
-    timestamp: { type: Date, default: Date.now },
+    moving: Boolean,
+    timestamp: { type: Date },
 });
 
-module.exports = mongoose.model('Entry', entrySchema);
+module.exports = mongoose.model("entry", entrySchema);
