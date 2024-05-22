@@ -20,13 +20,16 @@ userSchema.pre("save", function (next) {
         return next();
     }
 
-    bcrypt.hash(user.password, parseInt(process.env.PASSWORD_SALT), (err, hash) => {
-        if (err) return next(err);
+    bcrypt.hash(
+        user.password,
+        parseInt(process.env.PASSWORD_SALT),
+        (err, hash) => {
+            if (err) return next(err);
 
-        user.password = hash;
-        next();
-    });
+            user.password = hash;
+            next();
+        }
+    );
 });
 
-const UserModel = mongoose.model("user", userSchema);
-module.exports = { UserModel };
+module.exports = mongoose.model("user", userSchema);
