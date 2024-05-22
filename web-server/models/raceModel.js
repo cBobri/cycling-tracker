@@ -23,5 +23,4 @@ const raceSchema = new Schema({
     },
 });
 
-const RaceModel = mongoose.model("race", raceSchema);
-module.exports = RaceModel;
+module.exports = mongoose.model("race", raceSchema);

@@ -14,4 +14,4 @@ const entrySchema = new mongoose.Schema({
     timestamp: { type: Date },
 });
 
-module.exports = mongoose.model("entry", entrySchema);
+module.exports = mongoose.model("dataEntry", entrySchema);
