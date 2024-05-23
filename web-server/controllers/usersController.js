@@ -1,5 +1,5 @@
 require("dotenv").config();
-const { UserModel } = require("../models/userModel");
+const UserModel = require("../models/userModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
@@ -11,19 +11,19 @@ module.exports = {
 
         if (password !== passwordRepeat) {
             const error = new Error("Passwords don't match");
-            error.status = 400;
+            error.status = 401;
             return next(error);
         }
 
         if (await UserModel.exists({ email })) {
             const error = new Error("Email is already taken");
-            error.status = 400;
+            error.status = 402;
             return next(error);
         }
 
         if (await UserModel.exists({ username })) {
             const error = new Error("Username is already taken");
-            error.status = 400;
+            error.status = 403;
             return next(error);
         }
 
