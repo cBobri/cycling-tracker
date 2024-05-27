@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { TextInput, Button } from 'react-native-paper';
 import authStyles from '../../styles/authStyle';
 import axios from 'axios';
+import { useRouter } from 'expo-router';
 
 
 const Register = () => {
@@ -10,6 +11,7 @@ const Register = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [passwordRepeat, setPasswordRepeat] = useState('');
+    const router = useRouter();
 
     const handleRegister =  async () => {
         if (email === '' || username === '' || password === '') {
@@ -29,6 +31,7 @@ const Register = () => {
           });
           if (res.status === 200) {
             alert('User registered successfully');
+            router.push('/auth/Login');
           }
         } catch (error: any) {
           if(error.response.status === 401){

@@ -62,7 +62,7 @@ module.exports = {
 
             if (!isMatch) {
                 const error = new Error("Incorrect password");
-                error.status = 401;
+                error.status = 402;
                 return next(error);
             }
 
