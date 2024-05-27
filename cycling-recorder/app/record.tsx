@@ -4,38 +4,33 @@ import MagnitudeSensors from "../components/MagnitudeSensors";
 import { haversineDistance } from "@/helpers/haversineDistance";
 import { getLocation } from "@/helpers/getLocation";
 import { formatTime } from "@/helpers/formatTime";
+import { GPSData, dataEntry, isGPSData, magnitudeData } from "@/types";
 
 const Record = () => {
     const [isRecording, setIsRecording] = useState<boolean>(false);
-    const [magnitude, setMagnitude] = useState<any>(null);
-    const [GPS, setGPS] = useState<any>(null);
+    const [magnitudeData, setMagnitudeData] = useState<magnitudeData | null>(
+        null
+    );
+    const [GPSData, setGPSData] = useState<any>(null);
     const [distance, setDistance] = useState<number>(0);
     const [speed, setSpeed] = useState<number>(0);
     const [recordingStart, setRecordingStart] = useState<number | null>(null);
+    const [recordingData, setRecordingData] = useState<dataEntry[]>([]);
 
     useEffect(() => {
-        if (GPS && magnitude) {
-            const data = {
-                routeID: "lol",
-                timestamp: Date.now(),
-                gps: GPS,
-                magnitude,
-            };
-
-            console.log("-----Data to send");
-            console.log(JSON.stringify(data));
-        }
-    }, [GPS]);
+        console.log("---------updated data-----------");
+        console.log(recordingData);
+    }, [recordingData]);
 
     useEffect(() => {
         if (isRecording) setRecordingStart(Date.now());
 
-        if (GPS == null) {
-            updateGPS();
+        if (GPSData == null) {
+            readGPS();
         }
 
         const interval = setInterval(() => {
-            if (isRecording) updateGPS();
+            if (isRecording) readGPS();
         }, 10000);
 
         return () => {
@@ -47,19 +42,34 @@ const Record = () => {
         setIsRecording((prevState: boolean) => !prevState);
     };
 
-    const handleMagnitudeData = (data: any) => {
-        setMagnitude(data);
+    const storeDataEntry = (newGPS: GPSData) => {
+        const newData: dataEntry = {
+            timestamp: Date.now(),
+            gps: newGPS,
+            magnitude: magnitudeData,
+        };
+
+        setRecordingData([...recordingData, newData]);
     };
 
-    const updateGPS = async () => {
-        const data = await getLocation();
-        if (GPS) {
-            const entryDistance = haversineDistance(data, GPS);
+    const handleMagnitudeData = (data: magnitudeData) => {
+        console.log("got new magnitude data");
+        setMagnitudeData(data);
+    };
+
+    const readGPS = async () => {
+        const newGPS = await getLocation();
+
+        if (!isGPSData(newGPS)) return;
+
+        if (GPSData) {
+            const entryDistance = haversineDistance(newGPS, GPSData);
             setDistance(distance + entryDistance);
             setSpeed((entryDistance / 10) * 3.6);
         }
 
-        setGPS(data);
+        storeDataEntry(newGPS);
+        setGPSData(newGPS);
     };
 
     return (
@@ -70,7 +80,10 @@ const Record = () => {
             />
             {isRecording && (
                 <>
-                    <MagnitudeSensors handleNewResult={handleMagnitudeData} />
+                    <Text style={styles.text}>
+                        Data entries: {recordingData.length}
+                    </Text>
+                    <MagnitudeSensors returnNewData={handleMagnitudeData} />
                     <Text style={styles.text}>Distance: {distance} meters</Text>
                     <Text style={styles.text}>Speed: {speed} km/h</Text>
                     <Text style={styles.text}>

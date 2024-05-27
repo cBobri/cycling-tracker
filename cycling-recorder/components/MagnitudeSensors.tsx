@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Text, View, StyleSheet } from "react-native";
 import { Accelerometer, Gyroscope } from "expo-sensors";
+import { magnitudeData, magnitudeSensorsData } from "@/types";
 
 const SHAKING_LEVELS = [
     { level: 0, threshold: 1.0 }, // No shaking
@@ -23,11 +24,11 @@ const getShakingLevel = (magnitude: number) => {
 };
 
 type Props = {
-    handleNewResult: (data: any) => void;
+    returnNewData: (data: magnitudeData) => void;
 };
 
-export default function MagnitudeSensors({ handleNewResult }: Props) {
-    const [data, setData] = useState({
+export default function MagnitudeSensors({ returnNewData }: Props) {
+    const [data, setData] = useState<magnitudeSensorsData>({
         ax: 0,
         ay: 0,
         az: 0,
@@ -37,15 +38,27 @@ export default function MagnitudeSensors({ handleNewResult }: Props) {
     });
     const [avgMagnitude, setAvgMagnitude] = useState(0);
     const [shakingLevel, setShakingLevel] = useState(0);
-    const [dataArray, setDataArray] = useState([]);
-    const [previousUpdate, setPreviousUpdate] = useState<number>(Date.now());
+    const [dataArray, setDataArray] = useState<Array<magnitudeSensorsData>>([]);
+
+    useEffect(() => {}, [avgMagnitude]);
 
     useEffect(() => {
-        if (avgMagnitude != 0 && Date.now() - previousUpdate > 1000) {
-            handleNewResult({ value: avgMagnitude, level: shakingLevel });
-            setPreviousUpdate(Date.now());
-        }
-    }, [avgMagnitude]);
+        const interval = setInterval(() => {
+            if (avgMagnitude === 0) return;
+
+            const newData: magnitudeData = {
+                value: avgMagnitude,
+                level: shakingLevel,
+                data: dataArray,
+            };
+
+            returnNewData(newData);
+        }, 1000);
+
+        return () => {
+            clearInterval(interval);
+        };
+    }, []);
 
     useEffect(() => {
         // Subscribe to sensor updates
