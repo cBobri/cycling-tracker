@@ -1,9 +1,17 @@
-import { Stack } from "expo-router";
+import { Tabs } from 'expo-router';
+import { AuthProvider } from './auth/authContext';
 
-export default function RootLayout() {
+export default function Layout() {
   return (
-    <Stack>
-      <Stack.Screen name="index" />
-    </Stack>
+    <AuthProvider>
+      <Tabs>
+        <Tabs.Screen
+          name="index"
+          options={{
+            href: null,
+          }}
+        />
+      </Tabs>
+    </AuthProvider>
   );
 }

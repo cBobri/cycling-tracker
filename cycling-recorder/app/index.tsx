@@ -1,22 +1,17 @@
-import { Text, View, StyleSheet } from "react-native";
-import React from "react";
-import { Link } from "expo-router";
+import { View } from 'react-native';
+import { Link } from 'expo-router';
+import { useAuth } from './auth/authContext';
 
 export default function Index() {
-    return (
-        <View style={styles.container}>
-            <Text>Edit app/index.tsx to edit this screen</Text>
-            <Link href="/record">Record</Link>
-        </View>
-    );
+  const { token, user } = useAuth();
+  console.log(user);
+  return (
+    <View>
+      {user ? (
+        <Link href="/record">Record</Link>
+      ) : (
+        <Link href="/auth">Auth index</Link>
+      )}
+    </View>
+  );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "#fff",
-        gap: 50,
-    },
-});
