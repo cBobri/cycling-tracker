@@ -18,7 +18,7 @@ const Index = () => {
             
           </View>
           <View style={styles.bottomContainer}>
-            <Link href="/auth/register" asChild style={styles.link}>
+            <Link href="/auth/Register" asChild style={styles.link}>
               <Button
                 mode="contained"
                 style={styles.button}
@@ -28,7 +28,7 @@ const Index = () => {
                 Register
               </Button>
             </Link>
-            <Link href="/auth/login" asChild>
+            <Link href="/auth/Login" asChild>
               <Button
                 mode="contained"
                 style={styles.button}

@@ -1,16 +1,17 @@
-import { View } from 'react-native';
-import { Link } from 'expo-router';
-import { useAuth } from './auth/authContext';
+import { View } from "react-native";
+import { Link, Redirect } from "expo-router";
+import { useAuth } from "./auth/authContext";
 
 export default function Index() {
   const { token, user } = useAuth();
   console.log(user);
+  //const user = false;
   return (
     <View>
       {user ? (
-        <Link href="/record">Record</Link>
+        <Redirect href="/record" />
       ) : (
-        <Link href="/auth">Auth index</Link>
+        <Redirect href="/auth" />
       )}
     </View>
   );

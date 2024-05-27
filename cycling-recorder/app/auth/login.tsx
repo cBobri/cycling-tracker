@@ -4,25 +4,37 @@ import { TextInput, Button } from 'react-native-paper';
 import authStyles from '../../styles/authStyle';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRouter } from 'expo-router';
 
 const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const router = useRouter();
 
     const handleLogin = async () =>{
         if(username === '' || password === ''){
             alert('Please fill all the fields');
             return;
         }
-        const res = await axios.post('http://192.168.31.210:5000/users/login', {
-            username,
-            password,
-        });
-        if(res.status === 200){
-            const { token } = res.data;
-            await AsyncStorage.setItem('token', token);
-            alert('User logged in successfully');
+        try{
+            const res = await axios.post('http://192.168.31.210:5000/users/login', {
+                username,
+                password,
+            });
+            if(res.status === 200){
+                const { token } = res.data;
+                await AsyncStorage.setItem('token', token);
+                alert('User logged in successfully');
+                router.replace('/record');
+            }
+        }catch(error: any){
+            if(error.response.status === 401){
+                alert('User not found');
+            }else if(error.response.status === 402){
+                alert('Incorrect password');
+            }
         }
+        
         
     };
 
