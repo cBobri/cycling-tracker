@@ -1,0 +1,17 @@
+{
+  "name": "cycling-tracker-bobri",
+  "scripts": {
+    "postdeploy": "cd web-server && npm install && npm start"
+  },
+  "env": {
+    "NPM_CONFIG_PRODUCTION": {
+      "required": true
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "Free"
+    }
+  }
+}
