@@ -26,7 +26,7 @@ const Login = () => {
                 const { token } = res.data;
                 await setToken(token);
                 alert('User logged in successfully');
-                router.replace('/map');
+                router.replace('/record');
             }
         }catch(error: any){
             if(error.response.status === 401){
