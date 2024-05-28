@@ -9,11 +9,11 @@ export default function Index() {
   return (
     <View>
       {user ? (
-        // <Redirect href="/record" />
-        <Redirect href="/map" />
+        <Redirect href="/record" />
+        // <Redirect href="/map" />
       ) : (
-        // <Redirect href="/auth" />
-        <Redirect href="/record"/>
+        <Redirect href="/auth" />
+        // <Redirect href="/record"/>
       )}
     </View>
   );

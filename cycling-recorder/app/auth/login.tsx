@@ -5,6 +5,8 @@ import authStyles from '../../styles/authStyle';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
+import api from '../../api/service';
+
 
 const Login = () => {
     const [username, setUsername] = useState('');
@@ -17,7 +19,7 @@ const Login = () => {
             return;
         }
         try{
-            const res = await axios.post('http://192.168.31.210:5000/users/login', {
+            const res = await api.post('/users/login', {
                 username,
                 password,
             });
