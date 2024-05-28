@@ -25,7 +25,7 @@ const Login = () => {
                 const { token } = res.data;
                 await AsyncStorage.setItem('token', token);
                 alert('User logged in successfully');
-                router.replace('/record');
+                router.replace('/map');
             }
         }catch(error: any){
             if(error.response.status === 401){
@@ -62,8 +62,6 @@ const Login = () => {
         </View>
 
     )
-    
-    
     ;
 }
 

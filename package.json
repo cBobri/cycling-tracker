@@ -1,0 +1,7 @@
+{
+    "scripts": {
+      "heroku-postbuild": "cd cycling-tracker && npm install && npm run build && cd .. && cd web-server && npm install",
+      "start": "cd web-server && npm start"
+    }
+  }
+  
