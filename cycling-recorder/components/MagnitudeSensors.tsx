@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Text, View, StyleSheet } from "react-native";
 import { Accelerometer, Gyroscope } from "expo-sensors";
 import { magnitudeData, magnitudeSensorsData } from "@/types";
@@ -12,8 +12,6 @@ const SHAKING_LEVELS = [
     { level: 5, threshold: 2.5 }, // Extreme shaking
 ];
 
-const DURATION = 10000; // 10 seconds in milliseconds
-
 const getShakingLevel = (magnitude: number) => {
     for (let i = SHAKING_LEVELS.length - 1; i >= 0; i--) {
         if (magnitude > SHAKING_LEVELS[i].threshold) {
@@ -25,9 +23,13 @@ const getShakingLevel = (magnitude: number) => {
 
 type Props = {
     returnNewData: (data: magnitudeData) => void;
+    entryInterval: number;
 };
 
-export default function MagnitudeSensors({ returnNewData }: Props) {
+export default function MagnitudeSensors({
+    returnNewData,
+    entryInterval,
+}: Props) {
     const [data, setData] = useState<magnitudeSensorsData>({
         ax: 0,
         ay: 0,
@@ -40,20 +42,30 @@ export default function MagnitudeSensors({ returnNewData }: Props) {
     const [shakingLevel, setShakingLevel] = useState(0);
     const [dataArray, setDataArray] = useState<Array<magnitudeSensorsData>>([]);
 
-    useEffect(() => {}, [avgMagnitude]);
+    const avgMagnitudeRef = useRef(avgMagnitude);
+    const shakingLevelRef = useRef(shakingLevel);
+    const dataArrayRef = useRef(dataArray);
+
+    useEffect(() => {
+        avgMagnitudeRef.current = avgMagnitude;
+        shakingLevelRef.current = shakingLevel;
+        dataArrayRef.current = dataArray;
+    }, [avgMagnitude, shakingLevel, dataArray]);
 
     useEffect(() => {
         const interval = setInterval(() => {
-            if (avgMagnitude === 0) return;
+            if (avgMagnitudeRef.current === 0) {
+                return;
+            }
 
             const newData: magnitudeData = {
-                value: avgMagnitude,
-                level: shakingLevel,
-                data: dataArray,
+                value: avgMagnitudeRef.current,
+                level: shakingLevelRef.current,
+                data: dataArrayRef.current,
             };
 
             returnNewData(newData);
-        }, 1000);
+        }, entryInterval);
 
         return () => {
             clearInterval(interval);
@@ -62,6 +74,9 @@ export default function MagnitudeSensors({ returnNewData }: Props) {
 
     useEffect(() => {
         // Subscribe to sensor updates
+        Accelerometer.setUpdateInterval(200);
+        Gyroscope.setUpdateInterval(200);
+
         const accelerometerSubscription = Accelerometer.addListener(
             (accelerometerData) => {
                 setData((prevData) => ({
@@ -117,7 +132,7 @@ export default function MagnitudeSensors({ returnNewData }: Props) {
                 { combinedMagnitude, time: currentTime },
             ];
             const validData = newData.filter(
-                ({ time }) => currentTime - time <= DURATION
+                ({ time }) => currentTime - time <= entryInterval
             );
 
             const averageMagnitude =
