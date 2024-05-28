@@ -10,7 +10,7 @@ import { formatDateTime } from "@/helpers/formatDateTime";
 
 const ENTRY_INTERVAL = 10000; // 10 seconds in ms
 
-const Recorder = () => {
+const Recorder = ({ onNewGPSData }: { onNewGPSData: any }) => {
     const [magnitudeData, setMagnitudeData] = useState<magnitudeData | null>(
         null
     );
@@ -31,8 +31,8 @@ const Recorder = () => {
     }, [magnitudeData, recordingData]);
 
     useEffect(() => {
-        console.log("---------updated data-----------");
-        console.log(recordingData);
+        //console.log("---------updated data-----------");
+        //console.log(recordingData);
     }, [recordingData]);
 
     useEffect(() => {
@@ -86,6 +86,7 @@ const Recorder = () => {
         };
 
         setRecordingData([...recordingDataRef.current, newData]);
+        onNewGPSData(newGPS);
     };
 
     const handleMagnitudeData = (data: magnitudeData) => {

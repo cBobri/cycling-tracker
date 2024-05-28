@@ -1,16 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { View, StyleSheet, Button, Text, ScrollView } from "react-native";
+import { SafeAreaView, StyleSheet, ScrollView, Text, Button, View } from "react-native";
 import * as FileSystem from "expo-file-system";
 import Recorder from "@/components/Recorder";
-import { SafeAreaView } from 'react-native-safe-area-context';
+import CustomMapView from "@/components/CustomMapView";
+import { GPSData } from "@/types";
+
 
 const Record = () => {
     const [isRecording, setIsRecording] = useState<boolean>(false);
     const [recordings, setRecordings] = useState<string[]>([]);
+    const [gpsData, setGPSData] = useState<GPSData[]>([]);
 
     useEffect(() => {
         if (isRecording) {
             console.log("Started recording");
+            setGPSData([]); // Resetam gps pot da se zacne na novo risat
         } else {
             console.log("Stopped recording");
             loadRecordings();
@@ -36,23 +40,32 @@ const Record = () => {
         setIsRecording((prevState: boolean) => !prevState);
     };
 
+    const handleNewGPSData = (newGPS: GPSData) => {
+        setGPSData((prevGPSData) => [...prevGPSData, newGPS]);
+    };
+
     return (
         <SafeAreaView style={styles.container}>
-            <Button
-                title={isRecording ? "Stop Recording" : "Start Recording"}
-                onPress={toggleRecording}
-            />
-            {isRecording ? (
-                <Recorder />
-            ) : (
-                <ScrollView style={styles.scrollView}>
-                    {recordings.map((recording, index) => (
-                        <Text key={index} style={styles.text}>
-                            {recording}
-                        </Text>
-                    ))}
-                </ScrollView>
-            )}
+            <View style={styles.mapContainer}>
+                <CustomMapView gpsData={gpsData} />
+            </View>
+            <View style={styles.buttonContainer}>
+                <Button
+                    title={isRecording ? "Stop Recording" : "Start Recording"}
+                    onPress={toggleRecording}
+                />
+                {isRecording ? (
+                    <Recorder onNewGPSData={handleNewGPSData} />
+                ) : (
+                    <ScrollView style={styles.scrollView}>
+                        {recordings.map((recording, index) => (
+                            <Text key={index} style={styles.text}>
+                                {recording}
+                            </Text>
+                        ))}
+                    </ScrollView>
+                )}
+            </View>
         </SafeAreaView>
     );
 };
@@ -60,9 +73,15 @@ const Record = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        backgroundColor: "#fff",
+    },
+    mapContainer: {
+        flex: 8,
+    },
+    buttonContainer: {
+        flex: 2,
         justifyContent: "center",
         alignItems: "center",
-        backgroundColor: "#fff",
     },
     scrollView: {
         width: "100%",
