@@ -10,8 +10,10 @@ export default function Index() {
     <View>
       {user ? (
         <Redirect href="/record" />
+        // <Redirect href="/map" />
       ) : (
         <Redirect href="/auth" />
+        // <Redirect href="/record"/>
       )}
     </View>
   );

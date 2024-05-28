@@ -4,6 +4,7 @@ import { TextInput, Button } from 'react-native-paper';
 import authStyles from '../../styles/authStyle';
 import axios from 'axios';
 import { useRouter } from 'expo-router';
+import api from '../../api/service';
 
 
 const Register = () => {
@@ -23,7 +24,7 @@ const Register = () => {
           return;
         }
         try{
-          const res = await axios.post('http://192.168.31.210:5000/users/register', {
+          const res = await api.post('/users/register', {
             email,
             username,
             password,

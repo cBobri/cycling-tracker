@@ -3,8 +3,9 @@ import { View, Text } from 'react-native';
 import { TextInput, Button } from 'react-native-paper';
 import authStyles from '../../styles/authStyle';
 import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
+import api, { setToken } from '../../api/service';
+
 
 const Login = () => {
     const [username, setUsername] = useState('');
@@ -17,13 +18,13 @@ const Login = () => {
             return;
         }
         try{
-            const res = await axios.post('http://192.168.31.210:5000/users/login', {
+            const res = await api.post('/users/login', {
                 username,
                 password,
             });
             if(res.status === 200){
                 const { token } = res.data;
-                await AsyncStorage.setItem('token', token);
+                await setToken(token);
                 alert('User logged in successfully');
                 router.replace('/record');
             }
@@ -62,8 +63,6 @@ const Login = () => {
         </View>
 
     )
-    
-    
     ;
 }
 
