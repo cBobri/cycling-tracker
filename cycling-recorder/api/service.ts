@@ -1,4 +1,5 @@
 import axios from "axios";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const api = axios.create({
     baseURL: "https://cycling-tracker-bobri-fe58b44c0738.herokuapp.com",
@@ -8,8 +9,8 @@ const api = axios.create({
 });
 
 api.interceptors.request.use(
-    (config) => {
-        const token = localStorage.getItem("token");
+    async (config) => {
+        const token = await AsyncStorage.getItem("token");
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
@@ -20,5 +21,8 @@ api.interceptors.request.use(
     }
 );
 
+export const setToken = async (token: any) => {
+    await AsyncStorage.setItem('token', token);
+};
 
 export default api;

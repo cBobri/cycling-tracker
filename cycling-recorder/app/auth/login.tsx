@@ -3,9 +3,8 @@ import { View, Text } from 'react-native';
 import { TextInput, Button } from 'react-native-paper';
 import authStyles from '../../styles/authStyle';
 import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
-import api from '../../api/service';
+import api, { setToken } from '../../api/service';
 
 
 const Login = () => {
@@ -19,13 +18,13 @@ const Login = () => {
             return;
         }
         try{
-            const res = await axios.post('https://cycling-tracker-bobri-fe58b44c0738.herokuapp.com/users/login', {
+            const res = await api.post('/users/login', {
                 username,
                 password,
             });
             if(res.status === 200){
                 const { token } = res.data;
-                await AsyncStorage.setItem('token', token);
+                await setToken(token);
                 alert('User logged in successfully');
                 router.replace('/map');
             }
