@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, StyleSheet, Button, Text, ScrollView } from "react-native";
 import * as FileSystem from "expo-file-system";
 import Recorder from "@/components/Recorder";
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Record = () => {
     const [isRecording, setIsRecording] = useState<boolean>(false);
@@ -36,7 +37,7 @@ const Record = () => {
     };
 
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
             <Button
                 title={isRecording ? "Stop Recording" : "Start Recording"}
                 onPress={toggleRecording}
@@ -52,7 +53,7 @@ const Record = () => {
                     ))}
                 </ScrollView>
             )}
-        </View>
+        </SafeAreaView>
     );
 };
 
