@@ -19,7 +19,7 @@ const Login = () => {
             return;
         }
         try{
-            const res = await api.post('/users/login', {
+            const res = await axios.post('https://cycling-tracker-bobri-fe58b44c0738.herokuapp.com/users/login', {
                 username,
                 password,
             });
