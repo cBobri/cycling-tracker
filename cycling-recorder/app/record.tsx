@@ -1,65 +1,38 @@
-import { Text, View, StyleSheet, Button } from "react-native";
 import React, { useEffect, useState } from "react";
-import MagnitudeSensors from "../components/MagnitudeSensors";
-import { haversineDistance } from "@/helpers/haversineDistance";
-import { getLocation } from "@/helpers/getLocation";
-import { formatTime } from "@/helpers/formatTime";
+import { View, StyleSheet, Button, Text, ScrollView } from "react-native";
+import * as FileSystem from "expo-file-system";
+import Recorder from "@/components/Recorder";
 
 const Record = () => {
     const [isRecording, setIsRecording] = useState<boolean>(false);
-    const [magnitude, setMagnitude] = useState<any>(null);
-    const [GPS, setGPS] = useState<any>(null);
-    const [distance, setDistance] = useState<number>(0);
-    const [speed, setSpeed] = useState<number>(0);
-    const [recordingStart, setRecordingStart] = useState<number | null>(null);
+    const [recordings, setRecordings] = useState<string[]>([]);
 
     useEffect(() => {
-        if (GPS && magnitude) {
-            const data = {
-                routeID: "lol",
-                timestamp: Date.now(),
-                gps: GPS,
-                magnitude,
-            };
-
-            console.log("-----Data to send");
-            console.log(JSON.stringify(data));
+        if (isRecording) {
+            console.log("Started recording");
+        } else {
+            console.log("Stopped recording");
+            loadRecordings();
         }
-    }, [GPS]);
-
-    useEffect(() => {
-        if (isRecording) setRecordingStart(Date.now());
-
-        if (GPS == null) {
-            updateGPS();
-        }
-
-        const interval = setInterval(() => {
-            if (isRecording) updateGPS();
-        }, 10000);
-
-        return () => {
-            clearInterval(interval);
-        };
     }, [isRecording]);
+
+    const loadRecordings = async () => {
+        try {
+            const files = await FileSystem.readDirectoryAsync(
+                FileSystem.documentDirectory || ""
+            );
+            const recordingFiles = files.filter(
+                (file) =>
+                    file.startsWith("recording_") && file.endsWith(".json")
+            );
+            setRecordings(recordingFiles);
+        } catch (error) {
+            console.error("Error reading files:", error);
+        }
+    };
 
     const toggleRecording = () => {
         setIsRecording((prevState: boolean) => !prevState);
-    };
-
-    const handleMagnitudeData = (data: any) => {
-        setMagnitude(data);
-    };
-
-    const updateGPS = async () => {
-        const data = await getLocation();
-        if (GPS) {
-            const entryDistance = haversineDistance(data, GPS);
-            setDistance(distance + entryDistance);
-            setSpeed((entryDistance / 10) * 3.6);
-        }
-
-        setGPS(data);
     };
 
     return (
@@ -68,15 +41,16 @@ const Record = () => {
                 title={isRecording ? "Stop Recording" : "Start Recording"}
                 onPress={toggleRecording}
             />
-            {isRecording && (
-                <>
-                    <MagnitudeSensors handleNewResult={handleMagnitudeData} />
-                    <Text style={styles.text}>Distance: {distance} meters</Text>
-                    <Text style={styles.text}>Speed: {speed} km/h</Text>
-                    <Text style={styles.text}>
-                        {`Time: ${formatTime(Date.now() - recordingStart!)}`}
-                    </Text>
-                </>
+            {isRecording ? (
+                <Recorder />
+            ) : (
+                <ScrollView style={styles.scrollView}>
+                    {recordings.map((recording, index) => (
+                        <Text key={index} style={styles.text}>
+                            {recording}
+                        </Text>
+                    ))}
+                </ScrollView>
             )}
         </View>
     );
@@ -89,9 +63,13 @@ const styles = StyleSheet.create({
         alignItems: "center",
         backgroundColor: "#fff",
     },
+    scrollView: {
+        width: "100%",
+        padding: 10,
+    },
     text: {
         fontSize: 18,
-        margin: 10,
+        marginVertical: 5,
     },
 });
 
