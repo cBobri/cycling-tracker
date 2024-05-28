@@ -1,24 +1,35 @@
-import { Text, View, StyleSheet, Button } from "react-native";
 import React, { useEffect, useState } from "react";
-import MagnitudeSensors from "../components/MagnitudeSensors";
-import { haversineDistance } from "@/helpers/haversineDistance";
-import { getLocation } from "@/helpers/getLocation";
-import { formatTime } from "@/helpers/formatTime";
-import { GPSData, dataEntry, isGPSData, magnitudeData } from "@/types";
+import { View, StyleSheet, Button, Text, ScrollView } from "react-native";
+import * as FileSystem from "expo-file-system";
 import Recorder from "@/components/Recorder";
-
-const ENTRY_INTERVAL = 10000; // 10 seconds in ms
 
 const Record = () => {
     const [isRecording, setIsRecording] = useState<boolean>(false);
+    const [recordings, setRecordings] = useState<string[]>([]);
 
     useEffect(() => {
         if (isRecording) {
             console.log("Started recording");
         } else {
             console.log("Stopped recording");
+            loadRecordings();
         }
     }, [isRecording]);
+
+    const loadRecordings = async () => {
+        try {
+            const files = await FileSystem.readDirectoryAsync(
+                FileSystem.documentDirectory || ""
+            );
+            const recordingFiles = files.filter(
+                (file) =>
+                    file.startsWith("recordingData_") && file.endsWith(".json")
+            );
+            setRecordings(recordingFiles);
+        } catch (error) {
+            console.error("Error reading files:", error);
+        }
+    };
 
     const toggleRecording = () => {
         setIsRecording((prevState: boolean) => !prevState);
@@ -30,7 +41,17 @@ const Record = () => {
                 title={isRecording ? "Stop Recording" : "Start Recording"}
                 onPress={toggleRecording}
             />
-            {isRecording && <Recorder />}
+            {isRecording ? (
+                <Recorder />
+            ) : (
+                <ScrollView style={styles.scrollView}>
+                    {recordings.map((recording, index) => (
+                        <Text key={index} style={styles.text}>
+                            {recording}
+                        </Text>
+                    ))}
+                </ScrollView>
+            )}
         </View>
     );
 };
@@ -42,9 +63,13 @@ const styles = StyleSheet.create({
         alignItems: "center",
         backgroundColor: "#fff",
     },
+    scrollView: {
+        width: "100%",
+        padding: 10,
+    },
     text: {
         fontSize: 18,
-        margin: 10,
+        marginVertical: 5,
     },
 });
 

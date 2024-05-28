@@ -1,10 +1,12 @@
-import { Text, View, StyleSheet, Button } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
+import { Text, View, StyleSheet } from "react-native";
+import * as FileSystem from "expo-file-system";
 import MagnitudeSensors from "./MagnitudeSensors";
 import { haversineDistance } from "@/helpers/haversineDistance";
 import { getLocation } from "@/helpers/getLocation";
 import { formatTime } from "@/helpers/formatTime";
 import { GPSData, dataEntry, isGPSData, magnitudeData } from "@/types";
+import { formatDateTime } from "@/helpers/formatDateTime";
 
 const ENTRY_INTERVAL = 10000; // 10 seconds in ms
 
@@ -34,7 +36,7 @@ const Recorder = () => {
     }, [recordingData]);
 
     useEffect(() => {
-        const recordingStart = Date.now();
+        const recordingStart = new Date();
 
         readGPS();
 
@@ -43,7 +45,7 @@ const Recorder = () => {
         }, ENTRY_INTERVAL);
 
         const timer = setInterval(() => {
-            setTime(Date.now() - recordingStart);
+            setTime(Date.now() - recordingStart.getTime());
         }, 1000);
 
         return () => {
@@ -51,11 +53,30 @@ const Recorder = () => {
             clearInterval(timer);
 
             console.log("Save to file");
+            saveRecordingData(recordingDataRef.current, recordingStart);
 
-            console.log(new Date(recordingStart));
+            console.log(recordingStart);
             console.log(recordingDataRef.current);
         };
     }, []);
+
+    const saveRecordingData = async (
+        data: dataEntry[],
+        recordingStart: Date
+    ) => {
+        const formattedDateTime = formatDateTime(recordingStart);
+        const filePath = `${FileSystem.documentDirectory}recordingData_${formattedDateTime}.json`;
+        try {
+            await FileSystem.writeAsStringAsync(
+                filePath,
+                JSON.stringify(data),
+                { encoding: FileSystem.EncodingType.UTF8 }
+            );
+            console.log("Data saved to", filePath);
+        } catch (error) {
+            console.error("Failed to save data:", error);
+        }
+    };
 
     const storeDataEntry = (newGPS: GPSData) => {
         const newData: dataEntry = {
