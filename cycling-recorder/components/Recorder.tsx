@@ -65,7 +65,7 @@ const Recorder = () => {
         recordingStart: Date
     ) => {
         const formattedDateTime = formatDateTime(recordingStart);
-        const filePath = `${FileSystem.documentDirectory}recordingData_${formattedDateTime}.json`;
+        const filePath = `${FileSystem.documentDirectory}recording_${formattedDateTime}.json`;
         try {
             await FileSystem.writeAsStringAsync(
                 filePath,

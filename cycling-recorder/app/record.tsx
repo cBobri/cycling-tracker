@@ -23,7 +23,7 @@ const Record = () => {
             );
             const recordingFiles = files.filter(
                 (file) =>
-                    file.startsWith("recordingData_") && file.endsWith(".json")
+                    file.startsWith("recording_") && file.endsWith(".json")
             );
             setRecordings(recordingFiles);
         } catch (error) {
