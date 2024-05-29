@@ -8,7 +8,6 @@ module.exports = {
                 isPublic: true,
             })
                 .sort({ createdAt: -1 })
-                .populate("entries")
                 .populate("user")
                 .populate("referencedRace");
             return res.status(200).json(routes);
@@ -25,7 +24,6 @@ module.exports = {
                 user: req.user._id,
             })
                 .sort({ createdAt: -1 })
-                .populate("entries")
                 .populate("user")
                 .populate("referencedRace");
             return res.status(200).json(routes);
@@ -43,7 +41,6 @@ module.exports = {
                 _id: routeId,
                 isProcessed: true,
             })
-                .populate("entries")
                 .populate("user")
                 .populate("referencedRace");
 

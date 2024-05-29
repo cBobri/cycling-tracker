@@ -15,6 +15,7 @@ import CustomMapView from "@/components/CustomMapView";
 import { CustomColors } from "@/constants/Colors";
 import { formatTime } from "@/helpers/formatTime";
 import { TextInput } from "react-native-paper";
+import api from "@/api/service";
 
 const Upload = () => {
     const params = useLocalSearchParams();
@@ -25,6 +26,8 @@ const Upload = () => {
     const [title, setTitle] = useState<string>("");
     const [cyclistWeight, setCyclistWeight] = useState<number | null>(70);
     const [bikeWeight, setBikeWeight] = useState<number | null>(12);
+
+    const [uploading, setUploading] = useState<boolean>(false);
 
     useEffect(() => {
         if (fileName) {
@@ -39,7 +42,6 @@ const Upload = () => {
             const parsedRoute: Route = JSON.parse(fileContent);
             setRoute(parsedRoute);
             setTitle(parsedFileName);
-            console.log(parsedRoute);
         } catch (error) {
             console.error("Error loading file:", error);
         }
@@ -68,6 +70,22 @@ const Upload = () => {
         };
 
         console.log("Upload route:", uploadableRoute);
+
+        setUploading(true);
+
+        try {
+            const res = await api.post("/routes", uploadableRoute);
+
+            if (res.status === 200 || res.status === 201) {
+                handleDelete();
+                alert("Route successfully uploaded");
+                router.navigate("/record");
+            }
+        } catch (error: any) {
+            alert(error);
+        }
+
+        setUploading(false);
     };
 
     const handleDelete = async () => {
@@ -140,6 +158,7 @@ const Upload = () => {
                 <TouchableOpacity
                     style={styles.uploadButton}
                     onPress={handleUpload}
+                    disabled={uploading}
                 >
                     <Text style={styles.uploadButtonText}>Upload</Text>
                 </TouchableOpacity>
