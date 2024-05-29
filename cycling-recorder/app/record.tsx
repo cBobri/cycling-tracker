@@ -15,11 +15,10 @@ import { GPSData } from "@/types";
 
 const Record = () => {
   const [isRecording, setIsRecording] = useState<boolean>(false);
-  const [showRecordings, setShowRecordings] = useState<boolean>(false);
   const [recordings, setRecordings] = useState<string[]>([]);
 
   const [gpsData, setGPSData] = useState<GPSData[]>([]);
-  const [speed, setSpeed] = useState<number>(0);
+
 
   useEffect(() => {
     if (isRecording) {
@@ -48,46 +47,32 @@ const Record = () => {
   const toggleRecording = () => {
     setIsRecording((prevState: boolean) => !prevState);
   };
-  const toggleShowRecordings = () => {
-    setShowRecordings((prevState: boolean) => !prevState);
-  };
 
   //to dvoje je da dobim gps pa speed iz Recorder.tsx
   const handleNewGPSData = (newGPS: GPSData) => {
     setGPSData((prevGPSData) => [...prevGPSData, newGPS]);
   };
 
-  const handleNewSpeed = (newSpeed: number) => {
-    setSpeed(newSpeed);
-  };
-
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.mapContainer}>
         <CustomMapView gpsData={gpsData} />
-        {showRecordings && (
-          <ScrollView style={styles.scrollView}>
-            {recordings.map((recording, index) => (
-              <Text key={index} style={styles.textHeader}>
-                {recording}
-              </Text>
-            ))}
-          </ScrollView>
-        )}
       </View>
       <View style={styles.bottomContainer}>
-        <View style={styles.dataContainer}>
+        {!isRecording && (<><View style={styles.dataContainer}>
           <Text style={styles.textHeader}>Duration:</Text>
           <Text style={styles.text}> 00:00</Text>
-        </View>
-        <View style={styles.dataContainer}>
-          <Text style={styles.textHeader}>Distance:</Text>
-          <Text style={styles.text}>0 m</Text>
-        </View>
-        <View style={styles.dataContainer}>
-          <Text style={styles.textHeader}>Speed</Text>
-          <Text style={styles.text}>0 km/h</Text>
-        </View>
+        </View><View style={styles.dataContainer}>
+            <Text style={styles.textHeader}>Distance:</Text>
+            <Text style={styles.text}>0.00 m</Text>
+          </View><View style={styles.dataContainer}>
+            <Text style={styles.textHeader}>Speed</Text>
+            <Text style={styles.text}>0.00 km/h</Text>
+          </View></>)}
+          {isRecording && (
+            <Recorder onNewGPSData={handleNewGPSData} />
+          )}
+        
         <View style={styles.bottomDataContainer}>
           <TouchableOpacity style={styles.button} onPress={toggleRecording}>
             <Text style={styles.text}>
@@ -95,17 +80,6 @@ const Record = () => {
             </Text>
           </TouchableOpacity>
         </View>
-        {/* <Button
-                    title={isRecording ? "Stop Recording" : "Start Recording"}
-                    onPress={toggleRecording}
-                />
-                <Button
-                    title={showRecordings ? "Hide Recordings" : "Show Recordings"}
-                    onPress={toggleShowRecordings}
-                />
-                {isRecording && (
-                    <Recorder onNewGPSData={handleNewGPSData} onNewSpeed={handleNewSpeed} />
-                )} */}
       </View>
     </SafeAreaView>
   );
@@ -131,18 +105,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   bottomDataContainer: {
-    flex: 1,
-  },
-  paddingLeftSmall: {
-    paddingLeft: 10,
-  },
-  scrollView: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "rgba(255, 255, 255, 0.9)", // Slightly transparent background
+    flex: 1
   },
   textHeader: {
     fontSize: 30,
@@ -152,6 +115,9 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 20,
     marginVertical: 5,
+  },
+  textSmall:{
+    fontSize: 10,
   },
   button: {
     width: '100%',
