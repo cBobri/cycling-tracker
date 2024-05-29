@@ -5,7 +5,14 @@ const jwt = require("jsonwebtoken");
 
 module.exports = {
     register: async (req, res, next) => {
-        const { email, username, password, passwordRepeat, weight, bikeWeight } = req.body;
+        const {
+            email,
+            username,
+            password,
+            passwordRepeat,
+            weight,
+            bikeWeight,
+        } = req.body;
 
         //console.log("Register request received:", req.body);
 
@@ -32,7 +39,7 @@ module.exports = {
             username,
             password,
             weight,
-            bikeWeight
+            bikeWeight,
         });
 
         try {
@@ -77,7 +84,7 @@ module.exports = {
             );
 
             return res.status(200).json({
-                token
+                token,
             });
         } catch (err) {
             const error = new Error("Failed to login");
@@ -94,7 +101,7 @@ module.exports = {
         next();
     },
     checkUser: async (req, res, next) => {
-        const token = req.header('Authorization');
+        const token = req.header("Authorization").replace("Bearer ", "");
 
         if (!token) {
             const error = new Error("Authentication token required");
@@ -127,6 +134,5 @@ module.exports = {
             return next(error);
         }
         return res.status(200).json(req.user);
-    }
-
+    },
 };
