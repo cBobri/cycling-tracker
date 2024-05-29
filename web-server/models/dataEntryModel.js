@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const entrySchema = new mongoose.Schema({
-    coordinates: {
+    gps: {
         latitude: Number,
         longitude: Number,
         altitude: Number,

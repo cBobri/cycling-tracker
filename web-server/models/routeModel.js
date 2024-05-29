@@ -11,10 +11,9 @@ const statsSchema = new mongoose.Schema({
 });
 
 const routeSchema = new mongoose.Schema({
-    entries: [{ type: mongoose.Schema.Types.ObjectId, ref: "dataEntry" }],
+    data: [{ type: mongoose.Schema.Types.ObjectId, ref: "dataEntry" }],
     isProcessed: Boolean,
     isPublic: Boolean,
-    isDoneRecording: Boolean,
     bikeWeight: Number,
     cyclistWeight: Number,
     q1: statsSchema,
@@ -25,6 +24,8 @@ const routeSchema = new mongoose.Schema({
     proIndex: Number,
     referencedRace: { type: mongoose.Schema.Types.ObjectId, ref: "race" },
     user: { type: mongoose.Schema.Types.ObjectId, ref: "user" },
+    recordingStart: Date,
+    recordingEnd: Date,
     createdAt: { type: Date, default: Date.now },
 });
 

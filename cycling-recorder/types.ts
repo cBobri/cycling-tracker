@@ -15,7 +15,7 @@ export type magnitudeSensorsData = {
 
 export type magnitudeData = {
     value: number;
-    level: number;
+    level: number | null;
     data: magnitudeSensorsData[];
 };
 
@@ -23,6 +23,14 @@ export type dataEntry = {
     timestamp: number;
     gps: GPSData;
     magnitude: magnitudeData | null;
+    moving: boolean;
+};
+
+export type Route = {
+    recordingStart: Date;
+    recordingEnd: Date;
+    distance: number;
+    data: dataEntry[];
 };
 
 // Type guard function to check if an object is of type GPSData

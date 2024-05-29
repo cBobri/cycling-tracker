@@ -60,7 +60,7 @@ export default function MagnitudeSensors({
 
             const newData: magnitudeData = {
                 value: avgMagnitudeRef.current,
-                level: shakingLevelRef.current,
+                level: null,
                 data: dataArrayRef.current,
             };
 
