@@ -7,10 +7,12 @@ import { getLocation } from "@/helpers/getLocation";
 import { formatTime } from "@/helpers/formatTime";
 import { GPSData, Route, dataEntry, isGPSData, magnitudeData } from "@/types";
 import { formatDateTime } from "@/helpers/formatDateTime";
+import CustomMapView from "./CustomMapView";
 
 const ENTRY_INTERVAL = 10000; // 10 seconds in ms
+const MINIMAL_DISTANCE = 5; // how many meters to be considered moving
 
-const Recorder = ({ onNewGPSData }: { onNewGPSData: any }) => {
+const Recorder = () => {
     const [magnitudeData, setMagnitudeData] = useState<magnitudeData | null>(
         null
     );
@@ -55,15 +57,11 @@ const Recorder = ({ onNewGPSData }: { onNewGPSData: any }) => {
             clearInterval(interval);
             clearInterval(timer);
 
-            console.log("Save to file");
             saveRecordingData(
                 recordingDataRef.current,
                 recordingStart,
                 new Date()
             );
-
-            console.log(recordingStart);
-            console.log(recordingDataRef.current);
         };
     }, []);
 
@@ -90,8 +88,6 @@ const Recorder = ({ onNewGPSData }: { onNewGPSData: any }) => {
                     encoding: FileSystem.EncodingType.UTF8,
                 }
             );
-            console.log("Data saved to", filePath);
-            console.log(routeData);
         } catch (error) {
             console.error("Failed to save data:", error);
         }
@@ -106,7 +102,6 @@ const Recorder = ({ onNewGPSData }: { onNewGPSData: any }) => {
         };
 
         setRecordingData([...recordingDataRef.current, newData]);
-        onNewGPSData(newGPS);
     };
 
     const handleMagnitudeData = (data: magnitudeData) => {
@@ -118,10 +113,17 @@ const Recorder = ({ onNewGPSData }: { onNewGPSData: any }) => {
         if (!isGPSData(newGPS)) return;
 
         if (prevGPSRef.current) {
-            const entryDistance = haversineDistance(newGPS, prevGPSRef.current);
+            let entryDistance = haversineDistance(newGPS, prevGPSRef.current);
+
+            const entryMoving = entryDistance > MINIMAL_DISTANCE;
+
+            if (!entryMoving) {
+                entryDistance = 0;
+            }
+
             setDistance((prevDistance) => prevDistance + entryDistance);
-            setSpeed((entryDistance / 10) * 3.6);
-            setMoving(entryDistance < 10);
+            setSpeed((entryDistance / (ENTRY_INTERVAL / 1000)) * 3.6);
+            setMoving(entryMoving);
         }
 
         storeDataEntry(newGPS);
@@ -130,81 +132,62 @@ const Recorder = ({ onNewGPSData }: { onNewGPSData: any }) => {
 
     return (
         <>
-            {
-                <View style={styles.container}>
-                    <>
-                        <Text style={styles.text}>
-                            Data entries: {recordingData.length}
-                        </Text>
-                        <MagnitudeSensors
-                            returnNewData={handleMagnitudeData}
-                            entryInterval={ENTRY_INTERVAL}
-                        />
-                        <Text style={styles.text}>
-                            Distance: {distance.toFixed(2)} meters
-                        </Text>
-                        <Text style={styles.text}>
-                            Speed: {speed.toFixed(2)} km/h
-                        </Text>
-                        <Text style={styles.text}>{`Time: ${formatTime(
-                            time
-                        )}`}</Text>
-                    </>
-                </View>
-            }
+            <View style={styles.mapContainer}>
+                <CustomMapView dataEntries={recordingData} userShown={true} />
+            </View>
 
-            <View style={styles.dataContainer}>
-                <Text style={styles.textHeader}>Duration:</Text>
-                <Text style={styles.text}>{formatTime(time)}</Text>
-            </View>
-            <View style={styles.dataContainer}>
-                <Text style={styles.textHeader}>Distance:</Text>
-                <Text style={styles.text}>{distance.toFixed(2)} m</Text>
-            </View>
-            <View style={styles.dataContainer}>
-                <Text style={styles.textHeader}>Speed</Text>
-                <Text style={styles.text}>{speed.toFixed(2)} km/h</Text>
+            <MagnitudeSensors
+                returnNewData={handleMagnitudeData}
+                entryInterval={ENTRY_INTERVAL}
+            />
+
+            <View style={styles.infoContainer}>
+                <View style={styles.dataContainer}>
+                    <Text style={styles.textHeader}>Duration</Text>
+                    <Text style={styles.text}>{formatTime(time)}</Text>
+                </View>
+                <View style={styles.dataContainer}>
+                    <Text style={styles.textHeader}>Distance</Text>
+                    <Text style={styles.text}>{distance.toFixed(2)} m</Text>
+                </View>
+                <View style={styles.dataContainer}>
+                    <Text style={styles.textHeader}>Speed</Text>
+                    <Text style={styles.text}>{speed.toFixed(2)} km/h</Text>
+                </View>
             </View>
         </>
     );
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: "#fff",
-        marginTop: 50,
-    },
     mapContainer: {
-        flex: 4,
+        flex: 10,
         position: "relative",
     },
-    bottomContainer: {
-        flex: 6,
+    infoContainer: {
+        flex: 7,
+        flexDirection: "column",
+        justifyContent: "flex-start",
+        flexWrap: "wrap",
+        gap: 3,
+        alignItems: "center",
+        padding: 10,
     },
     dataContainer: {
-        flex: 3,
+        width: "100%",
         borderBottomColor: "#ccc",
         borderBottomWidth: 1,
         padding: 10,
     },
-    bottomDataContainer: {
-        flex: 1,
-    },
     textHeader: {
-        fontSize: 30,
-        marginVertical: 5,
-        paddingBottom: 20,
+        fontSize: 16,
+        color: "#aaa",
+        fontWeight: "bold",
+        textTransform: "uppercase",
+        marginBottom: 5,
     },
     text: {
-        fontSize: 20,
-        marginVertical: 5,
-    },
-    button: {
-        width: "100%",
-        backgroundColor: "#f4511e",
-        height: "100%",
-        alignItems: "center",
+        fontSize: 23,
     },
 });
 

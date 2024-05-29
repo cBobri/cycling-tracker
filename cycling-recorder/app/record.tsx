@@ -1,130 +1,160 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
-  TouchableOpacity,
-  SafeAreaView,
-  StyleSheet,
-  ScrollView,
-  Text,
-  Button,
-  View,
+    TouchableOpacity,
+    SafeAreaView,
+    StyleSheet,
+    ScrollView,
+    Text,
+    View,
 } from "react-native";
 import * as FileSystem from "expo-file-system";
 import Recorder from "@/components/Recorder";
-import CustomMapView from "@/components/CustomMapView";
-import { GPSData } from "@/types";
+import { parseDateFromFilename } from "@/helpers/parseDateFromFilename";
+import { CustomColors } from "@/constants/Colors";
+import { Link, useFocusEffect } from "expo-router";
 
 const Record = () => {
-  const [isRecording, setIsRecording] = useState<boolean>(false);
-  const [recordings, setRecordings] = useState<string[]>([]);
+    const [isRecording, setIsRecording] = useState<boolean>(false);
+    const [recordings, setRecordings] = useState<string[]>([]);
 
-  const [gpsData, setGPSData] = useState<GPSData[]>([]);
+    useEffect(() => {
+        if (!isRecording) {
+            loadRecordings();
+        }
+    }, [isRecording]);
 
+    useFocusEffect(
+        useCallback(() => {
+            loadRecordings();
+        }, [])
+    );
 
-  useEffect(() => {
-    if (isRecording) {
-      console.log("Started recording");
-      setGPSData([]); // Resetam gps pot da se zacne na novo risat
-    } else {
-      console.log("Stopped recording");
-      loadRecordings();
-    }
-  }, [isRecording]);
+    const loadRecordings = async () => {
+        try {
+            const files = await FileSystem.readDirectoryAsync(
+                FileSystem.documentDirectory || ""
+            );
+            const recordingFiles = files.filter(
+                (file) =>
+                    file.startsWith("recording_") && file.endsWith(".json")
+            );
+            setRecordings(recordingFiles);
+        } catch (error) {
+            console.error("Error reading files:", error);
+        }
+    };
 
-  const loadRecordings = async () => {
-    try {
-      const files = await FileSystem.readDirectoryAsync(
-        FileSystem.documentDirectory || ""
-      );
-      const recordingFiles = files.filter(
-        (file) => file.startsWith("recording_") && file.endsWith(".json")
-      );
-      setRecordings(recordingFiles);
-    } catch (error) {
-      console.error("Error reading files:", error);
-    }
-  };
+    const toggleRecording = () => {
+        setIsRecording((prevState: boolean) => !prevState);
+    };
 
-  const toggleRecording = () => {
-    setIsRecording((prevState: boolean) => !prevState);
-  };
-
-  //to dvoje je da dobim gps pa speed iz Recorder.tsx
-  const handleNewGPSData = (newGPS: GPSData) => {
-    setGPSData((prevGPSData) => [...prevGPSData, newGPS]);
-  };
-
-  return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.mapContainer}>
-        <CustomMapView gpsData={gpsData} />
-      </View>
-      <View style={styles.bottomContainer}>
-        {!isRecording && (<><View style={styles.dataContainer}>
-          <Text style={styles.textHeader}>Duration:</Text>
-          <Text style={styles.text}> 00:00</Text>
-        </View><View style={styles.dataContainer}>
-            <Text style={styles.textHeader}>Distance:</Text>
-            <Text style={styles.text}>0.00 m</Text>
-          </View><View style={styles.dataContainer}>
-            <Text style={styles.textHeader}>Speed</Text>
-            <Text style={styles.text}>0.00 km/h</Text>
-          </View></>)}
-          {isRecording && (
-            <Recorder onNewGPSData={handleNewGPSData} />
-          )}
-        
-        <View style={styles.bottomDataContainer}>
-          <TouchableOpacity style={styles.button} onPress={toggleRecording}>
-            <Text style={styles.text}>
-              {isRecording ? "Stop Recording" : "Start Recording"}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </SafeAreaView>
-  );
+    return (
+        <SafeAreaView style={styles.container}>
+            <View style={styles.contentContainer}>
+                {!isRecording && (
+                    <ScrollView style={styles.recordingList}>
+                        <Text style={styles.savedRecordingsText}>
+                            Saved recordings
+                        </Text>
+                        {recordings.length > 0 ? (
+                            recordings
+                                .sort((a, b) => b.localeCompare(a))
+                                .map((recording, index) => (
+                                    <Link
+                                        href={{
+                                            pathname: "/Upload",
+                                            params: { fileName: recording },
+                                        }}
+                                        key={index}
+                                        style={styles.recordingItem}
+                                    >
+                                        <Text style={styles.recordingText}>
+                                            {parseDateFromFilename(recording)}
+                                        </Text>
+                                    </Link>
+                                ))
+                        ) : (
+                            <Text style={styles.noRecordingsText}>
+                                No recordings available.
+                            </Text>
+                        )}
+                    </ScrollView>
+                )}
+                {isRecording && <Recorder />}
+            </View>
+            <TouchableOpacity style={styles.button} onPress={toggleRecording}>
+                <Text style={styles.buttonText}>
+                    {isRecording ? "Stop Recording" : "Start Recording"}
+                </Text>
+            </TouchableOpacity>
+        </SafeAreaView>
+    );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    marginTop: 50,
-  },
-  mapContainer: {
-    flex: 4,
-    position: "relative",
-  },
-  bottomContainer: {
-    flex: 6,
-  },
-  dataContainer: {
-    flex: 3,
-    borderBottomColor: "#ccc",
-    borderBottomWidth: 1,
-    padding: 10,
-  },
-  bottomDataContainer: {
-    flex: 1
-  },
-  textHeader: {
-    fontSize: 30,
-    marginVertical: 5,
-    paddingBottom: 20,
-  },
-  text: {
-    fontSize: 20,
-    marginVertical: 5,
-  },
-  textSmall:{
-    fontSize: 10,
-  },
-  button: {
-    width: '100%',
-    backgroundColor: "#f4511e",
-    height: '100%',
-    alignItems: "center",
-  },
+    container: {
+        flex: 1,
+        flexDirection: "column",
+        justifyContent: "space-between",
+        backgroundColor: "#fff",
+        color: CustomColors.dark,
+        marginTop: 50,
+        gap: 5,
+    },
+    contentContainer: {
+        flex: 1,
+    },
+    recordingList: {
+        flex: 1,
+        padding: 10,
+    },
+    recordingItem: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        paddingVertical: 10,
+        borderBottomColor: CustomColors.secondary,
+        borderBottomWidth: 1,
+    },
+    recordingText: {
+        fontSize: 18,
+    },
+    savedRecordingsText: {
+        fontSize: 24,
+        paddingVertical: 5,
+        textAlign: "center",
+    },
+    noRecordingsText: {
+        fontSize: 18,
+        paddingVertical: 5,
+        textAlign: "center",
+        color: "#999",
+    },
+    bottomDataContainer: {
+        flex: 1,
+    },
+    text: {
+        fontSize: 20,
+        marginVertical: 5,
+    },
+    textSmall: {
+        fontSize: 10,
+    },
+    button: {
+        margin: 15,
+        borderRadius: 15,
+        backgroundColor: CustomColors.primary,
+        height: 70,
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    buttonText: {
+        fontSize: 20,
+        marginVertical: 5,
+        color: "#fff",
+        fontWeight: "bold",
+        textTransform: "uppercase",
+    },
 });
 
 export default Record;

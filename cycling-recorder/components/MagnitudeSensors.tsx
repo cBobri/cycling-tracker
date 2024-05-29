@@ -160,12 +160,12 @@ export default function MagnitudeSensors({
             <Text style={styles.text}>Gyroscope Data:</Text>
             <Text style={styles.text}>x: {gx.toFixed(2)}</Text>
             <Text style={styles.text}>y: {gy.toFixed(2)}</Text>
-            <Text style={styles.text}>z: {gz.toFixed(2)}</Text> */}
+            <Text style={styles.text}>z: {gz.toFixed(2)}</Text> 
             <Text style={styles.text}>
                 Average Magnitude ({dataArray.length} readings):{" "}
                 {avgMagnitude.toFixed(2)}
             </Text>
-            <Text style={styles.text}>Shaking Level: {shakingLevel}</Text>
+            <Text style={styles.text}>Shaking Level: {shakingLevel}</Text> */}
         </>
     );
 }

@@ -11,9 +11,35 @@ const statsSchema = new mongoose.Schema({
 });
 
 const routeSchema = new mongoose.Schema({
-    data: [{ type: mongoose.Schema.Types.ObjectId, ref: "dataEntry" }],
+    data: [
+        {
+            gps: {
+                latitude: Number,
+                longitude: Number,
+                altitude: Number,
+            },
+            magnitude: {
+                value: Number,
+                level: Number,
+                data: [
+                    {
+                        ax: Number,
+                        ay: Number,
+                        az: Number,
+                        gx: Number,
+                        gy: Number,
+                        gz: Number,
+                    },
+                ],
+            },
+            moving: Boolean,
+            timestamp: { type: Date },
+        },
+    ],
     isProcessed: Boolean,
     isPublic: Boolean,
+    title: String,
+    description: String,
     bikeWeight: Number,
     cyclistWeight: Number,
     q1: statsSchema,
