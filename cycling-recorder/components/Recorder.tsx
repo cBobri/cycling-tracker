@@ -57,15 +57,11 @@ const Recorder = () => {
             clearInterval(interval);
             clearInterval(timer);
 
-            console.log("Save to file");
             saveRecordingData(
                 recordingDataRef.current,
                 recordingStart,
                 new Date()
             );
-
-            console.log(recordingStart);
-            console.log(recordingDataRef.current);
         };
     }, []);
 
@@ -92,8 +88,6 @@ const Recorder = () => {
                     encoding: FileSystem.EncodingType.UTF8,
                 }
             );
-            console.log("Data saved to", filePath);
-            console.log(routeData);
         } catch (error) {
             console.error("Failed to save data:", error);
         }
