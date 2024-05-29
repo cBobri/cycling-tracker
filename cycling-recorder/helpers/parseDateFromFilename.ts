@@ -8,7 +8,7 @@ export const parseDateFromFilename = (filename: string) => {
         const date = new Date(
             `${year}-${month}-${day}T${hour}:${minute}:${second}`
         );
-        return date.toLocaleString(); // Format to a readable date and time string
+        return date.toLocaleString();
     }
     return filename;
 };

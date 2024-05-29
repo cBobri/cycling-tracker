@@ -33,6 +33,15 @@ export type Route = {
     data: dataEntry[];
 };
 
+export type UploadableRoute = {
+    data: dataEntry[];
+    recordingStart: Date;
+    recordingEnd: Date;
+    title: string;
+    cyclistWeight: number;
+    bikeWeight: number;
+};
+
 // Type guard function to check if an object is of type GPSData
 export const isGPSData = (data: any): data is GPSData => {
     return (

@@ -12,9 +12,10 @@ interface LocationObject {
 }
 interface CustomMapViewProps {
     dataEntries: dataEntry[];
+    userShown: boolean;
 }
 
-const CustomMapView = ({ dataEntries }: CustomMapViewProps) => {
+const CustomMapView = ({ dataEntries, userShown }: CustomMapViewProps) => {
     const [location, setLocation] = useState<LocationObject | null>(null);
     const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -51,7 +52,7 @@ const CustomMapView = ({ dataEntries }: CustomMapViewProps) => {
                 latitudeDelta: 0.0922,
                 longitudeDelta: 0.0421,
             }}
-            showsUserLocation={true}
+            showsUserLocation={userShown}
         >
             {dataEntries && dataEntries.length > 0 && (
                 <Polyline

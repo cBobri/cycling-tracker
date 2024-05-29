@@ -12,7 +12,7 @@ import CustomMapView from "./CustomMapView";
 const ENTRY_INTERVAL = 10000; // 10 seconds in ms
 const MINIMAL_DISTANCE = 5; // how many meters to be considered moving
 
-const Recorder = ({ onNewGPSData }: { onNewGPSData: any }) => {
+const Recorder = () => {
     const [magnitudeData, setMagnitudeData] = useState<magnitudeData | null>(
         null
     );
@@ -108,7 +108,6 @@ const Recorder = ({ onNewGPSData }: { onNewGPSData: any }) => {
         };
 
         setRecordingData([...recordingDataRef.current, newData]);
-        onNewGPSData(newGPS);
     };
 
     const handleMagnitudeData = (data: magnitudeData) => {
@@ -140,7 +139,7 @@ const Recorder = ({ onNewGPSData }: { onNewGPSData: any }) => {
     return (
         <>
             <View style={styles.mapContainer}>
-                <CustomMapView dataEntries={recordingData} />
+                <CustomMapView dataEntries={recordingData} userShown={true} />
             </View>
 
             <MagnitudeSensors

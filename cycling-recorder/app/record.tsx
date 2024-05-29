@@ -1,31 +1,33 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
     TouchableOpacity,
     SafeAreaView,
     StyleSheet,
     ScrollView,
     Text,
-    Button,
     View,
 } from "react-native";
 import * as FileSystem from "expo-file-system";
 import Recorder from "@/components/Recorder";
-import CustomMapView from "@/components/CustomMapView";
-import { GPSData } from "@/types";
 import { parseDateFromFilename } from "@/helpers/parseDateFromFilename";
+import { CustomColors } from "@/constants/Colors";
+import { Link, useFocusEffect } from "expo-router";
 
 const Record = () => {
     const [isRecording, setIsRecording] = useState<boolean>(false);
     const [recordings, setRecordings] = useState<string[]>([]);
-    const [gpsData, setGPSData] = useState<GPSData[]>([]);
 
     useEffect(() => {
-        if (isRecording) {
-            setGPSData([]); // Reset GPS data to start a new recording
-        } else {
+        if (!isRecording) {
             loadRecordings();
         }
     }, [isRecording]);
+
+    useFocusEffect(
+        useCallback(() => {
+            loadRecordings();
+        }, [])
+    );
 
     const loadRecordings = async () => {
         try {
@@ -42,25 +44,8 @@ const Record = () => {
         }
     };
 
-    const deleteRecording = async (filename: string) => {
-        try {
-            await FileSystem.deleteAsync(
-                `${FileSystem.documentDirectory}${filename}`
-            );
-            setRecordings((prevRecordings) =>
-                prevRecordings.filter((recording) => recording !== filename)
-            );
-        } catch (error) {
-            console.error("Error deleting file:", error);
-        }
-    };
-
     const toggleRecording = () => {
         setIsRecording((prevState: boolean) => !prevState);
-    };
-
-    const handleNewGPSData = (newGPS: GPSData) => {
-        setGPSData((prevGPSData) => [...prevGPSData, newGPS]);
     };
 
     return (
@@ -75,21 +60,18 @@ const Record = () => {
                             recordings
                                 .sort((a, b) => b.localeCompare(a))
                                 .map((recording, index) => (
-                                    <View
+                                    <Link
+                                        href={{
+                                            pathname: "/Upload",
+                                            params: { fileName: recording },
+                                        }}
                                         key={index}
                                         style={styles.recordingItem}
                                     >
                                         <Text style={styles.recordingText}>
                                             {parseDateFromFilename(recording)}
                                         </Text>
-                                        <Button
-                                            title="Delete"
-                                            onPress={() =>
-                                                deleteRecording(recording)
-                                            }
-                                            color="#f4511e"
-                                        />
-                                    </View>
+                                    </Link>
                                 ))
                         ) : (
                             <Text style={styles.noRecordingsText}>
@@ -98,7 +80,7 @@ const Record = () => {
                         )}
                     </ScrollView>
                 )}
-                {isRecording && <Recorder onNewGPSData={handleNewGPSData} />}
+                {isRecording && <Recorder />}
             </View>
             <TouchableOpacity style={styles.button} onPress={toggleRecording}>
                 <Text style={styles.buttonText}>
@@ -115,6 +97,7 @@ const styles = StyleSheet.create({
         flexDirection: "column",
         justifyContent: "space-between",
         backgroundColor: "#fff",
+        color: CustomColors.dark,
         marginTop: 50,
         gap: 5,
     },
@@ -130,7 +113,7 @@ const styles = StyleSheet.create({
         justifyContent: "space-between",
         alignItems: "center",
         paddingVertical: 10,
-        borderBottomColor: "#ccc",
+        borderBottomColor: CustomColors.secondary,
         borderBottomWidth: 1,
     },
     recordingText: {
@@ -160,7 +143,7 @@ const styles = StyleSheet.create({
     button: {
         margin: 15,
         borderRadius: 15,
-        backgroundColor: "#f4511e",
+        backgroundColor: CustomColors.primary,
         height: 70,
         alignItems: "center",
         justifyContent: "center",

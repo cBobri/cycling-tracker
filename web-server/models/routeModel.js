@@ -14,6 +14,8 @@ const routeSchema = new mongoose.Schema({
     data: [{ type: mongoose.Schema.Types.ObjectId, ref: "dataEntry" }],
     isProcessed: Boolean,
     isPublic: Boolean,
+    name: String,
+    description: String,
     bikeWeight: Number,
     cyclistWeight: Number,
     q1: statsSchema,
