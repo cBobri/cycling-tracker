@@ -10,7 +10,7 @@ import { formatDateTime } from "@/helpers/formatDateTime";
 
 const ENTRY_INTERVAL = 10000; // 10 seconds in ms
 
-const Recorder = ({ onNewGPSData }: { onNewGPSData: any }) => {
+const Recorder = ({ onNewGPSData, onNewSpeed }: { onNewGPSData: any, onNewSpeed: any }) => {
     const [magnitudeData, setMagnitudeData] = useState<magnitudeData | null>(
         null
     );
@@ -101,6 +101,9 @@ const Recorder = ({ onNewGPSData }: { onNewGPSData: any }) => {
             const entryDistance = haversineDistance(newGPS, prevGPSRef.current);
             setDistance(distance + entryDistance);
             setSpeed((entryDistance / 10) * 3.6);
+            
+            //poslem nov speed nazaj v record.tsx
+            onNewSpeed(speed);
         }
 
         storeDataEntry(newGPS);
