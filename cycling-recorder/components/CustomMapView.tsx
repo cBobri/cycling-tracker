@@ -10,6 +10,12 @@ interface LocationObject {
         longitude: number;
     };
 }
+
+type Coordinates = {
+    latitude: number;
+    longitude: number;
+};
+
 interface CustomMapViewProps {
     dataEntries: dataEntry[];
     userShown: boolean;
@@ -18,6 +24,19 @@ interface CustomMapViewProps {
 const CustomMapView = ({ dataEntries, userShown }: CustomMapViewProps) => {
     const [location, setLocation] = useState<LocationObject | null>(null);
     const [errorMsg, setErrorMsg] = useState<string | null>(null);
+    const [coordinates, setCoordinates] = useState<Coordinates[]>([]);
+
+    useEffect(() => {
+        setCoordinates(
+            dataEntries.map((data) => {
+                return {
+                    latitude: data.gps.latitude,
+                    longitude: data.gps.longitude,
+                };
+            })
+        );
+        console.log(coordinates);
+    }, [dataEntries]);
 
     useEffect(() => {
         (async () => {
@@ -56,10 +75,7 @@ const CustomMapView = ({ dataEntries, userShown }: CustomMapViewProps) => {
         >
             {dataEntries && dataEntries.length > 0 && (
                 <Polyline
-                    coordinates={dataEntries.map((data: dataEntry) => ({
-                        latitude: data.gps.latitude,
-                        longitude: data.gps.altitude,
-                    }))}
+                    coordinates={coordinates}
                     strokeColor="red"
                     strokeWidth={6}
                 />
