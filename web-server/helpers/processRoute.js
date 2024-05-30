@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const RouteModel = require('../models/routeModel');
+const calculateWattage = require('./calculateWattage');
 
 async function processRoute(routeId) {
     try {
@@ -18,17 +19,20 @@ async function processRoute(routeId) {
         const numEntries = data.length;
         const quartileSize = Math.ceil(numEntries / 4);
 
+        // SCRUM-46: Calculate time, distance, speed
         const stats = {
             distance: 0,
             elevation: 0,
-            travelTime: 0
+            travelTime: 0,
+            power: 0,
+            energy: 0
         };
 
         const quartiles = [
-            { distance: 0, elevation: 0, travelTime: 0 },
-            { distance: 0, elevation: 0, travelTime: 0 },
-            { distance: 0, elevation: 0, travelTime: 0 },
-            { distance: 0, elevation: 0, travelTime: 0 }
+            { distance: 0, elevation: 0, travelTime: 0, power: 0, energy: 0 },
+            { distance: 0, elevation: 0, travelTime: 0, power: 0, energy: 0 },
+            { distance: 0, elevation: 0, travelTime: 0, power: 0, energy: 0 },
+            { distance: 0, elevation: 0, travelTime: 0, power: 0, energy: 0 }
         ];
 
         for (let i = 1; i < data.length; i++) {
@@ -47,12 +51,23 @@ async function processRoute(routeId) {
             quartiles[quartileIndex].distance += dist;
             quartiles[quartileIndex].elevation += elev;
             quartiles[quartileIndex].travelTime += time;
+
+            const power = calculateWattage(dist, time, elev, route.cyclistWeight, route.bikeWeight);
+            stats.power += power;
+            stats.energy += power * time / 3600;
+
+            quartiles[quartileIndex].power += power;
+            quartiles[quartileIndex].energy += power * time / 3600;
         }
 
         stats.avgSpeed = stats.distance / (stats.travelTime / 3600);
+        stats.power = stats.power / numEntries;
+        stats.energy = stats.energy / numEntries;
 
         quartiles.forEach(q => {
             q.avgSpeed = q.distance / (q.travelTime / 3600);
+            q.power = q.power / quartileSize;
+            q.energy = q.energy / quartileSize;
         });
     } catch (err) {
         console.error(err);
