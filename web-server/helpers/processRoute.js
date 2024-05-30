@@ -69,6 +69,43 @@ async function processRoute(routeId) {
             q.power = q.power / quartileSize;
             q.energy = q.energy / quartileSize;
         });
+
+        const percentages = [25, 50, 75, 100];
+        const percentageStats = percentages.map(percentage => {
+            const endIndex = Math.floor((percentage / 100) * numEntries);
+            const subset = data.slice(0, endIndex);
+
+            const subsetStats = {
+                distance: 0,
+                elevation: 0,
+                travelTime: 0,
+                power: 0,
+                energy: 0
+            };
+
+            subset.forEach((curr, index) => {
+                if (index === 0) return;
+                const prev = subset[index - 1];
+
+                const dist = calculateDistance(prev.gps, curr.gps);
+                const elev = Math.max(0, curr.gps.altitude - prev.gps.altitude);
+                const time = (new Date(curr.timestamp) - new Date(prev.timestamp)) / 1000;
+
+                subsetStats.distance += dist;
+                subsetStats.elevation += elev;
+                subsetStats.travelTime += time;
+
+                const power = calculateWattage(dist, time, elev, route.cyclistWeight, route.bikeWeight);
+                subsetStats.power += power;
+                subsetStats.energy += power * time / 3600;
+            });
+
+            subsetStats.avgSpeed = subsetStats.distance / (subsetStats.travelTime / 3600);
+            subsetStats.power = subsetStats.power / subset.length;
+            subsetStats.energy = subsetStats.energy / subset.length;
+
+            return subsetStats;
+        });
     } catch (err) {
         console.error(err);
     }
