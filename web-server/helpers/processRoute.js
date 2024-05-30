@@ -106,6 +106,17 @@ async function processRoute(routeId) {
 
             return subsetStats;
         });
+
+        route.stats = stats;
+        route.q1 = quartiles[0];
+        route.q2 = quartiles[1];
+        route.q3 = quartiles[2];
+        route.q4 = quartiles[3];
+        route.percentageStats = percentageStats;
+        route.isProcessed = true;
+
+        await route.save();
+        console.log('Route processed successfully');
     } catch (err) {
         console.error(err);
     }
