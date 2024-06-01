@@ -1,15 +1,19 @@
 import { Link } from "react-router-dom";
-import { BiLogInCircle, BiSolidUserPlus } from "react-icons/bi";
+import { BiLogInCircle, BiMenuAltRight, BiSolidUserPlus } from "react-icons/bi";
 import Logo from "../../assets/images/logo.png";
 
-const Header = () => {
+type HeaderProps = {
+    onToggleSidebar: () => void;
+};
+
+const Header = ({ onToggleSidebar }: HeaderProps) => {
     return (
         <header className="flex flex-row justify-between items-center px-6 py-4 bg-primary-300 text-darkLight-200">
             <Link to={"/"} aria-label="To homepage">
                 <img src={Logo} alt="Logo" className="w-[150px]" />
             </Link>
 
-            <nav className="flex flex-row gap-12 items-center">
+            <nav className="hidden lg:flex flex-row gap-12 items-center">
                 <div className="flex flex-row gap-8 text-2xl uppercase">
                     <Link
                         to={"/"}
@@ -39,6 +43,14 @@ const Header = () => {
                     </Link>
                 </div>
             </nav>
+
+            <button
+                className="block lg:hidden text-7xl hover:text-tertiary transition-colors"
+                aria-label="Open Sidebar"
+                onClick={onToggleSidebar}
+            >
+                <BiMenuAltRight />
+            </button>
         </header>
     );
 };
