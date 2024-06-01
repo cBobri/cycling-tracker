@@ -128,11 +128,11 @@ export default function App() {
 
   if (video) {
     return (
-      <SafeAreaView style={styles.container}>
+      <View style={styles.container}>
         <View style={styles.topContainer}>
           <Video
             source={{ uri: video }}
-            style={styles.video}
+            style={[styles.video, styles.mirror]}
             useNativeControls
             isLooping
           />
@@ -145,12 +145,12 @@ export default function App() {
             <Text style={styles.text}>Confirm</Text>
           </TouchableOpacity>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.topContainer}>
         <CameraView
           mode="video"
@@ -173,14 +173,14 @@ export default function App() {
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.button}
-          onPress={isRecording ? stopRecording : startRecording}
+          onPress={isRecording ? () => {} : startRecording}
         >
           <Text style={styles.text}>
-            {isRecording ? "Stop recording" : "Start recording"}
+            {isRecording ? "Recording..." : "Start recording"}
           </Text>
         </TouchableOpacity>
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -203,6 +203,8 @@ const styles = StyleSheet.create({
   },
   camera: {
     flex: 1,
+    width: "100%",
+    height: "100%",
   },
   buttonContainer: {
     position: "absolute",
@@ -226,7 +228,9 @@ const styles = StyleSheet.create({
   },
   video: {
     flex: 1,
-    alignSelf: "stretch",
+    width: "100%",
+    height: "100%",
+    alignSelf: "center",
   },
   countdown: {
     fontSize: 48,
@@ -242,6 +246,9 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: "white",
     borderRadius: 100,
-    borderStyle: "solid",
+    borderStyle: "dotted",
+  },
+  mirror: {
+    transform: [{ scaleX: -1 }],
   },
 });
