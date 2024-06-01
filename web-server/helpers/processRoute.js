@@ -135,10 +135,7 @@ async function processRoute(routeId) {
         });
 
         route.stats = stats;
-        route.q1 = quartiles[0];
-        route.q2 = quartiles[1];
-        route.q3 = quartiles[2];
-        route.q4 = quartiles[3];
+        [route.q1, route.q2, route.q3, route.q4] = quartiles;
         route.percentageStats = percentageStats;
         route.isProcessed = true;
 

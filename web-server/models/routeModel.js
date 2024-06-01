@@ -53,6 +53,7 @@ const routeSchema = new mongoose.Schema({
     recordingStart: Date,
     recordingEnd: Date,
     createdAt: { type: Date, default: Date.now },
+    percentageStats: [statsSchema],
 });
 
 module.exports = mongoose.model("route", routeSchema);
