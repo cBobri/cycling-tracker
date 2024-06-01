@@ -14,8 +14,9 @@ export default function Layout() {
         }}
       >
         <Stack.Screen name="auth" options={{headerShown:false}}/>
-        <Stack.Screen name="map" options={{headerShown:false}}/>
-        <Stack.Screen name="record" options={{headerShown:false}}/>
+        <Stack.Screen name="main" options={{headerShown:false}}/>
+        {/* <Stack.Screen name="map" options={{headerShown:false}}/>
+        <Stack.Screen name="record" options={{headerShown:false}}/> */}
       </Stack>
     </AuthProvider>
   );

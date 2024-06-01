@@ -11,6 +11,10 @@ const userSchema = new Schema({
     password: String,
     weight: Number,
     bikeWeight: Number,
+    enabled_2fa: {
+        type: Boolean,
+        default: false
+    }
 });
 
 userSchema.pre("save", function (next) {

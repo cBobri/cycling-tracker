@@ -79,7 +79,7 @@ const Upload = () => {
             if (res.status === 200 || res.status === 201) {
                 handleDelete();
                 alert("Route successfully uploaded");
-                router.navigate("/record");
+                router.navigate("main/record");
             }
         } catch (error: any) {
             alert(error);
@@ -94,7 +94,7 @@ const Upload = () => {
                 `${FileSystem.documentDirectory}${fileName}`
             );
 
-            router.navigate("/record");
+            router.navigate("main/record");
         } catch (error) {
             console.error("Error deleting file:", error);
         }
