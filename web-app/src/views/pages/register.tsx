@@ -1,17 +1,22 @@
 import { useState } from "react";
 import { BiAt, BiSolidKey, BiUser } from "react-icons/bi";
-import { Link } from "react-router-dom";
-import { FormControl, RegisterFormData } from "../../Types";
+import { Link, useNavigate } from "react-router-dom";
+import { APIResponse, FormControl, RegisterFormData } from "../../Types";
+import { registerUser } from "../../api/auth";
 
 type FormData = RegisterFormData;
 
 const Register = () => {
+    const navigate = useNavigate();
+
     const [formData, setFormData] = useState<FormData>({
         email: "",
         username: "",
         password: "",
         passwordRepeat: "",
     });
+
+    const [error, setError] = useState("");
 
     const [formControls, setFormControls] = useState<
         Array<FormControl<FormData>>
@@ -99,19 +104,26 @@ const Register = () => {
         setFormControls(updatedFormControls);
 
         const hasError = updatedFormControls.some(
-            (formControl) => formControl.error !== null
+            (formControl) => formControl.error
         );
 
         if (hasError) return;
 
         console.log("send request", formData);
 
-        // const response = await registerUser(formData);
-        // if (response.error) {
-        //     setError(response.data);
-        // } else {
-        //     navigate("/login");
-        // }
+        const response: APIResponse = await registerUser(formData);
+
+        if (!response) {
+            setError("Could not get a response from the server");
+            return;
+        }
+
+        if (response.error) {
+            setError(response.data);
+            return;
+        }
+
+        navigate("/login");
     };
 
     const getIcon = (name: keyof FormData) => {
@@ -161,15 +173,15 @@ const Register = () => {
                             />
                         </div>
 
-                        {formControl.error ? (
-                            <p className="mt-1 text-red-500 font-semibold">
-                                {formControl.error}
-                            </p>
-                        ) : (
-                            ""
-                        )}
+                        <p className="mt-2 text-red-500 font-semibold text-center">
+                            {formControl.error}
+                        </p>
                     </div>
                 ))}
+
+                <p className="mt-1 text-red-500 font-semibold text-center">
+                    {error}
+                </p>
 
                 <button
                     type="submit"

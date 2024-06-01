@@ -1,11 +1,16 @@
 import { useState } from "react";
 import { FormControl, LoginFormData } from "../../Types";
 import { BiSolidKey, BiUser } from "react-icons/bi";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useUserContext } from "../../userContext";
+import { loginUser } from "../../api/auth";
 
 type FormData = LoginFormData;
 
 const Login = () => {
+    const { setUserData } = useUserContext();
+    const navigate = useNavigate();
+
     const [formData, setFormData] = useState<FormData>({
         email_username: "",
         password: "",
@@ -80,17 +85,22 @@ const Login = () => {
 
         console.log("log in", formData);
 
-        //const { error, data } = await loginUser(formData);
+        const response = await loginUser(formData);
 
-        // if (error) {
-        //     setError(data);
-        //     console.log(error, data);
-        //     return;
-        // }
+        if (!response) {
+            setError("Could not get a response from the server");
+            return;
+        }
 
-        // setUserData(data.username);
-        // localStorage.setItem("token", data.token);
-        // navigate("/");
+        if (response.error) {
+            setError(response.data);
+            return;
+        }
+
+        console.log(response.data);
+        setUserData(response.data.user);
+        localStorage.setItem("token", response.data.token);
+        navigate("/");
     };
 
     const getIcon = (name: keyof FormData) => {
@@ -136,19 +146,15 @@ const Login = () => {
                             />
                         </div>
 
-                        {formControl.error ? (
-                            <p className="mt-1 text-red-500 font-semibold">
-                                {formControl.error}
-                            </p>
-                        ) : (
-                            ""
-                        )}
+                        <p className="mt-2 text-red-500 font-semibold text-center">
+                            {formControl.error}
+                        </p>
                     </div>
                 ))}
 
-                {error !== "" && (
-                    <p className="mt-1 text-red-500 font-semibold">{error}</p>
-                )}
+                <p className="mt-1 text-red-500 font-semibold text-center">
+                    {error}
+                </p>
 
                 <button
                     type="submit"

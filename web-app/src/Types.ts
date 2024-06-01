@@ -17,3 +17,15 @@ export type LoginFormData = {
     email_username: string;
     password: string;
 };
+
+export type APIResponse = {
+    error: boolean;
+    data: any;
+};
+
+export type UserDetails = {
+    email: string;
+    username: string;
+    weight: number | null;
+    bikeWeight: number | null;
+};

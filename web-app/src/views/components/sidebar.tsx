@@ -44,11 +44,12 @@ const Sidebar = ({ isOpened, onToggleSidebar }: SidebarProps) => {
                         <BiX />
                     </button>
                 </div>
+
                 <nav className="flex flex-col gap-4 p-6 text-2xl">
                     <Link
                         to={"/"}
                         aria-label="To homepage"
-                        className="flex items-center gap-2 pb-3 border-b-2 border-darkLight-200 border-opacity-0 hover:border-opacity-100 transition-colors duration-500 ease-out"
+                        className="flex gap-2 pb-3 border-b-2 border-darkLight-200 border-opacity-0 hover:border-opacity-100 transition-colors duration-500 ease-out"
                         onClick={onToggleSidebar}
                     >
                         <BiHome className="text-3xl" />
@@ -57,7 +58,7 @@ const Sidebar = ({ isOpened, onToggleSidebar }: SidebarProps) => {
                     <Link
                         to={"/register"}
                         aria-label="To account registration"
-                        className="flex items-center gap-2 pb-3 border-b-2 border-darkLight-200 border-opacity-0 hover:border-opacity-100 transition-colors duration-500 ease-out"
+                        className="flex gap-2 pb-3 border-b-2 border-darkLight-200 border-opacity-0 hover:border-opacity-100 transition-colors duration-500 ease-out"
                         onClick={onToggleSidebar}
                     >
                         <BiUserPlus className="text-3xl" />
@@ -66,7 +67,7 @@ const Sidebar = ({ isOpened, onToggleSidebar }: SidebarProps) => {
                     <Link
                         to={"/login"}
                         aria-label="To login"
-                        className="flex items-center gap-2 pb-3 border-b-2 border-darkLight-200 border-opacity-0 hover:border-opacity-100 transition-colors duration-500 ease-out"
+                        className="flex gap-2 pb-3 border-b-2 border-darkLight-200 border-opacity-0 hover:border-opacity-100 transition-colors duration-500 ease-out"
                         onClick={onToggleSidebar}
                     >
                         <BiLogInCircle className="text-3xl" />

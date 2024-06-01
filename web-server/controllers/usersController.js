@@ -5,14 +5,7 @@ const jwt = require("jsonwebtoken");
 
 module.exports = {
     register: async (req, res, next) => {
-        const {
-            email,
-            username,
-            password,
-            passwordRepeat,
-            weight,
-            bikeWeight,
-        } = req.body;
+        const { email, username, password, passwordRepeat } = req.body;
 
         //console.log("Register request received:", req.body);
 
@@ -38,8 +31,8 @@ module.exports = {
             email,
             username,
             password,
-            weight,
-            bikeWeight,
+            weight: null,
+            bikeWeight: null,
         });
 
         try {
@@ -54,10 +47,12 @@ module.exports = {
     },
 
     login: async (req, res, next) => {
-        const { username, password } = req.body;
+        const { email_username, password } = req.body;
 
         try {
-            const user = await UserModel.findOne({ username });
+            const user = await UserModel.findOne({
+                $or: [{ email: email_username }, { username: email_username }],
+            });
 
             if (!user) {
                 const error = new Error("User not found");
@@ -73,18 +68,28 @@ module.exports = {
                 return next(error);
             }
 
-            const token = jwt.sign(
-                {
-                    userId: user._id,
-                    email: user.email,
-                    username: user.username,
-                },
-                process.env.JWT_SECRET,
-                { expiresIn: "30d" }
-            );
+            const userData = {
+                userId: user._id,
+                email: user.email,
+                username: user.username,
+                weight: user.weight || null,
+                bikeWeight: user.bikeWeight || null,
+            };
+
+            const token = jwt.sign(userData, process.env.JWT_SECRET, {
+                expiresIn: "30d",
+            });
+
+            const { email, username, weight, bikeWeight } = userData;
 
             return res.status(200).json({
                 token,
+                user: {
+                    email,
+                    username,
+                    weight,
+                    bikeWeight,
+                },
             });
         } catch (err) {
             const error = new Error("Failed to login");
@@ -119,7 +124,9 @@ module.exports = {
                 return next(error);
             }
 
+            req.userTokenData = decoded;
             req.user = user;
+
             next();
         } catch (err) {
             const error = new Error("Invalid token");
@@ -128,11 +135,19 @@ module.exports = {
         }
     },
     getUserDetails: (req, res, next) => {
-        if (!req.user) {
+        if (!req.user || !req.userTokenData) {
             const error = new Error("User not authenticated");
             error.status = 401;
             return next(error);
         }
-        return res.status(200).json(req.user);
+
+        const { email, username, weight, bikeWeight } = req.userTokenData;
+
+        return res.status(200).json({
+            email,
+            username,
+            weight,
+            bikeWeight,
+        });
     },
 };

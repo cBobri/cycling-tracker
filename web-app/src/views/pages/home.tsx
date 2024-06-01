@@ -4,28 +4,30 @@ import { Link } from "react-router-dom";
 const Home = () => {
     return (
         <>
-            <section className="bg-darkLight-900">
-                <div className="py-32 px-6 xl:px-0 max-w-screen-xl mx-auto">
-                    <h1 className="text-white text-6xl font-semibold font-robotoCondensed mb-6">
-                        Cycling Tracker
-                    </h1>
+            <section className="home-title-section">
+                <div className=" bg-darkLight-900 bg-opacity-70">
+                    <div className="py-32 px-6 xl:px-2 max-w-screen-xl mx-auto">
+                        <h1 className="text-white text-6xl font-semibold font-robotoCondensed mb-6">
+                            Cycling Tracker
+                        </h1>
 
-                    <p className="text-darkLight-300 text-xl mb-10">
-                        Record your cycling adventures and visualize your
-                        progress on our web application.
-                    </p>
+                        <p className="text-darkLight-300 text-xl mb-10">
+                            Record your cycling adventures and visualize your
+                            progress on our web application.
+                        </p>
 
-                    <Link
-                        to={"/register"}
-                        className="px-5 py-2 text-darkLight-200 text-2xl uppercase border-2 border-darkLight-200 rounded-3xl hover:bg-darkLight-200 hover:text-darkLight-900 transition-colors duration-300"
-                    >
-                        Join Us
-                    </Link>
+                        <Link
+                            to={"/register"}
+                            className="px-5 py-2 text-darkLight-200 text-2xl uppercase border-2 border-darkLight-200 rounded-3xl hover:bg-darkLight-200 hover:text-darkLight-900 transition-colors duration-300"
+                        >
+                            Join Us
+                        </Link>
+                    </div>
                 </div>
             </section>
 
             <section>
-                <div className="py-32 px-6 xl:px-0 max-w-screen-xl mx-auto">
+                <div className="py-32 px-6 xl:px-2 max-w-screen-xl mx-auto">
                     <h2 className="text-5xl font-semibold font-robotoCondensed mb-12">
                         Features
                     </h2>
@@ -36,7 +38,7 @@ const Home = () => {
                             <span>Mobile App</span>
                         </h3>
 
-                        <ul className="ml-10 list-disc text-lg">
+                        <ul className="ml-20 list-disc text-lg">
                             <li>Records your routes</li>
                             <li>
                                 Finished routes are stored locally and can be
@@ -52,7 +54,7 @@ const Home = () => {
                             <span>Statistics</span>
                         </h3>
 
-                        <ul className="ml-10 list-disc text-lg">
+                        <ul className="ml-20 list-disc text-lg">
                             <li>
                                 Visualize your routes on our web application
                             </li>
@@ -73,7 +75,7 @@ const Home = () => {
                             <span>Two-Factor Authentication</span>
                         </h3>
 
-                        <ul className="ml-10 list-disc text-lg">
+                        <ul className="ml-20 list-disc text-lg">
                             <li>
                                 Record a short video of your face on our mobile
                                 app

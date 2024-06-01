@@ -1,12 +1,59 @@
 import { Link } from "react-router-dom";
 import { BiLogInCircle, BiMenuAltRight, BiUserPlus } from "react-icons/bi";
 import Logo from "../../assets/images/logo.png";
+import { useUserContext } from "../../userContext";
 
 type HeaderProps = {
     onToggleSidebar: () => void;
 };
 
 const Header = ({ onToggleSidebar }: HeaderProps) => {
+    const context = useUserContext();
+
+    const handleLogout = () => {
+        localStorage.removeItem("token");
+        context.setUserData(null);
+    };
+
+    const userNav = () => {
+        if (!context.user) {
+            return (
+                <>
+                    <Link
+                        to={"/register"}
+                        aria-label="To account registration"
+                        className="flex justify-center gap-2 px-5 py-2 border-2 border-darkLight-200 rounded-3xl hover:bg-darkLight-200 hover:text-darkLight-900 transition-colors duration-300"
+                    >
+                        <BiUserPlus className="text-3xl" />
+                        <span>Sign up</span>
+                    </Link>
+
+                    <Link
+                        to={"/login"}
+                        aria-label="To login"
+                        className="flex justify-center gap-2 px-5 py-2 border-2 border-darkLight-200 rounded-3xl hover:bg-darkLight-200 hover:text-darkLight-900 transition-colors duration-300"
+                    >
+                        <BiLogInCircle className="text-3xl" />
+                        <span>Sign in</span>
+                    </Link>
+                </>
+            );
+        }
+
+        return (
+            <>
+                <span>Welcome, {context.user.username}</span>
+                <button
+                    className="flex justify-center gap-2 px-5 py-2 border-2 border-darkLight-200 rounded-3xl hover:bg-darkLight-200 hover:text-darkLight-900 transition-colors duration-300"
+                    onClick={handleLogout}
+                >
+                    <BiLogInCircle className="text-3xl" />
+                    <span>Sign out</span>
+                </button>
+            </>
+        );
+    };
+
     return (
         <header className="px-6 py-4 bg-primary-300 text-darkLight-200">
             <div className="flex flex-row justify-between items-center max-w-screen-xl mx-auto">
@@ -14,7 +61,7 @@ const Header = ({ onToggleSidebar }: HeaderProps) => {
                     <img src={Logo} alt="Logo" className="w-[150px]" />
                 </Link>
 
-                <nav className="hidden lg:flex flex-row gap-12 items-center">
+                <nav className="hidden lg:flex flex-row items-center gap-12 items-center">
                     <div className="flex flex-row gap-8 text-2xl uppercase">
                         <Link
                             to={"/"}
@@ -25,24 +72,8 @@ const Header = ({ onToggleSidebar }: HeaderProps) => {
                         </Link>
                     </div>
 
-                    <div className="flex flex-row gap-6 text-2xl uppercase">
-                        <Link
-                            to={"/register"}
-                            aria-label="To account registration"
-                            className="flex items-center justify-center gap-3 px-5 py-2 border-2 border-darkLight-200 rounded-3xl hover:bg-darkLight-200 hover:text-darkLight-900 transition-colors duration-300"
-                        >
-                            <BiUserPlus className="text-3xl" />
-                            <span>Sign up</span>
-                        </Link>
-
-                        <Link
-                            to={"/login"}
-                            aria-label="To login"
-                            className="flex items-center justify-center gap-3 px-5 py-2 border-2 border-darkLight-200 rounded-3xl hover:bg-darkLight-200 hover:text-darkLight-900 transition-colors duration-300"
-                        >
-                            <BiLogInCircle className="text-3xl" />
-                            <span>Sign in</span>
-                        </Link>
+                    <div className="flex flex-row items-center gap-6 text-2xl uppercase">
+                        {userNav()}
                     </div>
                 </nav>
 
