@@ -3,6 +3,7 @@ import Layout from "./views/layout";
 import Home from "./views/pages/home";
 import Register from "./views/pages/register";
 import Login from "./views/pages/login";
+import { UserProvider } from "./userContext";
 
 const router = createBrowserRouter([
     {
@@ -16,7 +17,11 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
-    return <RouterProvider router={router} />;
+    return (
+        <UserProvider>
+            <RouterProvider router={router} />
+        </UserProvider>
+    );
 }
 
 export default App;
