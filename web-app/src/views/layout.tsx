@@ -13,14 +13,12 @@ export default function Layout() {
 
     return (
         <>
-            <div className="bg-white min-h-screen max-w-[100vw] overflow-hidden font-roboto">
-                <div className="max-w-screen-xl mx-auto shadow-md">
-                    <Header onToggleSidebar={handleToggleSidebar} />
-                    <main className="min-h-[600px] bg-gray-50">
-                        <Outlet />
-                    </main>
-                    <Footer />
-                </div>
+            <div className="min-h-screen max-w-[100vw] overflow-hidden font-roboto">
+                <Header onToggleSidebar={handleToggleSidebar} />
+                <main className="min-h-[600px]">
+                    <Outlet />
+                </main>
+                <Footer />
             </div>
             <Sidebar isOpened={sidebar} onToggleSidebar={handleToggleSidebar} />
         </>

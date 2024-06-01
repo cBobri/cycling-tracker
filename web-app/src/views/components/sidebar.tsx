@@ -37,7 +37,7 @@ const Sidebar = ({ isOpened, onToggleSidebar }: SidebarProps) => {
                     </Link>
 
                     <button
-                        className="text-7xl hover:text-primary-100 transition-colors"
+                        className="text-7xl hover:text-tertiary transition-colors"
                         aria-label="Close Sidebar"
                         onClick={onToggleSidebar}
                     >
@@ -61,7 +61,7 @@ const Sidebar = ({ isOpened, onToggleSidebar }: SidebarProps) => {
                         onClick={onToggleSidebar}
                     >
                         <BiUserPlus className="text-3xl" />
-                        <span>Register</span>
+                        <span>Sign Up</span>
                     </Link>
                     <Link
                         to={"/login"}
@@ -70,7 +70,7 @@ const Sidebar = ({ isOpened, onToggleSidebar }: SidebarProps) => {
                         onClick={onToggleSidebar}
                     >
                         <BiLogInCircle className="text-3xl" />
-                        <span>Login</span>
+                        <span>Sign In</span>
                     </Link>
                 </nav>
             </aside>
