@@ -1,4 +1,3 @@
-const mongoose = require('mongoose');
 const RouteModel = require('../models/routeModel');
 const calculateWattage = require('./calculateWattage');
 
@@ -10,7 +9,6 @@ async function processRoute(routeId) {
         }
 
         let { data } = route;
-        data = data.filter(entry => entry.moving);
 
         if (data.length < 2) {
             throw new Error('Not enough data points to process');
@@ -19,7 +17,6 @@ async function processRoute(routeId) {
         const numEntries = data.length;
         const quartileSize = Math.ceil(numEntries / 4);
 
-        // SCRUM-46: Calculate time, distance, speed
         const stats = {
             distance: 0,
             elevation: 0,
@@ -39,9 +36,13 @@ async function processRoute(routeId) {
             const prev = data[i - 1];
             const curr = data[i];
 
+            if (!curr.moving) {
+                continue;
+            }
+
             const dist = calculateDistance(prev.gps, curr.gps);
             const elev = Math.max(0, curr.gps.altitude - prev.gps.altitude);
-            const time = (new Date(curr.timestamp) - new Date(prev.timestamp)) / 1000;
+            const time = new Date(curr.timestamp) - new Date(prev.timestamp);
 
             stats.distance += dist;
             stats.elevation += elev;
@@ -52,22 +53,34 @@ async function processRoute(routeId) {
             quartiles[quartileIndex].elevation += elev;
             quartiles[quartileIndex].travelTime += time;
 
-            const power = calculateWattage(dist, time, elev, route.cyclistWeight, route.bikeWeight);
-            stats.power += power;
-            stats.energy += power * time / 3600;
-
-            quartiles[quartileIndex].power += power;
-            quartiles[quartileIndex].energy += power * time / 3600;
+            if ((i + 1) % quartileSize === 0 || i === data.length - 1) {
+                const quartile = quartiles[quartileIndex];
+                const { power, energy } = calculateWattage(
+                    quartile.distance,
+                    quartile.elevation,
+                    quartile.travelTime / 1000,
+                    route.cyclistWeight,
+                    route.pro
+                );
+                quartile.power = power / quartileSize;
+                quartile.energy = energy / quartileSize;
+            }
         }
 
-        stats.avgSpeed = stats.distance / (stats.travelTime / 3600);
-        stats.power = stats.power / numEntries;
-        stats.energy = stats.energy / numEntries;
+        const { power, energy } = calculateWattage(
+            stats.distance,
+            stats.elevation,
+            stats.travelTime / 1000,
+            route.cyclistWeight,
+            route.pro
+        );
+        stats.power = power / numEntries;
+        stats.energy = energy / numEntries;
 
+       
+        stats.avgSpeed = (stats.distance / (stats.travelTime / 1000)) * 3.6;
         quartiles.forEach(q => {
-            q.avgSpeed = q.distance / (q.travelTime / 3600);
-            q.power = q.power / quartileSize;
-            q.energy = q.energy / quartileSize;
+            q.avgSpeed = (q.distance / (q.travelTime / 1000)) * 3.6; 
         });
 
         const percentages = [25, 50, 75, 100];
@@ -84,25 +97,29 @@ async function processRoute(routeId) {
             };
 
             subset.forEach((curr, index) => {
-                if (index === 0) return;
+                if (index === 0 || !curr.moving) return;
                 const prev = subset[index - 1];
 
                 const dist = calculateDistance(prev.gps, curr.gps);
                 const elev = Math.max(0, curr.gps.altitude - prev.gps.altitude);
-                const time = (new Date(curr.timestamp) - new Date(prev.timestamp)) / 1000;
+                const time = new Date(curr.timestamp) - new Date(prev.timestamp);
 
                 subsetStats.distance += dist;
                 subsetStats.elevation += elev;
                 subsetStats.travelTime += time;
-
-                const power = calculateWattage(dist, time, elev, route.cyclistWeight, route.bikeWeight);
-                subsetStats.power += power;
-                subsetStats.energy += power * time / 3600;
             });
 
-            subsetStats.avgSpeed = subsetStats.distance / (subsetStats.travelTime / 3600);
-            subsetStats.power = subsetStats.power / subset.length;
-            subsetStats.energy = subsetStats.energy / subset.length;
+            const { power, energy } = calculateWattage(
+                subsetStats.distance,
+                subsetStats.elevation,
+                subsetStats.travelTime / 1000,
+                route.cyclistWeight,
+                route.pro
+            );
+            subsetStats.power = power / subset.length;
+            subsetStats.energy = energy / subset.length;
+
+            subsetStats.avgSpeed = (subsetStats.distance / (subsetStats.travelTime / 1000)) * 3.6;
 
             return subsetStats;
         });
@@ -138,8 +155,8 @@ function calculateDistance(gps1, gps2) {
     const deltaLambda = (lon2 - lon1) * rad;
 
     const a = Math.sin(deltaPhi / 2) * Math.sin(deltaPhi / 2) +
-              Math.cos(phi1) * Math.cos(phi2) *
-              Math.sin(deltaLambda / 2) * Math.sin(deltaLambda / 2);
+        Math.cos(phi1) * Math.cos(phi2) *
+        Math.sin(deltaLambda / 2) * Math.sin(deltaLambda / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
     return R * c;
