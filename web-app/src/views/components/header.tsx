@@ -61,7 +61,7 @@ const Header = ({ onToggleSidebar }: HeaderProps) => {
                     <img src={Logo} alt="Logo" className="w-[150px]" />
                 </Link>
 
-                <nav className="hidden lg:flex flex-row items-center gap-12 items-center">
+                <nav className="hidden lg:flex flex-row items-center gap-12">
                     <div className="flex flex-row gap-8 text-2xl uppercase">
                         <Link
                             to={"/"}
