@@ -1,5 +1,5 @@
 const RouteModel = require("../models/routeModel");
-
+const processRoute = require("../helpers/processRoute");
 module.exports = {
     getRoutes: async (req, res, next) => {
         try {
@@ -109,6 +109,7 @@ module.exports = {
             });
 
             await newRoute.save();
+            await processRoute(newRoute._id); // To bi naj procesiralo novo pot
 
             return res.status(201).json({
                 message: "Route created successfully",
