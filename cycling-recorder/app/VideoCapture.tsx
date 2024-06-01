@@ -1,9 +1,9 @@
 import { CameraView, useCameraPermissions, Camera } from "expo-camera";
 import { useState, useEffect, useRef } from "react";
 import { Button, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { Video } from "expo-av";
+import { ResizeMode, Video } from "expo-av";
 import { SafeAreaView } from "react-native-safe-area-context";
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from "expo-file-system";
 
 enum CameraType {
   BACK = "back",
@@ -20,6 +20,7 @@ export default function App() {
   );
   const [recordingDuration, setRecordingDuration] = useState<number>(Duration);
   const cameraRef = useRef<CameraView | null>(null);
+  const [opacity, setOpacity] = useState(0);
 
   useEffect(() => {
     let intervalId: NodeJS.Timeout;
@@ -44,14 +45,18 @@ export default function App() {
   }, []);
 
   const requestPermissions = async () => {
-    const { status: cameraStatus } = await Camera.requestCameraPermissionsAsync();
-    const { status: audioStatus } = await Camera.requestMicrophonePermissionsAsync(); // Request audio permission
-  
+    const { status: cameraStatus } =
+      await Camera.requestCameraPermissionsAsync();
+    const { status: audioStatus } =
+      await Camera.requestMicrophonePermissionsAsync(); // Request audio permission
+
     if (
       cameraStatus !== "granted" ||
       audioStatus !== "granted" // Check audio permission
     ) {
-      alert("Permission to access camera, microphone and media library is required!");
+      alert(
+        "Permission to access camera, microphone and media library is required!"
+      );
     }
   };
 
@@ -82,6 +87,7 @@ export default function App() {
     if (cameraRef.current) {
       try {
         const videoRecordPromise = cameraRef.current.recordAsync(); // Start recording
+        setOpacity(1);
         setIsRecording(true);
         setRecordingStartTime(Date.now());
         setRecordingDuration(Duration);
@@ -98,6 +104,7 @@ export default function App() {
     if (cameraRef.current && isRecording) {
       // Accessing the ref with .current
       cameraRef.current.stopRecording();
+      setOpacity(0);
       setIsRecording(false);
       setRecordingStartTime(null);
       setRecordingDuration(5);
@@ -109,19 +116,19 @@ export default function App() {
 
   const confirm = async () => {
     if (video) {
-      const fileName = video.split('/').pop();
+      const fileName = video.split("/").pop();
       const newPath = `${FileSystem.documentDirectory}_cycling_${fileName}`;
-      
-      const fileInfo = await FileSystem.getInfoAsync(video); 
-      console.log('Video file info:', fileInfo);
+
+      const fileInfo = await FileSystem.getInfoAsync(video);
+      console.log("Video file info:", fileInfo);
       try {
         await FileSystem.copyAsync({
           from: video,
           to: newPath,
         });
-        console.log('Video saved to:', newPath);
+        console.log("Video saved to:", newPath);
       } catch (error) {
-        console.error('Error saving video:', error);
+        console.error("Error saving video:", error);
       }
     }
   };
@@ -132,9 +139,12 @@ export default function App() {
         <View style={styles.topContainer}>
           <Video
             source={{ uri: video }}
-            style={[styles.video, styles.mirror]}
-            useNativeControls
+            style={styles.video}
             isLooping
+            isMuted
+            shouldPlay
+            resizeMode={ResizeMode.COVER}
+            videoStyle={styles.mirror}
           />
         </View>
         <View style={styles.bottomContainer}>
@@ -151,7 +161,7 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.topContainer}>
+      <View style={[styles.topContainer, styles.zoom]}>
         <CameraView
           mode="video"
           style={styles.camera}
@@ -159,9 +169,9 @@ export default function App() {
           ref={cameraRef}
         >
           <View style={styles.buttonContainer}>
-            {isRecording && (
-              <Text style={styles.countdown}>{recordingDuration}</Text>
-            )}
+            <Text style={[styles.countdown, { opacity }]}>
+              {recordingDuration}
+            </Text>
           </View>
           <View style={styles.faceOval}></View>
         </CameraView>
@@ -192,6 +202,7 @@ const styles = StyleSheet.create({
   topContainer: {
     flex: 8,
     justifyContent: "center",
+    alignItems: "center",
   },
   bottomContainer: {
     flex: 2,
@@ -205,10 +216,11 @@ const styles = StyleSheet.create({
     flex: 1,
     width: "100%",
     height: "100%",
+    alignSelf: "center",
   },
   buttonContainer: {
     position: "absolute",
-    top: 20,
+    top: '50%',
     left: 0,
     right: 0,
     alignItems: "center",
@@ -250,5 +262,8 @@ const styles = StyleSheet.create({
   },
   mirror: {
     transform: [{ scaleX: -1 }],
+  },
+  zoom: {
+    transform: [{ scale: 1.3 }],
   },
 });
