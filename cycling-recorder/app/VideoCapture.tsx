@@ -4,6 +4,7 @@ import { Button, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { ResizeMode, Video } from "expo-av";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as FileSystem from "expo-file-system";
+import { djangoApi } from "@/api/service";
 
 enum CameraType {
   BACK = "back",
@@ -115,21 +116,38 @@ export default function App() {
   };
 
   const confirm = async () => {
-    if (video) {
-      const fileName = video.split("/").pop();
-      const newPath = `${FileSystem.documentDirectory}_cycling_${fileName}`;
+    try {
+      if (video) {
+        // Retrieve the filename from the video URI
+        const fileName = video.split("/").pop();
+        const fileType = "video/mp4";
 
-      const fileInfo = await FileSystem.getInfoAsync(video);
-      console.log("Video file info:", fileInfo);
-      try {
-        await FileSystem.copyAsync({
-          from: video,
-          to: newPath,
-        });
-        console.log("Video saved to:", newPath);
-      } catch (error) {
-        console.error("Error saving video:", error);
+        const neki = await fetch(video);
+        const blob = await neki.blob();
+
+        const file = new File([blob], "SampleVideo.mp4", { type: "video/mp4" });
+
+        const form = new FormData();
+        form.append("File", file, file.name);        
+
+        // Make the POST request to upload the video
+        const response = await djangoApi.post("/upload_video/", form);
+        console.log(response.data);
+        if (response.status === 200 || response.status === 201) {
+          console.log("Video uploaded successfully:", response.data);
+          alert("Video uploaded successfully");
+        } else {
+          console.error(
+            "Failed to upload video",
+            response.status,
+            response.data
+          );
+          alert("Failed to upload video");
+        }
       }
+    } catch (error) {
+      console.error("Error uploading video:", error);
+      alert("Error uploading video");
     }
   };
 
@@ -220,7 +238,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     position: "absolute",
-    top: '50%',
+    top: "50%",
     left: 0,
     right: 0,
     alignItems: "center",

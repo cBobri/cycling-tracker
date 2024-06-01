@@ -21,8 +21,29 @@ api.interceptors.request.use(
     }
 );
 
+const djangoApi = axios.create({
+    baseURL: "https://face-authentication-cbobri-5b555f4980ee.herokuapp.com/",
+    headers: {
+        "Content-Type": "application/json",
+    },
+});
+
+djangoApi.interceptors.request.use(
+    async (config) => {
+        const token = await AsyncStorage.getItem("token");
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
+
+
 export const setToken = async (token: any) => {
     await AsyncStorage.setItem('token', token);
 };
 
-export default api;
+export { api, djangoApi };
