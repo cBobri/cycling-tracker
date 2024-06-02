@@ -180,7 +180,7 @@ const Login = () => {
                             <p>Don't have an account?</p>
                             <Link
                                 to="/register"
-                                className="font-semibold text-primary-100 hover:underline"
+                                className="font-semibold text-primary-50 hover:underline"
                             >
                                 Register Here
                             </Link>

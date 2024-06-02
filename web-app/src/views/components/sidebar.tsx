@@ -1,5 +1,11 @@
 import clsx from "clsx";
-import { BiHome, BiLogInCircle, BiUserPlus, BiX } from "react-icons/bi";
+import {
+    BiCycling,
+    BiHome,
+    BiLogInCircle,
+    BiUserPlus,
+    BiX,
+} from "react-icons/bi";
 import Logo from "../../assets/images/logo.png";
 import { Link } from "react-router-dom";
 
@@ -54,6 +60,15 @@ const Sidebar = ({ isOpened, onToggleSidebar }: SidebarProps) => {
                     >
                         <BiHome className="text-3xl" />
                         <span>Home</span>
+                    </Link>
+                    <Link
+                        to={"/rides"}
+                        aria-label="To user routes"
+                        className="flex gap-2 pb-3 border-b-2 border-darkLight-200 border-opacity-0 hover:border-opacity-100 transition-colors duration-500 ease-out"
+                        onClick={onToggleSidebar}
+                    >
+                        <BiCycling className="text-3xl" />
+                        <span>Routes</span>
                     </Link>
                     <Link
                         to={"/register"}
