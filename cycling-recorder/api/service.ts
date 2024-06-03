@@ -41,9 +41,28 @@ djangoApi.interceptors.request.use(
     }
 );
 
+const localApi = axios.create({
+    baseURL: "http://192.168.31.229:8000/",
+    headers: {
+        "Content-Type": "application/json",
+    },
+});
+localApi.interceptors.request.use(
+    async (config) => {
+        const token = await AsyncStorage.getItem("token");
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
+
 
 export const setToken = async (token: any) => {
     await AsyncStorage.setItem('token', token);
 };
 
-export { api, djangoApi };
+export { api, djangoApi, localApi};

@@ -4,7 +4,9 @@ import { Button, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { ResizeMode, Video } from "expo-av";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as FileSystem from "expo-file-system";
-import { djangoApi } from "@/api/service";
+import { djangoApi, localApi } from "@/api/service";
+import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 enum CameraType {
   BACK = "back",
@@ -122,28 +124,31 @@ export default function App() {
         const fileName = video.split("/").pop();
         const fileType = "video/mp4";
 
-        const neki = await fetch(video);
-        const blob = await neki.blob();
+        const blob = await fetch(video).then(r => r.blob());
 
-        const file = new File([blob], "SampleVideo.mp4", { type: "video/mp4" });
+        // Convert the blob to a base64-encoded string
+        const reader = new FileReader();
+        reader.readAsDataURL(blob);
+        reader.onloadend = async function() {
+          if (reader.result !== null) {
+            let base64data;
+            if (typeof reader.result === 'string') {
+              base64data = reader.result.split(',')[1];
+            }
+            const jsonPayload = JSON.stringify({
+                fileName: fileName,
+                fileType: fileType,
+                data: base64data
+            });
 
-        const form = new FormData();
-        form.append("File", file, file.name);        
-
-        // Make the POST request to upload the video
-        const response = await djangoApi.post("/upload_video/", form);
-        console.log(response.data);
-        if (response.status === 200 || response.status === 201) {
-          console.log("Video uploaded successfully:", response.data);
-          alert("Video uploaded successfully");
-        } else {
-          console.error(
-            "Failed to upload video",
-            response.status,
-            response.data
-          );
-          alert("Failed to upload video");
-        }
+            const response = await localApi.post("/upload_video/", jsonPayload);
+            console.log(response.data);
+            
+          } else {
+            // Handle the case when reader.result is null
+            console.error('Failed to read the blob as data URL');
+          }
+        };        
       }
     } catch (error) {
       console.error("Error uploading video:", error);
