@@ -29,3 +29,9 @@ export type UserDetails = {
     weight: number | null;
     bikeWeight: number | null;
 };
+
+export type EditableUserDetails = {
+    username: string;
+    weight: number | null;
+    bikeWeight: number | null;
+};
