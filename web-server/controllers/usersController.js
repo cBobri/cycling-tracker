@@ -77,14 +77,14 @@ module.exports = {
                 username: user.username,
                 weight: user.weight || null,
                 bikeWeight: user.bikeWeight || null,
-                enabled_2fa: user.enabled_2fa || false,
+                enabled_2fa: user.enabled_2fa,
             };
 
             const token = jwt.sign(userData, process.env.JWT_SECRET, {
                 expiresIn: "30d",
             });
 
-            const { email, username, weight, bikeWeight } = userData;
+            const { email, username, weight, bikeWeight, enabled_2fa } = userData;
 
             return res.status(200).json({
                 token,
@@ -93,6 +93,7 @@ module.exports = {
                     username,
                     weight,
                     bikeWeight,
+                    enabled_2fa,
                 },
             });
         } catch (err) {
@@ -145,13 +146,14 @@ module.exports = {
             return next(error);
         }
 
-        const { email, username, weight, bikeWeight } = req.userTokenData;
+        const { email, username, weight, bikeWeight, enabled_2fa } = req.userTokenData;
 
         return res.status(200).json({
             email,
             username,
             weight,
             bikeWeight,
+            enabled_2fa,
         });
     },
     getUserProfile: async (req, res, next) => {
