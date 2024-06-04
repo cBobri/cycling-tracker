@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { fetchRideById } from "../../api/rides";
+import { editRide, fetchRideById } from "../../api/rides";
 import { BiEdit, BiLoader } from "react-icons/bi";
 import Map from "../components/map";
 import { formatTime } from "../../helpers/timeFormatters";
 import { FaClock, FaMountain, FaRoute, FaScaleBalanced } from "react-icons/fa6";
 import { IoMdSpeedometer } from "react-icons/io";
 import { ImPower } from "react-icons/im";
+import clsx from "clsx";
 
 const View = () => {
     const { id } = useParams();
@@ -14,6 +15,17 @@ const View = () => {
     const [ride, setRide] = useState<any | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [editing, setEditing] = useState(false);
+
+    const [form, setForm] = useState({
+        title: "",
+        description: "",
+        cyclistWeight: null,
+        bikeWeight: null,
+        isPublic: false,
+    });
+    const [formError, setFormError] = useState("");
+    const [info, setInfo] = useState("");
 
     const stats = ride
         ? [
@@ -76,9 +88,20 @@ const View = () => {
                 setError(response.data);
                 return;
             }
-            console.log(response.data);
 
             setRide(response.data);
+
+            const { title, description, cyclistWeight, bikeWeight, isPublic } =
+                response.data;
+
+            setForm({
+                title,
+                description,
+                cyclistWeight,
+                bikeWeight,
+                isPublic,
+            });
+
             setLoading(false);
         };
 
@@ -117,17 +140,91 @@ const View = () => {
         },
     ];
 
+    const handleChange = (
+        e:
+            | React.ChangeEvent<HTMLInputElement>
+            | React.ChangeEvent<HTMLTextAreaElement>
+    ) => {
+        if (["weight", "bikeWeight"].includes(e.target.name)) {
+            setForm({
+                ...form,
+                [e.target.name]: +e.target.value || null,
+            });
+            return;
+        }
+
+        if (e.target.name === "public") {
+            setForm({
+                ...form,
+                isPublic: !form.isPublic,
+            });
+            return;
+        }
+
+        setForm({
+            ...form,
+            [e.target.name]: e.target.value,
+        });
+    };
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+
+        if (!form.title) {
+            return;
+        }
+
+        const response = await editRide({
+            ...form,
+            id: ride._id,
+        });
+
+        if (!response) {
+            setFormError("Could not get a response from the server");
+            return;
+        }
+
+        if (response.error) {
+            setFormError(response.data);
+            return;
+        }
+
+        const updatedRide = response?.data;
+
+        setRide(updatedRide);
+
+        setInfo("Ride has been updated!");
+
+        setTimeout(() => {
+            setInfo("");
+        }, 3000);
+
+        setEditing(false);
+    };
     return (
         <>
             <section className="py-16 px-6 xl:px-2 max-w-screen-xl mx-auto">
-                <h1 className="text-primary-300 text-5xl font-semibold font-robotoCondensed mb-6 uppercase flex justify-between flex-wrap">
+                <h1 className="text-primary-300 text-5xl font-semibold font-robotoCondensed mb-3 uppercase flex justify-between flex-wrap">
                     <span>{ride.title}</span>
-                    <button>
+                    <button
+                        aria-label="Open edit modal"
+                        onClick={() => setEditing(true)}
+                    >
                         <BiEdit />
                     </button>
                 </h1>
 
-                <div className="h-[500px]">
+                <p className="mb-10 text-xl text-darkLight-600">
+                    {ride.description || "No description set..."}
+                </p>
+
+                <div
+                    className={clsx(
+                        "h-[500px] transition-opacity",
+                        editing && "opacity-50",
+                        editing || "opacity-100"
+                    )}
+                >
                     <Map coordinates={coordinates} markers={markers} />
                 </div>
             </section>
@@ -162,6 +259,118 @@ const View = () => {
                     </div>
                 </div>
             </section>
+
+            {editing && (
+                <>
+                    <div
+                        className="fixed top-0 left-0 z-40 w-screen h-screen bg-black bg-opacity-50"
+                        onClick={() => setEditing(false)}
+                    ></div>
+                    <form
+                        className="fixed top-1/2 left-1/2 -translate-x-2/4 -translate-y-2/4 bg-primary-300 z-50 rounded-2xl shadow-md p-5 text-darkLight-200"
+                        onSubmit={handleSubmit}
+                    >
+                        <h2 className="text-center font-robotoCondensed text-4xl uppercase font-semibold mb-6">
+                            Edit Ride
+                        </h2>
+
+                        <div className="mb-5">
+                            <label
+                                htmlFor="public"
+                                className="mb-1 mr-2 text-xl font-robotoCondensed font-semibold"
+                            >
+                                Public:
+                            </label>
+                            <input
+                                type="checkbox"
+                                name="public"
+                                id="public"
+                                checked={form.isPublic}
+                                onChange={handleChange}
+                            />
+                        </div>
+
+                        <div className="mb-5">
+                            <label
+                                htmlFor="title"
+                                className="block mb-1 text-xl font-robotoCondensed font-semibold"
+                            >
+                                Title:
+                            </label>
+                            <input
+                                type="text"
+                                name="title"
+                                id="title"
+                                value={form.title}
+                                onChange={handleChange}
+                                className="bg-darkLight-900 p-2 rounded-md border-2 border-primary-200 focus:border-primary-100 outline-none text-lg min-w-[400px] transition-colors"
+                            />
+                        </div>
+                        <div className="mb-5">
+                            <label
+                                htmlFor="description"
+                                className="block mb-1 text-xl font-robotoCondensed font-semibold"
+                            >
+                                Description:
+                            </label>
+                            <textarea
+                                name="description"
+                                id="description"
+                                onChange={handleChange}
+                                value={form.description}
+                                className="bg-darkLight-900 p-2 rounded-md border-2 border-primary-200 focus:border-primary-100 outline-none text-lg min-w-[400px] transition-colors"
+                            ></textarea>
+                        </div>
+                        <div className="mb-5">
+                            <label
+                                htmlFor="cyclistWeight"
+                                className="block mb-1 text-xl font-robotoCondensed font-semibold"
+                            >
+                                Your Weight (kg):
+                            </label>
+                            <input
+                                type="number"
+                                name="cyclistWeight"
+                                id="cyclistWeight"
+                                value={form.cyclistWeight || ""}
+                                onChange={handleChange}
+                                className="bg-darkLight-900 p-2 rounded-md border-2 border-primary-200 focus:border-primary-100 outline-none text-lg min-w-[400px] transition-colors"
+                            />
+                        </div>
+                        <div className="mb-5">
+                            <label
+                                htmlFor="bikeWeight"
+                                className="block mb-1 text-xl font-robotoCondensed font-semibold"
+                            >
+                                Bike Weight (kg):
+                            </label>
+                            <input
+                                type="number"
+                                name="bikeWeight"
+                                id="bikeWeight"
+                                value={form.bikeWeight || ""}
+                                onChange={handleChange}
+                                className="bg-darkLight-900 p-2 rounded-md border-2 border-primary-200 focus:border-primary-100 outline-none text-lg min-w-[400px] transition-colors"
+                            />
+                        </div>
+
+                        <p className="my-3 text-darkLight-200 font-semibold text-center">
+                            {info}
+                        </p>
+
+                        <p className="my-3 text-red-600 font-semibold text-center">
+                            {formError}
+                        </p>
+
+                        <button
+                            type="submit"
+                            className="w-full mt-6 p-4 border-2 text-xl uppercase font-semibold border-darkLight-200 hover:bg-darkLight-200 hover:text-darkLight-900 rounded-md transition-colors duration-300"
+                        >
+                            Apply Changes
+                        </button>
+                    </form>
+                </>
+            )}
         </>
     );
 };

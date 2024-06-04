@@ -42,7 +42,7 @@ const RidesList = ({ rides }: any) => {
                     </p>
 
                     {ride.stats?.distance ? (
-                        <div className="flex justify-between gap-4 text-lg font-robotoCondensed text-darkLight-600 font-semibold">
+                        <div className="flex flex-wrap justify-between gap-4 text-lg font-robotoCondensed text-darkLight-600 font-semibold">
                             <span>
                                 {(ride.stats?.distance / 1000).toFixed(2)} KM
                             </span>

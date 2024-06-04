@@ -118,7 +118,7 @@ const Profile = () => {
         if (["weight", "bikeWeight"].includes(e.target.name)) {
             setUserForm({
                 ...userForm,
-                [e.target.name]: parseInt(e.target.value) || null,
+                [e.target.name]: +e.target.value || null,
             });
             return;
         }

@@ -96,6 +96,75 @@ module.exports = {
         }
     },
 
+    updateRouteById: async (req, res, next) => {
+        try {
+            const {
+                id,
+                title,
+                description,
+                cyclistWeight,
+                bikeWeight,
+                isPublic,
+            } = req.body;
+
+            if (!title || !id) {
+                const error = new Error("Invalid parameters");
+                error.status = 400;
+                return next(error);
+            }
+
+            let route = await RouteModel.findOne({
+                _id: id,
+                user: req.user._id,
+            });
+
+            if (!route) {
+                const error = new Error("Route not found");
+                error.status = 404;
+                return next(error);
+            }
+
+            const modified =
+                bikeWeight != route.bikeWeight ||
+                cyclistWeight != route.bikeWeight;
+
+            route.description = description;
+            route.cyclistWeight = cyclistWeight;
+            route.bikeWeight = bikeWeight;
+            route.isPublic = isPublic;
+
+            await route.save();
+
+            if (modified) {
+                await processRoute(route._id);
+
+                route = await RouteModel.findOne({
+                    _id: id,
+                    user: req.user._id,
+                });
+            }
+
+            const simplifiedData = route.data.map(({ gps, timestamp }) => {
+                return {
+                    gps,
+                    timestamp,
+                };
+            });
+
+            const simplifiedRoute = {
+                ...route._doc,
+                data: simplifiedData,
+            };
+
+            return res.status(200).json(simplifiedRoute);
+        } catch (err) {
+            console.log(err);
+            const error = new Error("Failed to update route");
+            error.status = 500;
+            return next(error);
+        }
+    },
+
     createRoute: async (req, res, next) => {
         try {
             let {

@@ -60,3 +60,23 @@ export const fetchRideById = async (id: string): Promise<APIResponse> => {
         };
     }
 };
+
+export const editRide = async (formData: any): Promise<APIResponse> => {
+    try {
+        const response = await api.put("/routes", formData);
+
+        return {
+            error: false,
+            status: response.status,
+            data: response.data,
+        };
+    } catch (err: any) {
+        console.log(err);
+
+        return {
+            error: true,
+            status: err.response.status,
+            data: err.response.data.message,
+        };
+    }
+};
