@@ -78,6 +78,18 @@ module.exports = {
                 recordingEnd,
             } = req.body;
 
+            const exists = await RouteModel.exists({
+                user: req.user._id,
+                recordingEnd,
+                recordingStart,
+            });
+
+            if (exists) {
+                const error = new Error("This route has already been uploaded");
+                error.status = 400;
+                return next(error);
+            }
+
             if (!title) title = "New Route";
             if (!bikeWeight) bikeWeight = 12;
             if (!cyclistWeight) cyclistWeight = 70;

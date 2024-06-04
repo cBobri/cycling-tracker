@@ -27,18 +27,15 @@ const Recorder = () => {
     const magnitudeDataRef = useRef(magnitudeData);
     const recordingDataRef = useRef(recordingData);
     const movingRef = useRef(moving);
+    const distanceRef = useRef(distance);
 
     useEffect(() => {
         prevGPSRef.current = prevGPS;
         magnitudeDataRef.current = magnitudeData;
         recordingDataRef.current = recordingData;
         movingRef.current = moving;
+        distanceRef.current = distance;
     }, [magnitudeData, recordingData]);
-
-    useEffect(() => {
-        //console.log("---------updated data-----------");
-        //console.log(recordingData);
-    }, [recordingData]);
 
     useEffect(() => {
         const recordingStart = new Date();
@@ -76,7 +73,7 @@ const Recorder = () => {
         const routeData: Route = {
             recordingStart,
             recordingEnd,
-            distance,
+            distance: distanceRef.current,
             data: data,
         };
 
@@ -148,7 +145,9 @@ const Recorder = () => {
                 </View>
                 <View style={styles.dataContainer}>
                     <Text style={styles.textHeader}>Distance</Text>
-                    <Text style={styles.text}>{distance.toFixed(2)} m</Text>
+                    <Text style={styles.text}>
+                        {(distance / 1000).toFixed(2)} km
+                    </Text>
                 </View>
                 <View style={styles.dataContainer}>
                     <Text style={styles.textHeader}>Speed</Text>
