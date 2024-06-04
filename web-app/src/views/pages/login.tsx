@@ -84,8 +84,6 @@ const Login = () => {
 
         if (hasError) return;
 
-        console.log("log in", formData);
-
         const response = await loginUser(formData);
 
         if (!response) {
@@ -98,7 +96,6 @@ const Login = () => {
             return;
         }
 
-        console.log(response.data);
         setUserData(response.data.user);
         localStorage.setItem("token", response.data.token);
         navigate("/");

@@ -3,11 +3,14 @@ import {
     BiCycling,
     BiHome,
     BiLogInCircle,
+    BiLogOutCircle,
+    BiUser,
     BiUserPlus,
     BiX,
 } from "react-icons/bi";
 import Logo from "../../assets/images/logo.png";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useUserContext } from "../../userContext";
 
 type SidebarProps = {
     isOpened: boolean;
@@ -15,6 +18,57 @@ type SidebarProps = {
 };
 
 const Sidebar = ({ isOpened, onToggleSidebar }: SidebarProps) => {
+    const context = useUserContext();
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        localStorage.removeItem("token");
+        context.setUserData(null);
+        navigate("/login");
+    };
+
+    const userLinks = !context.user ? (
+        <>
+            <Link
+                to={"/register"}
+                aria-label="To account registration"
+                className="flex gap-2 pb-3 border-b-2 border-darkLight-200 border-opacity-0 hover:border-opacity-100 transition-colors duration-500 ease-out"
+                onClick={onToggleSidebar}
+            >
+                <BiUserPlus className="text-3xl" />
+                <span>Sign Up</span>
+            </Link>
+            <Link
+                to={"/login"}
+                aria-label="To login"
+                className="flex gap-2 pb-3 border-b-2 border-darkLight-200 border-opacity-0 hover:border-opacity-100 transition-colors duration-500 ease-out"
+                onClick={onToggleSidebar}
+            >
+                <BiLogInCircle className="text-3xl" />
+                <span>Sign In</span>
+            </Link>
+        </>
+    ) : (
+        <>
+            <Link
+                to={"/profile"}
+                aria-label="To your profile"
+                className="flex gap-2 pb-3 border-b-2 border-darkLight-200 border-opacity-0 hover:border-opacity-100 transition-colors duration-500 ease-out"
+                onClick={onToggleSidebar}
+            >
+                <BiUser className="text-3xl" />
+                <span>Profile</span>
+            </Link>
+            <button
+                className="flex gap-2 pb-3 border-b-2 border-darkLight-200 border-opacity-0 hover:border-opacity-100 transition-colors duration-500 ease-out"
+                onClick={handleLogout}
+            >
+                <BiLogOutCircle className="text-3xl" />
+                <span>Sign Out</span>
+            </button>
+        </>
+    );
+
     return (
         <>
             <div
@@ -70,24 +124,7 @@ const Sidebar = ({ isOpened, onToggleSidebar }: SidebarProps) => {
                         <BiCycling className="text-3xl" />
                         <span>Routes</span>
                     </Link>
-                    <Link
-                        to={"/register"}
-                        aria-label="To account registration"
-                        className="flex gap-2 pb-3 border-b-2 border-darkLight-200 border-opacity-0 hover:border-opacity-100 transition-colors duration-500 ease-out"
-                        onClick={onToggleSidebar}
-                    >
-                        <BiUserPlus className="text-3xl" />
-                        <span>Sign Up</span>
-                    </Link>
-                    <Link
-                        to={"/login"}
-                        aria-label="To login"
-                        className="flex gap-2 pb-3 border-b-2 border-darkLight-200 border-opacity-0 hover:border-opacity-100 transition-colors duration-500 ease-out"
-                        onClick={onToggleSidebar}
-                    >
-                        <BiLogInCircle className="text-3xl" />
-                        <span>Sign In</span>
-                    </Link>
+                    {userLinks}
                 </nav>
             </aside>
         </>
