@@ -83,7 +83,7 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "com.cyclingrecorder"
+    namespace "com.cbobri.cyclingrecorder"
     defaultConfig {
         applicationId 'com.cbobri.cyclingrecorder'
         minSdkVersion rootProject.ext.minSdkVersion
