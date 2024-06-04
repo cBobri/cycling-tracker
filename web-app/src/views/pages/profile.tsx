@@ -222,7 +222,10 @@ const Profile = () => {
 
             <section className="bg-darkLight-800">
                 <div className="py-20 px-6 xl:px-2 max-w-screen-xl mx-auto text-darkLight-200">
-                    <h2 className="text-5xl font-semibold font-robotoCondensed mb-16 uppercase text-center">
+                    <h2
+                        className="text-5xl font-semibold font-robotoCondensed mb-16 uppercase text-center"
+                        id="statistics"
+                    >
                         Statistics
                     </h2>
 

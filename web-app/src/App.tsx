@@ -6,6 +6,7 @@ import Login from "./views/pages/login";
 import { UserProvider } from "./userContext";
 import Rides from "./views/pages/rides";
 import Profile from "./views/pages/profile";
+import Dashboard from "./views/pages/dashboard";
 
 const router = createBrowserRouter([
     {
@@ -16,6 +17,7 @@ const router = createBrowserRouter([
             { path: "/login", element: <Login /> },
             { path: "/rides", element: <Rides /> },
             { path: "/profile", element: <Profile /> },
+            { path: "/dashboard", element: <Dashboard /> },
         ],
     },
 ]);

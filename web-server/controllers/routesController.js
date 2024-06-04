@@ -18,14 +18,11 @@ module.exports = {
         }
     },
 
-    getUsersRoutes: async (req, res, next) => {
+    getUserRoutes: async (req, res, next) => {
         try {
             const routes = await RouteModel.find({
                 user: req.user._id,
-            })
-                .sort({ createdAt: -1 })
-                .populate("user")
-                .populate("referencedRace");
+            }).sort({ createdAt: -1 });
             return res.status(200).json(routes);
         } catch (err) {
             const error = new Error("Failed to fetch routes");
