@@ -5,13 +5,17 @@ import { editUserProfile, fetchUserProfile } from "../../api/auth";
 import { BiUser } from "react-icons/bi";
 import {
     FaBicycle,
+    FaClock,
     FaMountain,
     FaRoute,
+    FaScaleBalanced,
     FaWeightHanging,
 } from "react-icons/fa6";
-import { IoIosSpeedometer } from "react-icons/io";
+import { IoMdSpeedometer } from "react-icons/io";
 import { ImPower } from "react-icons/im";
 import { useNavigate } from "react-router-dom";
+import { formatTimeWithUnits } from "../../helpers/timeFormatters";
+import clsx from "clsx";
 
 const Profile = () => {
     const navigate = useNavigate();
@@ -26,6 +30,55 @@ const Profile = () => {
 
     const [info, setInfo] = useState("");
     const [error, setError] = useState("");
+
+    const stats = profile
+        ? [
+              {
+                  label: "Travelled",
+                  unit: "km",
+                  value: profile?.distanceTravelled.toFixed(2) || 0,
+                  icon: <FaRoute />,
+              },
+              {
+                  label: "Elevation",
+                  unit: "m",
+                  value: profile?.elevationTravelled.toFixed(0) || 0,
+                  icon: <FaMountain />,
+              },
+              {
+                  label: "Time Cycling",
+                  unit: "",
+                  value:
+                      formatTimeWithUnits(profile?.travelTime * 1000 || 0) ||
+                      "",
+                  icon: <FaClock />,
+              },
+              {
+                  label: "Speed",
+                  unit: "km/h",
+                  value: profile?.avgSpeed?.toFixed(2) || 0,
+                  icon: <IoMdSpeedometer />,
+              },
+              {
+                  label: "Power",
+                  unit: "W",
+                  value: profile?.avgPower?.toFixed(0) || 0,
+                  icon: <ImPower />,
+              },
+              {
+                  label: "Power Ratio",
+                  unit: "W/kg",
+                  value: profile?.avgPowerRatio?.toFixed(2) || 0,
+                  icon: <FaScaleBalanced />,
+              },
+              {
+                  label: "Energy",
+                  unit: "kcal",
+                  value: profile?.totalCalories?.toFixed(1) || 0,
+                  icon: <ImPower />,
+              },
+          ]
+        : [];
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -44,6 +97,7 @@ const Profile = () => {
                 return;
             }
 
+            console.log(response.data);
             setProfile(response.data);
         };
 
@@ -64,7 +118,7 @@ const Profile = () => {
         if (["weight", "bikeWeight"].includes(e.target.name)) {
             setUserForm({
                 ...userForm,
-                [e.target.name]: parseInt(e.target.value) || null,
+                [e.target.name]: +e.target.value || null,
             });
             return;
         }
@@ -222,106 +276,42 @@ const Profile = () => {
 
             <section className="bg-darkLight-800">
                 <div className="py-20 px-6 xl:px-2 max-w-screen-xl mx-auto text-darkLight-200">
-                    <h2 className="text-5xl font-semibold font-robotoCondensed mb-16 uppercase text-center">
+                    <h2
+                        className="text-5xl font-semibold font-robotoCondensed mb-16 uppercase text-center"
+                        id="statistics"
+                    >
                         Statistics
                     </h2>
 
                     <div className="flex justify-around gap-10 flex-wrap">
-                        <article className="bg-darkLight-900 border-2 border-darkLight-600 rounded-3xl p-5 mb-5 relative w-[350px] h-[350px] flex justify-center items-center">
-                            <FaRoute className="mx-auto text-[250px] mb-4 text-darkLight-800 absolute" />
+                        {stats.map(({ label, unit, icon, value }) => (
+                            <article
+                                className="bg-darkLight-900 border-2 border-darkLight-600 rounded-3xl p-5 mb-5 relative w-[350px] h-[350px] flex justify-center items-center"
+                                key={label}
+                            >
+                                <span className="mx-auto text-[250px] mb-4 text-darkLight-800 absolute">
+                                    {icon}
+                                </span>
 
-                            <div className="w-full z-50">
-                                <p className="text-6xl uppercase font-robotoCondensed text-darkLight-100 text-center font-semibold">
-                                    {profile?.distanceTravelled.toFixed(2)} km
-                                </p>
+                                <div className="w-full z-50">
+                                    <p
+                                        className={clsx(
+                                            "uppercase font-robotoCondensed text-darkLight-100 text-center font-semibold",
+                                            unit && "text-6xl",
+                                            unit || "text-[2.5rem]"
+                                        )}
+                                    >
+                                        {value} {unit}
+                                    </p>
 
-                                <div className="h-[2px] my-7 bg-darkLight-500 rounded-full"></div>
+                                    <div className="h-[2px] my-7 bg-darkLight-500 rounded-full"></div>
 
-                                <h3 className="text-4xl text-darkLight-300 text-center">
-                                    Travelled
-                                </h3>
-                            </div>
-                        </article>
-
-                        <article className="bg-darkLight-900 border-2 border-darkLight-600 rounded-3xl p-5 mb-5 relative w-[350px] h-[350px] flex justify-center items-center">
-                            <FaMountain className="mx-auto text-[250px] mb-4 text-darkLight-800 absolute" />
-
-                            <div className="w-full z-50">
-                                <p className="text-6xl uppercase font-robotoCondensed text-darkLight-100 text-center font-semibold">
-                                    {profile?.elevationTravelled.toFixed(0)} m
-                                </p>
-
-                                <div className="h-[2px] my-7 bg-darkLight-500 rounded-full"></div>
-
-                                <h3 className="text-4xl text-darkLight-300 text-center">
-                                    Elevation
-                                </h3>
-                            </div>
-                        </article>
-
-                        <article className="bg-darkLight-900 border-2 border-darkLight-600 rounded-3xl p-5 mb-5 relative w-[350px] h-[350px] flex justify-center items-center">
-                            <IoIosSpeedometer className="mx-auto text-[250px] mb-4 text-darkLight-800 absolute" />
-
-                            <div className="w-full z-50">
-                                <p className="text-6xl uppercase font-robotoCondensed text-darkLight-100 text-center font-semibold">
-                                    {profile?.avgSpeed.toFixed(2)} km/h
-                                </p>
-
-                                <div className="h-[2px] my-7 bg-darkLight-500 rounded-full"></div>
-
-                                <h3 className="text-4xl text-darkLight-300 text-center">
-                                    Average Speed
-                                </h3>
-                            </div>
-                        </article>
-
-                        <article className="bg-darkLight-900 border-2 border-darkLight-600 rounded-3xl p-5 mb-5 relative w-[350px] h-[350px] flex justify-center items-center">
-                            <ImPower className="mx-auto text-[250px] mb-4 text-darkLight-800 absolute" />
-
-                            <div className="w-full z-50">
-                                <p className="text-6xl uppercase font-robotoCondensed text-darkLight-100 text-center font-semibold">
-                                    {profile?.avgPower.toFixed(2)} W
-                                </p>
-
-                                <div className="h-[2px] my-7 bg-darkLight-500 rounded-full"></div>
-
-                                <h3 className="text-4xl text-darkLight-300 text-center">
-                                    Average Power
-                                </h3>
-                            </div>
-                        </article>
-
-                        <article className="bg-darkLight-900 border-2 border-darkLight-600 rounded-3xl p-5 mb-5 relative w-[350px] h-[350px] flex justify-center items-center">
-                            <ImPower className="mx-auto text-[250px] mb-4 text-darkLight-800 absolute" />
-
-                            <div className="w-full z-50">
-                                <p className="text-6xl uppercase font-robotoCondensed text-darkLight-100 text-center font-semibold">
-                                    {profile?.avgPowerRatio.toFixed(2)} W/kg
-                                </p>
-
-                                <div className="h-[2px] my-7 bg-darkLight-500 rounded-full"></div>
-
-                                <h3 className="text-4xl text-darkLight-300 text-center">
-                                    Power Ratio
-                                </h3>
-                            </div>
-                        </article>
-
-                        <article className="bg-darkLight-900 border-2 border-darkLight-600 rounded-3xl p-5 mb-5 relative w-[350px] h-[350px] flex justify-center items-center">
-                            <ImPower className="mx-auto text-[250px] mb-4 text-darkLight-800 absolute" />
-
-                            <div className="w-full z-50">
-                                <p className="text-6xl uppercase font-robotoCondensed text-darkLight-100 text-center font-semibold">
-                                    {profile?.totalCalories.toFixed(2)} kcal
-                                </p>
-
-                                <div className="h-[2px] my-7 bg-darkLight-500 rounded-full"></div>
-
-                                <h3 className="text-4xl text-darkLight-300 text-center">
-                                    Energy Spent
-                                </h3>
-                            </div>
-                        </article>
+                                    <h3 className="text-4xl text-darkLight-300 text-center">
+                                        {label}
+                                    </h3>
+                                </div>
+                            </article>
+                        ))}
                     </div>
                 </div>
             </section>

@@ -1,16 +1,16 @@
 import { useEffect, useState } from "react";
-import { fetchPublicRides } from "../../api/rides";
+import { fetchUserRides } from "../../api/rides";
 import RidesList from "../components/ridesList";
 import { BiLoader } from "react-icons/bi";
 
-const Rides = () => {
+const UserRides = () => {
     const [rides, setRides] = useState<any[] | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
     useEffect(() => {
         const fetchRides = async () => {
-            const response = await fetchPublicRides();
+            const response = await fetchUserRides();
 
             if (!response) {
                 setError("No response from server");
@@ -22,6 +22,7 @@ const Rides = () => {
                 setError(response.data);
                 return;
             }
+            console.log(response.data);
 
             setRides(response.data);
             setLoading(false);
@@ -33,7 +34,7 @@ const Rides = () => {
     return (
         <section className="py-16 px-6 xl:px-2 max-w-screen-xl mx-auto">
             <h1 className="text-primary-300 text-5xl font-semibold font-robotoCondensed mb-6 text-center uppercase">
-                Public Rides
+                Your Rides
             </h1>
 
             {loading && (
@@ -49,4 +50,4 @@ const Rides = () => {
     );
 };
 
-export default Rides;
+export default UserRides;

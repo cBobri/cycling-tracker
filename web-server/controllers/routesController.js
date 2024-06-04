@@ -10,7 +10,28 @@ module.exports = {
                 .sort({ createdAt: -1 })
                 .populate("user")
                 .populate("referencedRace");
-            return res.status(200).json(routes);
+
+            const simplifiedRoutes = routes.map(
+                ({
+                    _id,
+                    createdAt,
+                    title,
+                    description,
+                    isPublic,
+                    isProcesssed,
+                    stats,
+                }) => {
+                    _id,
+                        createdAt,
+                        title,
+                        description,
+                        isPublic,
+                        isProcesssed,
+                        stats;
+                }
+            );
+
+            return res.status(200).json(simplifiedRoutes);
         } catch (err) {
             const error = new Error("Failed to fetch routes");
             error.status = 500;
@@ -18,14 +39,11 @@ module.exports = {
         }
     },
 
-    getUsersRoutes: async (req, res, next) => {
+    getUserRoutes: async (req, res, next) => {
         try {
             const routes = await RouteModel.find({
                 user: req.user._id,
-            })
-                .sort({ createdAt: -1 })
-                .populate("user")
-                .populate("referencedRace");
+            }).sort({ createdAt: -1 });
             return res.status(200).json(routes);
         } catch (err) {
             const error = new Error("Failed to fetch routes");
@@ -37,12 +55,11 @@ module.exports = {
     getRouteById: async (req, res, next) => {
         try {
             const routeId = req.params.id;
+
             const route = await RouteModel.findOne({
                 _id: routeId,
                 isProcessed: true,
-            })
-                .populate("user")
-                .populate("referencedRace");
+            }).populate("referencedRace");
 
             if (!route) {
                 const error = new Error("Route not found");
@@ -52,16 +69,97 @@ module.exports = {
 
             if (
                 !route.isPublic &&
-                (!req.user || req.user._id != route.user._id)
+                (!req.user || req.user._id.toString() != route.user.toString())
             ) {
                 const error = new Error("Access denied");
                 error.status = 403;
                 return next(error);
             }
 
-            return res.status(200).json(route);
+            const simplifiedData = route.data.map(({ gps, timestamp }) => {
+                return {
+                    gps,
+                    timestamp,
+                };
+            });
+
+            const simplifiedRoute = {
+                ...route._doc,
+                data: simplifiedData,
+            };
+
+            return res.status(200).json(simplifiedRoute);
         } catch (err) {
             const error = new Error("Failed to fetch route");
+            error.status = 500;
+            return next(error);
+        }
+    },
+
+    updateRouteById: async (req, res, next) => {
+        try {
+            const {
+                id,
+                title,
+                description,
+                cyclistWeight,
+                bikeWeight,
+                isPublic,
+            } = req.body;
+
+            if (!title || !id) {
+                const error = new Error("Invalid parameters");
+                error.status = 400;
+                return next(error);
+            }
+
+            let route = await RouteModel.findOne({
+                _id: id,
+                user: req.user._id,
+            });
+
+            if (!route) {
+                const error = new Error("Route not found");
+                error.status = 404;
+                return next(error);
+            }
+
+            const modified =
+                bikeWeight != route.bikeWeight ||
+                cyclistWeight != route.bikeWeight;
+
+            route.description = description;
+            route.cyclistWeight = cyclistWeight;
+            route.bikeWeight = bikeWeight;
+            route.isPublic = isPublic;
+
+            await route.save();
+
+            if (modified) {
+                await processRoute(route._id);
+
+                route = await RouteModel.findOne({
+                    _id: id,
+                    user: req.user._id,
+                });
+            }
+
+            const simplifiedData = route.data.map(({ gps, timestamp }) => {
+                return {
+                    gps,
+                    timestamp,
+                };
+            });
+
+            const simplifiedRoute = {
+                ...route._doc,
+                data: simplifiedData,
+            };
+
+            return res.status(200).json(simplifiedRoute);
+        } catch (err) {
+            console.log(err);
+            const error = new Error("Failed to update route");
             error.status = 500;
             return next(error);
         }
