@@ -24,13 +24,14 @@ const processProfile = async (user) => {
     }
 
     for (const route of routes) {
-        profileDetails.distanceTravelled += route.stats?.distance || 0;
-        profileDetails.travelTime += route.stats?.travelTime || 0;
+        profileDetails.distanceTravelled += route.stats?.distance / 1000 || 0;
+        profileDetails.travelTime += route.stats?.travelTime / 1000 || 0;
         profileDetails.elevationTravelled += route.stats?.elevation || 0;
         profileDetails.totalCalories += route.stats?.energy || 0;
-        profileDetails.avgSpeed += route.stats?.avgSpeed || 0;
-        profileDetails.avgPower += route.stats?.power || 0;
-        profileDetails.avgPowerRatio += route.stats?.powerRatio || 0;
+        profileDetails.avgPower +=
+            route.stats?.power * (route.stats?.travelTime / 1000) || 0;
+        profileDetails.avgPowerRatio +=
+            route.stats?.powerRatio * (route.stats?.travelTime / 1000) || 0;
         profileDetails.avgProIndex += route.proIndex || 0;
 
         profileDetails.maxProIndex =
@@ -39,10 +40,13 @@ const processProfile = async (user) => {
                 : profileDetails.maxProIndex;
     }
 
-    profileDetails.avgPower /= routes.length;
-    profileDetails.avgPowerRatio /= routes.length;
+    profileDetails.avgSpeed =
+        (profileDetails.distanceTravelled /
+            (profileDetails.travelTime / 1000)) *
+        3.6;
     profileDetails.avgProIndex /= routes.length;
-    profileDetails.avgSpeed /= routes.length;
+    profileDetails.avgPower /= profileDetails.travelTime;
+    profileDetails.avgPowerRatio /= profileDetails.travelTime;
 
     return profileDetails;
 };

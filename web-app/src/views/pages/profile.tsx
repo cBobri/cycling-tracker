@@ -232,7 +232,7 @@ const Profile = () => {
 
                             <div className="w-full z-50">
                                 <p className="text-6xl uppercase font-robotoCondensed text-darkLight-100 text-center font-semibold">
-                                    {profile?.distanceTravelled} km
+                                    {profile?.distanceTravelled.toFixed(2)} km
                                 </p>
 
                                 <div className="h-[2px] my-7 bg-darkLight-500 rounded-full"></div>
@@ -248,7 +248,7 @@ const Profile = () => {
 
                             <div className="w-full z-50">
                                 <p className="text-6xl uppercase font-robotoCondensed text-darkLight-100 text-center font-semibold">
-                                    {profile?.elevationTravelled} km
+                                    {profile?.elevationTravelled.toFixed(0)} m
                                 </p>
 
                                 <div className="h-[2px] my-7 bg-darkLight-500 rounded-full"></div>
@@ -264,7 +264,7 @@ const Profile = () => {
 
                             <div className="w-full z-50">
                                 <p className="text-6xl uppercase font-robotoCondensed text-darkLight-100 text-center font-semibold">
-                                    {profile?.avgSpeed} km/h
+                                    {profile?.avgSpeed.toFixed(2)} km/h
                                 </p>
 
                                 <div className="h-[2px] my-7 bg-darkLight-500 rounded-full"></div>
@@ -280,7 +280,7 @@ const Profile = () => {
 
                             <div className="w-full z-50">
                                 <p className="text-6xl uppercase font-robotoCondensed text-darkLight-100 text-center font-semibold">
-                                    {profile?.avgPower} W
+                                    {profile?.avgPower.toFixed(2)} W
                                 </p>
 
                                 <div className="h-[2px] my-7 bg-darkLight-500 rounded-full"></div>
@@ -296,7 +296,7 @@ const Profile = () => {
 
                             <div className="w-full z-50">
                                 <p className="text-6xl uppercase font-robotoCondensed text-darkLight-100 text-center font-semibold">
-                                    {profile?.avgPowerRatio} W/kg
+                                    {profile?.avgPowerRatio.toFixed(2)} W/kg
                                 </p>
 
                                 <div className="h-[2px] my-7 bg-darkLight-500 rounded-full"></div>
@@ -312,7 +312,7 @@ const Profile = () => {
 
                             <div className="w-full z-50">
                                 <p className="text-6xl uppercase font-robotoCondensed text-darkLight-100 text-center font-semibold">
-                                    {profile?.totalCalories} kcal
+                                    {profile?.totalCalories.toFixed(2)} kcal
                                 </p>
 
                                 <div className="h-[2px] my-7 bg-darkLight-500 rounded-full"></div>

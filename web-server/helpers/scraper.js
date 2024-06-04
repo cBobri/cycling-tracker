@@ -88,6 +88,8 @@ const scraper = {
             //console.log(details.winnerWattage);
             //console.log(details.averageWattage);
 
+            if (race.averageWattage.power > 700) return;
+
             try {
                 await race.save();
                 count++;
