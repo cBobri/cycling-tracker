@@ -20,6 +20,7 @@ export type LoginFormData = {
 
 export type APIResponse = {
     error: boolean;
+    status: number;
     data: any;
 };
 
@@ -28,4 +29,26 @@ export type UserDetails = {
     username: string;
     weight: number | null;
     bikeWeight: number | null;
+};
+
+export type EditProfileFormData = {
+    username: string;
+    weight: number | null;
+    bikeWeight: number | null;
+};
+
+export type ProfileDetails = {
+    email: string;
+    username: string;
+    weight: number | null;
+    bikeWeight: number | null;
+    distanceTravelled: number;
+    travelTime: number;
+    elevationTravelled: number;
+    avgSpeed: number;
+    avgPower: number;
+    avgPowerRatio: number;
+    totalCalories: number;
+    avgProIndex: number;
+    maxProIndex: number;
 };

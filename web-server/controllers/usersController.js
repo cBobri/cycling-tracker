@@ -1,7 +1,10 @@
 require("dotenv").config();
 const UserModel = require("../models/userModel");
+const RouteModel = require("../models/routeModel");
+
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const processProfile = require("../helpers/processProfile");
 
 module.exports = {
     register: async (req, res, next) => {
@@ -107,7 +110,7 @@ module.exports = {
         next();
     },
     checkUser: async (req, res, next) => {
-        const token = req.header("Authorization").replace("Bearer ", "");
+        const token = req.header("Authorization")?.replace("Bearer ", "");
 
         if (!token) {
             const error = new Error("Authentication token required");
@@ -150,5 +153,49 @@ module.exports = {
             weight,
             bikeWeight,
         });
+    },
+    getUserProfile: async (req, res, next) => {
+        try {
+            const profileDetails = await processProfile(req.user);
+
+            return res.status(200).json(profileDetails);
+        } catch (err) {
+            console.log(err);
+            const error = new Error("Failed to fetch user profile");
+            error.status = 500;
+            return next(error);
+        }
+    },
+    updateUserProfile: async (req, res, next) => {
+        try {
+            const { username, weight, bikeWeight } = req.body;
+            const trimmedUsername = username.trim();
+
+            const usernameTaken = await UserModel.exists({
+                username: trimmedUsername,
+                _id: { $ne: req.user._id },
+            });
+
+            if (!trimmedUsername || usernameTaken) {
+                const error = new Error("Username is invalid or taken");
+                error.status = 400;
+                return next(error);
+            }
+
+            req.user.username = trimmedUsername;
+            req.user.weight = +weight || null;
+            req.user.bikeWeight = +bikeWeight || null;
+
+            await req.user.save();
+
+            const profileDetails = await processProfile(req.user);
+
+            return res.status(200).json(profileDetails);
+        } catch (err) {
+            console.log(err);
+            const error = new Error("Failed to update user profile");
+            error.status = 500;
+            return next(error);
+        }
     },
 };
