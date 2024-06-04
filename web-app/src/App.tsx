@@ -7,6 +7,7 @@ import { UserProvider } from "./userContext";
 import Rides from "./views/pages/rides";
 import Profile from "./views/pages/profile";
 import Dashboard from "./views/pages/dashboard";
+import UserRides from "./views/pages/userRides";
 
 const router = createBrowserRouter([
     {
@@ -18,6 +19,7 @@ const router = createBrowserRouter([
             { path: "/rides", element: <Rides /> },
             { path: "/profile", element: <Profile /> },
             { path: "/dashboard", element: <Dashboard /> },
+            { path: "/profile/rides", element: <UserRides /> },
         ],
     },
 ]);

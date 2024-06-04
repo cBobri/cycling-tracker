@@ -1,16 +1,16 @@
 import { useEffect, useState } from "react";
-import { fetchPublicRides } from "../../api/rides";
+import { fetchUserRides } from "../../api/rides";
 import RidesList from "../components/ridesList";
 import { BiLoader } from "react-icons/bi";
 
-const Rides = () => {
+const UserRides = () => {
     const [rides, setRides] = useState<any[] | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
     useEffect(() => {
         const fetchRides = async () => {
-            const response = await fetchPublicRides();
+            const response = await fetchUserRides();
 
             if (!response) {
                 setError("No response from server");
@@ -49,4 +49,4 @@ const Rides = () => {
     );
 };
 
-export default Rides;
+export default UserRides;
