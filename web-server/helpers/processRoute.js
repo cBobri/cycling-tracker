@@ -1,5 +1,6 @@
 const RouteModel = require('../models/routeModel');
 const calculateWattage = require('./calculateWattage');
+const findSimilarRace = require('./findSimilarRace');
 
 async function processRoute(routeId) {
     try {
@@ -138,6 +139,14 @@ async function processRoute(routeId) {
         [route.q1, route.q2, route.q3, route.q4] = quartiles;
         route.percentageStats = percentageStats;
         route.isProcessed = true;
+
+        const similarRace = await findSimilarRace(route);
+
+        if (similarRace) {
+            route.referencedRace = similarRace._id;
+        } else {
+            route.referencedRace = null;
+        }
 
         await route.save();
         console.log('Route processed successfully');
