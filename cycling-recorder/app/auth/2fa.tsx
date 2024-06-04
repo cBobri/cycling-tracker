@@ -65,32 +65,31 @@ const VerifyPhoto = () => {
         const fileName = photo.split("/").pop();
         const fileType = "image/jpeg";
 
-        const blob = await fetch(photo).then(r => r.blob());
+        const blob = await fetch(photo).then((r) => r.blob());
 
         // Convert the blob to a base64-encoded string
         const reader = new FileReader();
         reader.readAsDataURL(blob);
-        reader.onloadend = async function() {
+        reader.onloadend = async function () {
           if (reader.result !== null) {
             let base64data;
-            if (typeof reader.result === 'string') {
-              base64data = reader.result.split(',')[1];
+            if (typeof reader.result === "string") {
+              base64data = reader.result.split(",")[1];
             }
             const jsonPayload = JSON.stringify({
-                fileName: fileName,
-                fileType: fileType,
-                data: base64data
+              fileName: fileName,
+              fileType: fileType,
+              data: base64data,
             });
 
-            const response = await localApi.post("/uploa_video/", jsonPayload);
+            const response = await djangoApi.post("/upload_photo/", jsonPayload);
             //const response = await localApi.post("/jwt/")
             console.log(response.data);
-            
           } else {
             // Handle the case when reader.result is null
-            console.error('Failed to read the blob as data URL');
+            console.error("Failed to read the blob as data URL");
           }
-        };        
+        };
       }
     } catch (error) {
       console.error("Error uploading video:", error);
@@ -102,10 +101,7 @@ const VerifyPhoto = () => {
     return (
       <View style={styles.container}>
         <View style={styles.topContainer}>
-          <Image
-            source={{ uri: photo }}
-            style={styles.video}
-          />
+          <Image source={{ uri: photo }} style={styles.video} />
         </View>
         <View style={styles.bottomContainer}>
           <TouchableOpacity style={styles.button} onPress={retry}>
@@ -135,14 +131,13 @@ const VerifyPhoto = () => {
         <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
           <Text style={styles.text}>Flip Camera</Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={takePhoto}
-        ></TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={takePhoto}>
+          <Text style={styles.text}>Take photo</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
