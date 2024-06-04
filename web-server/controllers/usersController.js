@@ -74,6 +74,7 @@ module.exports = {
                 username: user.username,
                 weight: user.weight || null,
                 bikeWeight: user.bikeWeight || null,
+                enabled_2fa
             };
 
             const token = jwt.sign(userData, process.env.JWT_SECRET, {

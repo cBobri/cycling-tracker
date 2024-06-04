@@ -22,16 +22,28 @@ const Login = () => {
                 password,
             });
             if (res.status === 200) {
-                const { token } = res.data;
-                await setToken(token);
-                alert("User logged in successfully");
-                router.replace("/main/record");
+                const { token, user } = res.data;
+                console.log("user", user)
+                //check if user has 2fa enabled
+                if(user.enabled_2fa){
+                    router.replace({
+                        pathname: "/auth/2fa",
+                        params: { token },
+                    });
+                }else {
+                    // No 2FA, proceed with setting the token
+                    await setToken(token);
+                    alert("User logged in successfully");
+                    router.replace("/main/record");
+                }
             }
         } catch (error: any) {
             if (error.response.status === 401) {
                 alert("User not found");
             } else if (error.response.status === 402) {
                 alert("Incorrect password");
+            }else {
+                alert("An error occurred");
             }
         }
     };

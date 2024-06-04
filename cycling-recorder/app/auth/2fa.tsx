@@ -1,67 +1,24 @@
-import { CameraView, useCameraPermissions, Camera } from "expo-camera";
-import { useState, useEffect, useRef } from "react";
-import { Button, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { ResizeMode, Video } from "expo-av";
-import { SafeAreaView } from "react-native-safe-area-context";
-import * as FileSystem from "expo-file-system";
+import React, { useState, useRef } from "react";
+import { StyleSheet, Text, TouchableOpacity, View, Image } from "react-native";
+import { Button } from "react-native-paper";
+import { CameraView, useCameraPermissions } from "expo-camera";
+import { useRouter, useLocalSearchParams } from "expo-router";
+import { api, setToken } from "../../api/service";
+import authStyles from "../../styles/authStyle";
 import { djangoApi, localApi } from "@/api/service";
-import axios from "axios";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 enum CameraType {
   BACK = "back",
   FRONT = "front",
 }
-const Duration = 5;
-export default function App() {
+
+const VerifyPhoto = () => {
+  const [photo, setPhoto] = useState<string | undefined>();
+  const router = useRouter();
+  const { token } = useLocalSearchParams();
   const [facing, setFacing] = useState(CameraType.FRONT);
   const [permission, requestPermission] = useCameraPermissions();
-  const [isRecording, setIsRecording] = useState(false);
-  const [video, setVideo] = useState<string | undefined>();
-  const [recordingStartTime, setRecordingStartTime] = useState<number | null>(
-    null
-  );
-  const [recordingDuration, setRecordingDuration] = useState<number>(Duration);
   const cameraRef = useRef<CameraView | null>(null);
-  const [opacity, setOpacity] = useState(0);
-
-  useEffect(() => {
-    let intervalId: NodeJS.Timeout;
-    if (isRecording) {
-      intervalId = setInterval(() => {
-        setRecordingDuration((prevCountdown) => {
-          if (prevCountdown > 1) {
-            return prevCountdown - 1;
-          } else {
-            stopRecording(); // Stop recording when countdown reaches 0
-            return 0; // Or keep it at 0 if you prefer
-          }
-        });
-      }, 1000); // Update every 1000 milliseconds (1 second)
-    }
-
-    return () => clearInterval(intervalId); // Clear interval on unmount or when recording stops
-  }, [isRecording]); // Run effect whenever isRecording changes
-
-  useEffect(() => {
-    requestPermissions();
-  }, []);
-
-  const requestPermissions = async () => {
-    const { status: cameraStatus } =
-      await Camera.requestCameraPermissionsAsync();
-    const { status: audioStatus } =
-      await Camera.requestMicrophonePermissionsAsync(); // Request audio permission
-
-    if (
-      cameraStatus !== "granted" ||
-      audioStatus !== "granted" // Check audio permission
-    ) {
-      alert(
-        "Permission to access camera, microphone and media library is required!"
-      );
-    }
-  };
 
   if (!permission) {
     // Camera permissions are still loading.
@@ -75,56 +32,40 @@ export default function App() {
         <Text style={{ textAlign: "center" }}>
           We need your permission to show the camera
         </Text>
-        <Button onPress={requestPermission} title="grant permission" />
+        <Button onPress={requestPermission}>
+          <Text>Grant Permission</Text>
+        </Button>
       </View>
     );
   }
-
   function toggleCameraFacing() {
     setFacing((current) =>
       current === CameraType.BACK ? CameraType.FRONT : CameraType.BACK
     );
   }
 
-  const startRecording = async () => {
-    if (cameraRef.current) {
-      try {
-        const videoRecordPromise = cameraRef.current.recordAsync(); // Start recording
-        setOpacity(1);
-        setIsRecording(true);
-        setRecordingStartTime(Date.now());
-        setRecordingDuration(Duration);
-        const data = await videoRecordPromise;
-        setVideo(data?.uri);
-        console.log("Video recording completed", data?.uri);
-      } catch (error) {
-        console.error("Error recording video:", error);
-      }
+  const takePhoto = async () => {
+    if (!cameraRef.current) {
+      return;
     }
-  };
-
-  const stopRecording = () => {
-    if (cameraRef.current && isRecording) {
-      // Accessing the ref with .current
-      cameraRef.current.stopRecording();
-      setOpacity(0);
-      setIsRecording(false);
-      setRecordingStartTime(null);
-      setRecordingDuration(5);
-    }
+    const photo = await cameraRef.current.takePictureAsync({
+      quality: 1,
+      base64: true,
+    });
+    setPhoto(photo?.uri);
+    console.log("Photo taken", photo?.uri);
   };
   const retry = () => {
-    setVideo(undefined);
+    setPhoto(undefined);
   };
-
   const confirm = async () => {
     try {
-      if (video) {
+      if (photo) {
         // Retrieve the filename from the video URI
-        const fileName = video.split("/").pop();
-        const fileType = "video/mp4";
+        const fileName = photo.split("/").pop();
+        const fileType = "image/jpeg";
 
-        const blob = await fetch(video).then(r => r.blob());
+        const blob = await fetch(photo).then(r => r.blob());
 
         // Convert the blob to a base64-encoded string
         const reader = new FileReader();
@@ -141,7 +82,7 @@ export default function App() {
                 data: base64data
             });
 
-            const response = await djangoApi.post("/upload_video/", jsonPayload);
+            const response = await localApi.post("/uploa_video/", jsonPayload);
             //const response = await localApi.post("/jwt/")
             console.log(response.data);
             
@@ -157,18 +98,13 @@ export default function App() {
     }
   };
 
-  if (video) {
+  if (photo) {
     return (
       <View style={styles.container}>
         <View style={styles.topContainer}>
-          <Video
-            source={{ uri: video }}
+          <Image
+            source={{ uri: photo }}
             style={styles.video}
-            isLooping
-            isMuted
-            shouldPlay
-            resizeMode={ResizeMode.COVER}
-            videoStyle={styles.mirror}
           />
         </View>
         <View style={styles.bottomContainer}>
@@ -185,34 +121,24 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <View style={[styles.topContainer, styles.zoom]}>
+      <View style={styles.topContainer}>
         <CameraView
-          mode="video"
+          mode="picture"
           style={styles.camera}
           facing={facing}
           ref={cameraRef}
         >
-          <View style={styles.buttonContainer}>
-            <Text style={[styles.countdown, { opacity }]}>
-              {recordingDuration}
-            </Text>
-          </View>
           <View style={styles.faceOval}></View>
         </CameraView>
       </View>
-
       <View style={styles.bottomContainer}>
         <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
           <Text style={styles.text}>Flip Camera</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.button}
-          onPress={isRecording ? () => {} : startRecording}
-        >
-          <Text style={styles.text}>
-            {isRecording ? "Recording..." : "Start recording"}
-          </Text>
-        </TouchableOpacity>
+          onPress={takePhoto}
+        ></TouchableOpacity>
       </View>
     </View>
   );
@@ -291,3 +217,5 @@ const styles = StyleSheet.create({
     transform: [{ scale: 1.3 }],
   },
 });
+
+export default VerifyPhoto;
