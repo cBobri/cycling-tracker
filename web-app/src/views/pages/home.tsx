@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 const Home = () => {
     return (
         <>
-            <section className="home-title-section">
+            <section className="background-image-section">
                 <div className=" bg-darkLight-900 bg-opacity-70">
                     <div className="py-32 px-6 xl:px-2 max-w-screen-xl mx-auto">
                         <h1 className="text-white text-6xl font-semibold font-robotoCondensed mb-6">

@@ -4,6 +4,8 @@ import Home from "./views/pages/home";
 import Register from "./views/pages/register";
 import Login from "./views/pages/login";
 import { UserProvider } from "./userContext";
+import Rides from "./views/pages/rides";
+import Profile from "./views/pages/profile";
 
 const router = createBrowserRouter([
     {
@@ -12,6 +14,8 @@ const router = createBrowserRouter([
             { path: "/", element: <Home /> },
             { path: "/register", element: <Register /> },
             { path: "/login", element: <Login /> },
+            { path: "/rides", element: <Rides /> },
+            { path: "/profile", element: <Profile /> },
         ],
     },
 ]);
