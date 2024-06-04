@@ -4,7 +4,7 @@ import { TextInput, Button } from 'react-native-paper';
 import authStyles from '../../styles/authStyle';
 import axios from 'axios';
 import { useRouter } from 'expo-router';
-import api from '../../api/service';
+import {api} from '../../api/service';
 
 
 const Register = () => {

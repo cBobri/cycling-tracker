@@ -4,6 +4,9 @@ import { Button, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { ResizeMode, Video } from "expo-av";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as FileSystem from "expo-file-system";
+import { djangoApi, localApi } from "@/api/service";
+import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 enum CameraType {
   BACK = "back",
@@ -115,21 +118,41 @@ export default function App() {
   };
 
   const confirm = async () => {
-    if (video) {
-      const fileName = video.split("/").pop();
-      const newPath = `${FileSystem.documentDirectory}_cycling_${fileName}`;
+    try {
+      if (video) {
+        // Retrieve the filename from the video URI
+        const fileName = video.split("/").pop();
+        const fileType = "video/mp4";
 
-      const fileInfo = await FileSystem.getInfoAsync(video);
-      console.log("Video file info:", fileInfo);
-      try {
-        await FileSystem.copyAsync({
-          from: video,
-          to: newPath,
-        });
-        console.log("Video saved to:", newPath);
-      } catch (error) {
-        console.error("Error saving video:", error);
+        const blob = await fetch(video).then(r => r.blob());
+
+        // Convert the blob to a base64-encoded string
+        const reader = new FileReader();
+        reader.readAsDataURL(blob);
+        reader.onloadend = async function() {
+          if (reader.result !== null) {
+            let base64data;
+            if (typeof reader.result === 'string') {
+              base64data = reader.result.split(',')[1];
+            }
+            const jsonPayload = JSON.stringify({
+                fileName: fileName,
+                fileType: fileType,
+                data: base64data
+            });
+
+            const response = await localApi.post("/upload_video/", jsonPayload);
+            console.log(response.data);
+            
+          } else {
+            // Handle the case when reader.result is null
+            console.error('Failed to read the blob as data URL');
+          }
+        };        
       }
+    } catch (error) {
+      console.error("Error uploading video:", error);
+      alert("Error uploading video");
     }
   };
 
@@ -220,7 +243,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     position: "absolute",
-    top: '50%',
+    top: "50%",
     left: 0,
     right: 0,
     alignItems: "center",

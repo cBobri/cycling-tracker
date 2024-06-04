@@ -15,7 +15,7 @@ import CustomMapView from "@/components/CustomMapView";
 import { CustomColors } from "@/constants/Colors";
 import { formatTime } from "@/helpers/formatTime";
 import { TextInput } from "react-native-paper";
-import api from "@/api/service";
+import { api}  from "@/api/service";
 
 const Upload = () => {
     const params = useLocalSearchParams();
