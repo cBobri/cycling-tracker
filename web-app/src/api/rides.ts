@@ -40,3 +40,23 @@ export const fetchPublicRides = async (): Promise<APIResponse> => {
         };
     }
 };
+
+export const fetchRideById = async (id: string): Promise<APIResponse> => {
+    try {
+        const response = await api.get(`/routes/${id}`);
+
+        return {
+            error: false,
+            status: response.status,
+            data: response.data,
+        };
+    } catch (err: any) {
+        console.log(err);
+
+        return {
+            error: true,
+            status: err.response.status,
+            data: err.response.data.message,
+        };
+    }
+};

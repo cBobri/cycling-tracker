@@ -8,6 +8,7 @@ import Rides from "./views/pages/rides";
 import Profile from "./views/pages/profile";
 import Dashboard from "./views/pages/dashboard";
 import UserRides from "./views/pages/userRides";
+import View from "./views/pages/view";
 
 const router = createBrowserRouter([
     {
@@ -20,6 +21,7 @@ const router = createBrowserRouter([
             { path: "/profile", element: <Profile /> },
             { path: "/dashboard", element: <Dashboard /> },
             { path: "/profile/rides", element: <UserRides /> },
+            { path: "/view/:id", element: <View /> },
         ],
     },
 ]);

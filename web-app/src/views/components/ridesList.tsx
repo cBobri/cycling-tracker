@@ -1,6 +1,6 @@
 import { FaEye, FaGear } from "react-icons/fa6";
 import { Link } from "react-router-dom";
-import { formatTime } from "../../helpers/formatTime";
+import { formatTime } from "../../helpers/timeFormatters";
 import { BiLock } from "react-icons/bi";
 
 const RidesList = ({ rides }: any) => {
@@ -20,7 +20,7 @@ const RidesList = ({ rides }: any) => {
                     className="bg-darkLight-200 p-5 rounded-xl shadow-md hover:scale-110 transition-transform"
                     key={ride._id}
                 >
-                    <h2 className="text-xl font-robotoCondensed font-semibold mb-2 flex justify-between">
+                    <h2 className="text-2xl font-robotoCondensed font-semibold mb-2 flex justify-between">
                         <span>{ride.title}</span>
                         <span className="flex items-center gap-2">
                             {ride.isPublic ? (
@@ -53,7 +53,7 @@ const RidesList = ({ rides }: any) => {
                             <span>{formatTime(ride.stats?.travelTime)}</span>
                         </div>
                     ) : (
-                        <p className="flex items-center gap-3">
+                        <p className="flex items-center gap-3 text-lg font-robotoCondensed text-darkLight-600 font-semibold">
                             <FaGear className="animate-spin" />
                             <span>Processing...</span>
                         </p>

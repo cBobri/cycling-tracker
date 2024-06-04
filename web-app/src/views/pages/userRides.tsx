@@ -22,6 +22,7 @@ const UserRides = () => {
                 setError(response.data);
                 return;
             }
+            console.log(response.data);
 
             setRides(response.data);
             setLoading(false);

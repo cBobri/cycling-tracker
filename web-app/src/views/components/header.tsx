@@ -50,7 +50,7 @@ const Header = ({ onToggleSidebar }: HeaderProps) => {
                 <Link
                     to={"/dashboard"}
                     aria-label="To user dashboard"
-                    className="flex justify-center gap-2 px-3 py-2 border-b-2 border-darkLight-200 hover:-translate-y-1 transition-transform duration-100"
+                    className="flex justify-center gap-2 px-3 py-2 hover:-translate-y-1 transition-transform duration-100"
                 >
                     <BiSolidUserAccount className="text-3xl" />
                     <span>{context.user.username}</span>

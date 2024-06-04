@@ -33,7 +33,7 @@ const Rides = () => {
     return (
         <section className="py-16 px-6 xl:px-2 max-w-screen-xl mx-auto">
             <h1 className="text-primary-300 text-5xl font-semibold font-robotoCondensed mb-6 text-center uppercase">
-                Your Rides
+                Public Rides
             </h1>
 
             {loading && (

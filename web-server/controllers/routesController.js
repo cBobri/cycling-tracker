@@ -10,7 +10,28 @@ module.exports = {
                 .sort({ createdAt: -1 })
                 .populate("user")
                 .populate("referencedRace");
-            return res.status(200).json(routes);
+
+            const simplifiedRoutes = routes.map(
+                ({
+                    _id,
+                    createdAt,
+                    title,
+                    description,
+                    isPublic,
+                    isProcesssed,
+                    stats,
+                }) => {
+                    _id,
+                        createdAt,
+                        title,
+                        description,
+                        isPublic,
+                        isProcesssed,
+                        stats;
+                }
+            );
+
+            return res.status(200).json(simplifiedRoutes);
         } catch (err) {
             const error = new Error("Failed to fetch routes");
             error.status = 500;
@@ -34,12 +55,11 @@ module.exports = {
     getRouteById: async (req, res, next) => {
         try {
             const routeId = req.params.id;
+
             const route = await RouteModel.findOne({
                 _id: routeId,
                 isProcessed: true,
-            })
-                .populate("user")
-                .populate("referencedRace");
+            }).populate("referencedRace");
 
             if (!route) {
                 const error = new Error("Route not found");
@@ -49,14 +69,26 @@ module.exports = {
 
             if (
                 !route.isPublic &&
-                (!req.user || req.user._id != route.user._id)
+                (!req.user || req.user._id.toString() != route.user.toString())
             ) {
                 const error = new Error("Access denied");
                 error.status = 403;
                 return next(error);
             }
 
-            return res.status(200).json(route);
+            const simplifiedData = route.data.map(({ gps, timestamp }) => {
+                return {
+                    gps,
+                    timestamp,
+                };
+            });
+
+            const simplifiedRoute = {
+                ...route._doc,
+                data: simplifiedData,
+            };
+
+            return res.status(200).json(simplifiedRoute);
         } catch (err) {
             const error = new Error("Failed to fetch route");
             error.status = 500;
