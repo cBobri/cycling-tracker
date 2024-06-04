@@ -3,6 +3,7 @@ import { BiAt, BiSolidKey, BiUser } from "react-icons/bi";
 import { Link, useNavigate } from "react-router-dom";
 import { APIResponse, FormControl, RegisterFormData } from "../../Types";
 import { registerUser } from "../../api/auth";
+import clsx from "clsx";
 
 type FormData = RegisterFormData;
 
@@ -139,68 +140,82 @@ const Register = () => {
     };
 
     return (
-        <div className="py-20 px-4 sm:px-10 max-w-screen-xl mx-auto">
-            <form
-                onSubmit={handleSubmit}
-                className="max-w-lg mx-auto flex flex-col gap-5 p-5 border-2 border-primary-200 rounded-xl shadow-lg mb-10"
-            >
-                <h1 className="text-center text-3xl font-robotoCondensed font-semibold uppercase text-primary-300">
-                    Register
-                </h1>
+        <section className="background-image-section">
+            <div className="bg-darkLight-900 bg-opacity-25 ">
+                <div className="py-20 px-4 sm:px-10 max-w-screen-xl mx-auto text-darkLight-200">
+                    <form
+                        onSubmit={handleSubmit}
+                        className="bg-darkLight-900 bg-opacity-80 max-w-lg mx-auto flex flex-col gap-4 p-5 rounded-xl shadow-md mb-10 border-2 border-darkLight-600"
+                    >
+                        <h1 className="text-center text-3xl font-robotoCondensed font-semibold uppercase text-primary-50">
+                            Register
+                        </h1>
 
-                {formControls.map((formControl) => (
-                    <div key={formControl.name}>
-                        <label
-                            htmlFor={formControl.name}
-                            className="block text-xl mb-1 font-robotoCondensed font-semibold"
-                        >
-                            {formControl.label}:
-                        </label>
+                        {formControls.map((formControl) => (
+                            <div key={formControl.name}>
+                                <label
+                                    htmlFor={formControl.name}
+                                    className="block text-xl mb-1 font-robotoCondensed font-semibold"
+                                >
+                                    {formControl.label}:
+                                </label>
 
-                        <div className="flex border-2 border-primary-300 rounded-md">
-                            <div className="text-2xl bg-primary-300 text-darkLight-200 p-2">
-                                {getIcon(formControl.name)}
+                                <div
+                                    className={clsx(
+                                        formControl.error &&
+                                            "bg-red-700 border-red-700",
+                                        !formControl.error &&
+                                            "bg-primary-100 border-primary-100",
+                                        "flex border-2 bg-primary-100 focus-within:bg-primary-50 border-primary-100 focus-within:border-primary-50 rounded-md transition-colors"
+                                    )}
+                                >
+                                    <div className="text-2xl text-darkLight-200 p-2">
+                                        {getIcon(formControl.name)}
+                                    </div>
+
+                                    <input
+                                        type={formControl.type}
+                                        id={formControl.name}
+                                        name={formControl.name}
+                                        value={formData[formControl.name]}
+                                        placeholder={formControl.label}
+                                        onChange={(e) =>
+                                            handleChange(e, formControl)
+                                        }
+                                        className="w-full px-3 outline-none bg-darkLight-900"
+                                    />
+                                </div>
+
+                                <p className="mt-2 text-red-600 text-center">
+                                    {formControl.error}
+                                </p>
                             </div>
+                        ))}
 
-                            <input
-                                type={formControl.type}
-                                id={formControl.name}
-                                name={formControl.name}
-                                value={formData[formControl.name]}
-                                placeholder={formControl.label}
-                                onChange={(e) => handleChange(e, formControl)}
-                                className="w-full px-3 outline-none focus:bg-darkLight-100"
-                            />
-                        </div>
-
-                        <p className="mt-2 text-red-500 font-semibold text-center">
-                            {formControl.error}
+                        <p className="mt-1 text-red-600 font-semibold text-center">
+                            {error}
                         </p>
-                    </div>
-                ))}
 
-                <p className="mt-1 text-red-500 font-semibold text-center">
-                    {error}
-                </p>
+                        <button
+                            type="submit"
+                            className="p-3 mt-6 uppercase font-semibold text-xl text-darkLight-200 rounded-md bg-primary-100 hover:bg-primary-50 transition-colors"
+                        >
+                            Sign Up
+                        </button>
 
-                <button
-                    type="submit"
-                    className="p-3 mt-6 uppercase font-semibold text-xl text-darkLight-200 rounded-md bg-primary-200 hover:bg-primary-300 transition-colors"
-                >
-                    Sign Up
-                </button>
-            </form>
-
-            <section className="text-center text-lg">
-                <p>Already have an account?</p>
-                <Link
-                    to="/login"
-                    className="font-semibold text-primary-100 hover:underline"
-                >
-                    Log In Here
-                </Link>
-            </section>
-        </div>
+                        <section className="text-center text-lg">
+                            <p>Already have an account?</p>
+                            <Link
+                                to="/login"
+                                className="font-semibold text-primary-50 hover:underline"
+                            >
+                                Log In Here
+                            </Link>
+                        </section>
+                    </form>
+                </div>
+            </div>
+        </section>
     );
 };
 
