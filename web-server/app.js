@@ -6,11 +6,16 @@ const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const cors = require("cors");
 const cron = require("node-cron");
+const bodyParser = require("body-parser");
 
 const usersRouter = require("./routes/usersRouter");
 const routesRouter = require("./routes/routesRouter");
 
 const app = express();
+
+// Increase the limit to 50MB
+app.use(bodyParser.json({ limit: "50mb" }));
+app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 
 app.use(cors());
 

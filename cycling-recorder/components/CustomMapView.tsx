@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet, View, Text } from "react-native";
-import MapView, { Marker, Polyline } from "react-native-maps";
+import { StyleSheet, View, Text, ActivityIndicator } from "react-native";
+import MapView, { Polyline } from "react-native-maps";
 import * as Location from "expo-location";
 import { dataEntry } from "@/types";
 
@@ -24,6 +24,7 @@ interface CustomMapViewProps {
 const CustomMapView = ({ dataEntries, userShown }: CustomMapViewProps) => {
     const [location, setLocation] = useState<LocationObject | null>(null);
     const [errorMsg, setErrorMsg] = useState<string | null>(null);
+    const [loading, setLoading] = useState<boolean>(true);
     const [coordinates, setCoordinates] = useState<Coordinates[]>([]);
 
     useEffect(() => {
@@ -35,27 +36,52 @@ const CustomMapView = ({ dataEntries, userShown }: CustomMapViewProps) => {
                 };
             })
         );
-        console.log(coordinates);
     }, [dataEntries]);
 
     useEffect(() => {
-        (async () => {
-            let { status } = await Location.requestForegroundPermissionsAsync();
-            if (status !== "granted") {
-                setErrorMsg("Permission to access location was denied");
-                return;
-            }
+        const getLocation = async () => {
+            try {
+                let { status } =
+                    await Location.requestForegroundPermissionsAsync();
+                if (status !== "granted") {
+                    setErrorMsg("Permission to access location was denied");
+                    setLoading(false);
+                    return;
+                }
 
-            let location = await Location.getCurrentPositionAsync({});
-            setLocation(location);
-        })();
+                let location = await Location.getCurrentPositionAsync({});
+                setLocation(location);
+            } catch (error: any) {
+                setErrorMsg("Error getting location: " + error.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        getLocation();
     }, []);
 
-    if (!location) {
-        //return null;
+    if (loading) {
         return (
-            <View>
+            <View style={styles.centered}>
+                <ActivityIndicator size="large" color="#0000ff" />
                 <Text>Waiting for location...</Text>
+            </View>
+        );
+    }
+
+    if (errorMsg) {
+        return (
+            <View style={styles.centered}>
+                <Text>{errorMsg}</Text>
+            </View>
+        );
+    }
+
+    if (!location) {
+        return (
+            <View style={styles.centered}>
+                <Text>Unable to get location.</Text>
             </View>
         );
     }
@@ -80,14 +106,6 @@ const CustomMapView = ({ dataEntries, userShown }: CustomMapViewProps) => {
                     strokeWidth={6}
                 />
             )}
-            {/*gpsData.map((coord, index) => (
-        <Marker
-          key={index}
-          coordinate={{ latitude: coord.latitude, longitude: coord.longitude }}
-        >
-          <View style={styles.dot} />
-        </Marker>
-      ))*/}
         </MapView>
     );
 };
@@ -96,11 +114,10 @@ const styles = StyleSheet.create({
     map: {
         ...StyleSheet.absoluteFillObject,
     },
-    dot: {
-        width: 8,
-        height: 8,
-        borderRadius: 4,
-        backgroundColor: "red",
+    centered: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
     },
 });
 

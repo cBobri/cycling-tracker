@@ -15,7 +15,7 @@ import CustomMapView from "@/components/CustomMapView";
 import { CustomColors } from "@/constants/Colors";
 import { formatTime } from "@/helpers/formatTime";
 import { TextInput } from "react-native-paper";
-import { api}  from "@/api/service";
+import { api } from "@/api/service";
 
 const Upload = () => {
     const params = useLocalSearchParams();
@@ -82,7 +82,7 @@ const Upload = () => {
                 router.navigate("main/record");
             }
         } catch (error: any) {
-            alert(error);
+            alert(error.response.data.message);
         }
 
         setUploading(false);
@@ -105,9 +105,9 @@ const Upload = () => {
             <View style={styles.headContainer}>
                 <View>
                     <Text style={styles.routeTitle}>{parsedFileName}</Text>
-                    <Text style={styles.distanceText}>{`${
-                        route.distance
-                    } meters | ${formatTime(
+                    <Text style={styles.distanceText}>{`${(
+                        route.distance / 1000
+                    ).toFixed(2)} KM | ${formatTime(
                         new Date(route.recordingEnd).getTime() -
                             new Date(route.recordingStart).getTime()
                     )}`}</Text>
