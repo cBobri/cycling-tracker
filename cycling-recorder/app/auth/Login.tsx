@@ -24,6 +24,7 @@ const Login = () => {
                 email_username: email_username.trim(),
                 password,
                 client_token,
+                source: "mobile-app",
             });
 
             if (res.status === 200) {
