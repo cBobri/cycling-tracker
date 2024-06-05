@@ -167,7 +167,7 @@ const Profile = () => {
                 </h1>
 
                 <form
-                    className="p-5 flex gap-24 flex-wrap justify-around items-center"
+                    className="p-5 flex gap-24 flex-wrap justify-around items-center text-xl"
                     onSubmit={handleSubmit}
                 >
                     <img
@@ -178,14 +178,14 @@ const Profile = () => {
 
                     <div>
                         <div className="mb-5">
-                            <p className="block text-xl mb-1 font-robotoCondensed font-semibold">
+                            <p className="block mb-1 font-robotoCondensed font-semibold text-2xl ">
                                 E-Mail:
                             </p>
                             <p>{profile?.email}</p>
                         </div>
                         <div className="mb-5">
                             <label
-                                className="block text-xl mb-1 font-robotoCondensed font-semibold"
+                                className="block mb-1 font-robotoCondensed font-semibold text-2xl "
                                 htmlFor="username"
                             >
                                 Username:
@@ -209,14 +209,14 @@ const Profile = () => {
                         </div>
                         <div className="mb-5">
                             <label
-                                className="block text-xl mb-1 font-robotoCondensed font-semibold"
+                                className="block mb-1 font-robotoCondensed font-semibold text-2xl "
                                 htmlFor="weight"
                             >
                                 Weight (kg):
                             </label>
 
                             <div className="flex border-2 bg-primary-200 focus-within:bg-primary-100 border-primary-200 focus-within:border-primary-100 rounded-md transition-colors">
-                                <div className="text-2xl text-darkLight-200 p-2">
+                                <div className="text-darkLight-200 p-2 text-2xl ">
                                     {<FaWeightHanging />}
                                 </div>
 
@@ -232,14 +232,14 @@ const Profile = () => {
                         </div>
                         <div className="mb-5">
                             <label
-                                className="block text-xl mb-1 font-robotoCondensed font-semibold"
+                                className="block mb-1 font-robotoCondensed font-semibold text-2xl "
                                 htmlFor="bikeWeight"
                             >
                                 Bike Weight (kg):
                             </label>
 
                             <div className="flex border-2 bg-primary-200 focus-within:bg-primary-100 border-primary-200 focus-within:border-primary-100 rounded-md transition-colors">
-                                <div className="text-2xl text-darkLight-200 p-2">
+                                <div className="text-darkLight-200 p-2 text-2xl ">
                                     {<FaBicycle />}
                                 </div>
 
@@ -266,7 +266,7 @@ const Profile = () => {
 
                         <button
                             type="submit"
-                            className="px-3 py-2 font-semibold text-lg w-full bg-primary-200 hover:bg-primary-100 transition-colors text-darkLight-200 rounded-md"
+                            className="px-4 py-3 font-semibold w-full bg-primary-200 hover:bg-primary-100 transition-colors text-darkLight-200 rounded-md"
                         >
                             Update Profile
                         </button>
@@ -283,13 +283,13 @@ const Profile = () => {
                         Statistics
                     </h2>
 
-                    <div className="flex justify-around gap-10 flex-wrap">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         {stats.map(({ label, unit, icon, value }) => (
                             <article
-                                className="bg-darkLight-900 border-2 border-darkLight-600 rounded-3xl p-5 mb-5 relative w-[350px] h-[350px] flex justify-center items-center"
+                                className="bg-darkLight-900 border-2 mx-auto border-darkLight-600 rounded-3xl p-5 mb-5 relative w-[300px] h-[300px] flex justify-center items-center"
                                 key={label}
                             >
-                                <span className="mx-auto text-[250px] mb-4 text-darkLight-800 absolute">
+                                <span className="mx-auto text-[175px] mb-4 text-darkLight-800 absolute">
                                     {icon}
                                 </span>
 
@@ -297,16 +297,16 @@ const Profile = () => {
                                     <p
                                         className={clsx(
                                             "uppercase font-robotoCondensed text-darkLight-100 text-center font-semibold",
-                                            unit && "text-6xl",
-                                            unit || "text-[2.5rem]"
+                                            unit && "text-5xl",
+                                            unit || "text-[2.25rem]"
                                         )}
                                     >
                                         {value} {unit}
                                     </p>
 
-                                    <div className="h-[2px] my-7 bg-darkLight-500 rounded-full"></div>
+                                    <div className="h-[2px] my-4 bg-darkLight-500 rounded-full"></div>
 
-                                    <h3 className="text-4xl text-darkLight-300 text-center">
+                                    <h3 className="text-3xl text-darkLight-300 text-center">
                                         {label}
                                     </h3>
                                 </div>
