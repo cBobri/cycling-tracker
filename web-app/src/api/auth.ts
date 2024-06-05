@@ -48,7 +48,7 @@ export const loginUser = async (
         return {
             error: true,
             status: err.response.status,
-            data: err.response.data.message,
+            data: err.response.data,
         };
     }
 };

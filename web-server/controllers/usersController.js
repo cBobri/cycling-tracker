@@ -7,6 +7,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const processProfile = require("../helpers/processProfile");
 const { sendAuthenticationNotification } = require("../helpers/notifications");
+const signUserToken = require("../helpers/signUserToken");
 
 module.exports = {
     register: async (req, res, next) => {
@@ -109,34 +110,15 @@ module.exports = {
 
                 const error = new Error("Two-Factor Authentication Required");
                 error.status = 403;
+                error.extra = { userId: user._id };
                 return next(error);
             }
 
-            const userData = {
-                userId: user._id,
-                email: user.email,
-                username: user.username,
-                weight: user.weight || null,
-                bikeWeight: user.bikeWeight || null,
-                enabled_2fa: user.enabled_2fa,
-            };
-
-            const token = jwt.sign(userData, process.env.JWT_SECRET, {
-                expiresIn: "30d",
-            });
-
-            const { email, username, weight, bikeWeight, enabled_2fa } =
-                userData;
+            const { token, tokenData } = signUserToken(user);
 
             return res.status(200).json({
                 token,
-                user: {
-                    email,
-                    username,
-                    weight,
-                    bikeWeight,
-                    enabled_2fa,
-                },
+                user: tokenData,
             });
         } catch (err) {
             console.log(err);

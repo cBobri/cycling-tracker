@@ -2,11 +2,12 @@ const express = require("express");
 const router = express.Router();
 
 const { requireUser, checkUser } = require("../controllers/usersController");
-const { sendTestNotification } = require("../controllers/authController");
+const {
+    establishConnection,
+    respondAndCloseConnection,
+} = require("../controllers/authController");
 
-/* GET users listing. */
-router.get("/", function (req, res, next) {
-    res.send("respond with a resource");
-});
+router.get("/listen/:userId", establishConnection);
+router.post("/finish", checkUser, requireUser, respondAndCloseConnection);
 
 module.exports = router;
