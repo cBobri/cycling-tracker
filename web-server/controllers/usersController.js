@@ -1,10 +1,12 @@
 require("dotenv").config();
 const UserModel = require("../models/userModel");
-const RouteModel = require("../models/routeModel");
+const ExpoClientModel = require("../models/expoClientModel");
+const AuthRequestModel = require("../models/authRequestModel");
 
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const processProfile = require("../helpers/processProfile");
+const { sendAuthenticationNotification } = require("../helpers/notifications");
 
 module.exports = {
     register: async (req, res, next) => {
@@ -50,7 +52,7 @@ module.exports = {
     },
 
     login: async (req, res, next) => {
-        const { email_username, password } = req.body;
+        const { email_username, password, client_token, source } = req.body;
 
         try {
             const user = await UserModel.findOne({
@@ -71,6 +73,45 @@ module.exports = {
                 return next(error);
             }
 
+            // Handle login for mobile app - save their notification token if not yet saved
+            if (
+                source === "mobile-app" &&
+                client_token &&
+                !(await ExpoClientModel.exists({ client_token: client_token }))
+            ) {
+                const newExpoClient = new ExpoClientModel({
+                    client_token,
+                    user: user._id,
+                });
+
+                await newExpoClient.save();
+            }
+
+            // Handle login for website - send notification to phone, create auth_request if it doesns't exist, send response that authentication must happen
+            if (
+                source === "website" &&
+                user.enabled_2fa &&
+                (await ExpoClientModel.exists({ user: user._id }))
+            ) {
+                if (
+                    !(await AuthRequestModel.exists({
+                        user: user._id,
+                        finished_processing: false,
+                    }))
+                ) {
+                    const newAuthRequestModel = new AuthRequestModel({
+                        user: user._id,
+                    });
+                    await newAuthRequestModel.save();
+                }
+
+                sendAuthenticationNotification(user._id);
+
+                const error = new Error("Two-Factor Authentication Required");
+                error.status = 403;
+                return next(error);
+            }
+
             const userData = {
                 userId: user._id,
                 email: user.email,
@@ -84,7 +125,8 @@ module.exports = {
                 expiresIn: "30d",
             });
 
-            const { email, username, weight, bikeWeight, enabled_2fa } = userData;
+            const { email, username, weight, bikeWeight, enabled_2fa } =
+                userData;
 
             return res.status(200).json({
                 token,
@@ -97,6 +139,7 @@ module.exports = {
                 },
             });
         } catch (err) {
+            console.log(err);
             const error = new Error("Failed to login");
             error.status = 500;
             return next(error);
@@ -146,7 +189,8 @@ module.exports = {
             return next(error);
         }
 
-        const { email, username, weight, bikeWeight, enabled_2fa } = req.userTokenData;
+        const { email, username, weight, bikeWeight, enabled_2fa } =
+            req.userTokenData;
 
         return res.status(200).json({
             email,

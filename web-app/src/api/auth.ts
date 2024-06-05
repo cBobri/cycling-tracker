@@ -32,7 +32,10 @@ export const loginUser = async (
     formData: LoginFormData
 ): Promise<APIResponse> => {
     try {
-        const response = await api.post("/users/login", formData);
+        const response = await api.post("/users/login", {
+            ...formData,
+            source: "website",
+        });
 
         return {
             error: false,
