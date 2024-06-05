@@ -203,34 +203,30 @@ const View = () => {
     };
     return (
         <>
-            <section className="py-16 px-6 xl:px-2 max-w-screen-xl mx-auto">
-                <h1 className="text-primary-300 text-5xl font-semibold font-robotoCondensed mb-3 uppercase flex justify-between flex-wrap">
+            <section className="py-10 px-6 xl:px-2 max-w-screen-xl mx-auto">
+                <h1 className="text-darkLight-800 text-5xl font-semibold font-robotoCondensed mb-3 uppercase flex justify-between flex-wrap">
                     <span>{ride.title}</span>
-                    <button
-                        aria-label="Open edit modal"
-                        onClick={() => setEditing(true)}
-                    >
-                        <BiEdit />
-                    </button>
+                    {ride.editable && (
+                        <button
+                            aria-label="Open edit modal"
+                            onClick={() => setEditing(true)}
+                        >
+                            <BiEdit />
+                        </button>
+                    )}
                 </h1>
 
-                <p className="mb-10 text-xl text-darkLight-600">
+                <p className="text-xl text-darkLight-700">
                     {ride.description || "No description set..."}
                 </p>
-
-                <div
-                    className={clsx(
-                        "h-[500px] transition-opacity",
-                        editing && "opacity-50",
-                        editing || "opacity-100"
-                    )}
-                >
-                    <Map coordinates={coordinates} markers={markers} />
-                </div>
             </section>
 
-            <section className="bg-darkLight-800">
-                <div className="py-20 px-6 xl:px-2 max-w-screen-xl mx-auto text-darkLight-200">
+            <section className={clsx("h-[600px]")}>
+                <Map coordinates={coordinates} markers={markers} />
+            </section>
+
+            <section className="bg-darkLight-100">
+                <div className="py-20 px-6 xl:px-2 max-w-screen-xl mx-auto">
                     <h2
                         className="text-5xl font-semibold font-robotoCondensed mb-16 uppercase text-center"
                         id="statistics"
@@ -238,22 +234,18 @@ const View = () => {
                         Stats
                     </h2>
 
-                    <div className="flex justify-around gap-10 flex-wrap">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-14 flex-wrap">
                         {stats.map(({ label, unit, value, icon }) => (
                             <article
                                 key={label}
-                                className="bg-darkLight-900 border-2 border-darkLight-600 rounded-3xl p-5 mb-5 relative w-[350px] h-[350px] flex flex-col justify-center items-center"
+                                className="flex items-center justify-center gap-5 p-5 border-b-2 border-darkLight-400"
                             >
-                                <p className="text-6xl uppercase font-robotoCondensed text-darkLight-100 text-center font-semibold">
+                                <span className="text-6xl text-primary-200">
+                                    {icon}
+                                </span>
+                                <p className="text-5xl uppercase font-robotoCondensed text-darkLight-700 font-semibold">
                                     {value} {unit}
                                 </p>
-
-                                <div className="h-[2px] w-full my-7 bg-darkLight-500 rounded-full"></div>
-
-                                <h3 className="text-4xl text-darkLight-300 text-center flex gap-3">
-                                    {icon}
-                                    <span>{label}</span>
-                                </h3>
                             </article>
                         ))}
                     </div>

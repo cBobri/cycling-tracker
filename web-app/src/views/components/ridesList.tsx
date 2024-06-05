@@ -4,7 +4,7 @@ import { formatTime } from "../../helpers/timeFormatters";
 import { BiLock } from "react-icons/bi";
 
 const RidesList = ({ rides }: any) => {
-    if (!rides || rides.length === 0) {
+    if (!rides || rides.length === 0 || !rides[0]) {
         return (
             <h2 className="text-center text-3xl mt-20 font-robotoCondensed">
                 No rides found :(
