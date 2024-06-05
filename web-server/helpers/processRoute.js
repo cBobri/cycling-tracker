@@ -1,5 +1,6 @@
 const RouteModel = require('../models/routeModel');
 const calculateWattage = require('./calculateWattage');
+const getSimilarRaces = require('./getSimilarRaces');
 
 async function processRoute(routeId) {
     try {
@@ -64,10 +65,11 @@ async function processRoute(routeId) {
                     elevationDiff,
                     quartile.travelTime / 1000,
                     route.cyclistWeight,
+                    route.bikeWeight
                 );
-                quartile.power = power / quartileSize;
+                quartile.power = power;
                 quartile.powerRatio = powerRatio;
-                quartile.energy = energy / quartileSize;
+                quartile.energy = energy;
             }
         }
 
@@ -79,10 +81,11 @@ async function processRoute(routeId) {
             elevationDiff,
             stats.travelTime / 1000,
             route.cyclistWeight,
+            route.bikeWeight
         );
-        stats.power = power / numEntries;
+        stats.power = power;
         stats.powerRatio = powerRatio;
-        stats.energy = energy / numEntries;
+        stats.energy = energy;
 
         stats.avgSpeed = (stats.distance / (stats.travelTime / 1000)) * 3.6;
         quartiles.forEach(q => {
@@ -124,10 +127,11 @@ async function processRoute(routeId) {
                 elevationDiffSubset,
                 subsetStats.travelTime / 1000,
                 route.cyclistWeight,
+                route.bikeWeight
             );
-            subsetStats.power = power / subset.length;
+            subsetStats.power = power;
             subsetStats.powerRatio = powerRatio;
-            subsetStats.energy = energy / subset.length;
+            subsetStats.energy = energy;
 
             subsetStats.avgSpeed = (subsetStats.distance / (subsetStats.travelTime / 1000)) * 3.6;
 
@@ -138,6 +142,23 @@ async function processRoute(routeId) {
         [route.q1, route.q2, route.q3, route.q4] = quartiles;
         route.percentageStats = percentageStats;
         route.isProcessed = true;
+
+        const similarRaces  = await getSimilarRaces(route);
+
+        if (similarRaces && similarRaces.length > 0) {
+            route.referencedRaces = similarRaces.map(race => race._id);
+
+            let totalPowerRatio = 0;
+            for (let race of similarRaces) {
+                totalPowerRatio += race.averageWattage.powerRatio;
+            }
+            const avgRacePowerRatio = totalPowerRatio / similarRaces.length;
+
+            route.proIndex = route.stats.powerRatio / avgRacePowerRatio;
+        } else {
+            route.referencedRaces = [];
+            route.proIndex = null;
+        }
 
         await route.save();
         console.log('Route processed successfully');
