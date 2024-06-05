@@ -19,6 +19,7 @@ module.exports = {
                     body: "pls work dear god",
                     sound: "default",
                     priority: "high",
+                    data: { url: "cycling-recorder://auth/2fa" },
                 };
 
                 const pushReceipt = await expo.sendPushNotificationsAsync([

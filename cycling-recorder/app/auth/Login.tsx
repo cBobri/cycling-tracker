@@ -2,40 +2,14 @@ import React, { useState, useEffect } from "react";
 import { View, Text } from "react-native";
 import { TextInput, Button } from "react-native-paper";
 import authStyles from "../../styles/authStyle";
-import axios from "axios";
 import { useRouter } from "expo-router";
 import { api, setToken } from "../../api/service";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as Notifications from "expo-notifications";
-import Constants from "expo-constants";
 
 const Login = () => {
     const [email_username, setEmail_Username] = useState("");
     const [password, setPassword] = useState("");
     const router = useRouter();
-
-    const registerPushNotifications = async () => {
-        const { status: existingStatus } =
-            await Notifications.getPermissionsAsync();
-        let finalStatus = existingStatus;
-
-        if (existingStatus !== "granted") {
-            const { status } = await Notifications.requestPermissionsAsync();
-            finalStatus = status;
-        }
-
-        if (finalStatus !== "granted") {
-            return;
-        }
-
-        const token = (await Notifications.getExpoPushTokenAsync()).data;
-        console.log(token);
-        return token;
-    };
-
-    const handleNotification = (notification: any) => {
-        console.log(notification);
-    };
 
     const handleLogin = async () => {
         if (email_username === "" || password === "") {
@@ -44,13 +18,7 @@ const Login = () => {
         }
 
         try {
-            const client_token = await registerPushNotifications();
-
-            if (client_token) {
-                Notifications.addNotificationReceivedListener(
-                    handleNotification
-                );
-            }
+            const client_token = await AsyncStorage.getItem("expoPushToken");
 
             const res = await api.post("/users/login", {
                 email_username: email_username.trim(),

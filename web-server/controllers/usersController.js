@@ -87,7 +87,10 @@ module.exports = {
             const { email, username, weight, bikeWeight, enabled_2fa } =
                 userData;
 
-            if (client_token) {
+            if (
+                client_token &&
+                !(await ExpoClientModel.exists({ client_token: client_token }))
+            ) {
                 const newExpoClient = new ExpoClientModel({
                     client_token,
                     user: user._id,
