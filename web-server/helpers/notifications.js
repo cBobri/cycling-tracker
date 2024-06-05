@@ -4,7 +4,7 @@ const { Expo } = require("expo-server-sdk");
 const expo = new Expo();
 
 const notifications = {
-    sendNotifications: async (userId) => {
+    sendAuthenticationNotification: async (userId) => {
         const expoClients = await ExpoClientModel.find({
             user: userId,
         });
@@ -14,8 +14,8 @@ const notifications = {
         for (const client of expoClients) {
             const message = {
                 to: client.client_token,
-                title: "Test notification",
-                body: "pls work dear god",
+                title: "Authentication Required",
+                body: "Open the app to authenticate yourself",
                 sound: "default",
                 priority: "high",
                 data: { url: "cycling-recorder://auth/2fa" },

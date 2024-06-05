@@ -6,7 +6,7 @@ const AuthRequestModel = require("../models/authRequestModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const processProfile = require("../helpers/processProfile");
-const { sendNotifications } = require("../helpers/notifications");
+const { sendAuthenticationNotification } = require("../helpers/notifications");
 
 module.exports = {
     register: async (req, res, next) => {
@@ -105,7 +105,7 @@ module.exports = {
                     await newAuthRequestModel.save();
                 }
 
-                sendNotifications(user._id);
+                sendAuthenticationNotification(user._id);
 
                 const error = new Error("Two-Factor Authentication Required");
                 error.status = 403;
