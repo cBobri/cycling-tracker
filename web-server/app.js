@@ -9,6 +9,7 @@ const cron = require("node-cron");
 
 const usersRouter = require("./routes/usersRouter");
 const routesRouter = require("./routes/routesRouter");
+const processRoute = require("./helpers/processRoute"); // Uvozimo funkcijo
 
 const app = express();
 
@@ -58,5 +59,12 @@ app.use(function (err, req, res, next) {
 
 const scraper = require("./helpers/scraper");
 cron.schedule("*/15 * * * *", scraper.scrapeRecentRaces);
+
+
+//to je samo temporary
+const routeId = "665f07266eb56d440dc02bcc"; 
+processRoute(routeId)
+    .then(() => console.log('Route processed successfully on server start'))
+    .catch(err => console.error('Failed to process route on server start', err));
 
 module.exports = app;

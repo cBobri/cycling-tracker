@@ -1,6 +1,6 @@
 const RouteModel = require('../models/routeModel');
 const calculateWattage = require('./calculateWattage');
-const findSimilarRace = require('./findSimilarRace');
+const getSimilarRace = require('./getSimilarRace');
 
 async function processRoute(routeId) {
     try {
@@ -65,6 +65,7 @@ async function processRoute(routeId) {
                     elevationDiff,
                     quartile.travelTime / 1000,
                     route.cyclistWeight,
+                    route.bikeWeight
                 );
                 quartile.power = power / quartileSize;
                 quartile.powerRatio = powerRatio;
@@ -80,8 +81,9 @@ async function processRoute(routeId) {
             elevationDiff,
             stats.travelTime / 1000,
             route.cyclistWeight,
+            route.bikeWeight
         );
-        stats.power = power / numEntries;
+        stats.power = power;
         stats.powerRatio = powerRatio;
         stats.energy = energy / numEntries;
 
@@ -125,8 +127,9 @@ async function processRoute(routeId) {
                 elevationDiffSubset,
                 subsetStats.travelTime / 1000,
                 route.cyclistWeight,
+                route.bikeWeight
             );
-            subsetStats.power = power / subset.length;
+            subsetStats.power = power;
             subsetStats.powerRatio = powerRatio;
             subsetStats.energy = energy / subset.length;
 
@@ -140,7 +143,7 @@ async function processRoute(routeId) {
         route.percentageStats = percentageStats;
         route.isProcessed = true;
 
-        const similarRace = await findSimilarRace(route);
+        const similarRace  = await getSimilarRace(route);
 
         if (similarRace) {
             route.referencedRace = similarRace._id;
