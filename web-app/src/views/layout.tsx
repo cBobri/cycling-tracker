@@ -13,9 +13,9 @@ export default function Layout() {
 
     return (
         <>
-            <div className="min-h-screen max-w-[100vw] overflow-hidden font-roboto">
+            <div className="min-h-screen flex flex-col max-w-[100vw] overflow-hidden font-roboto">
                 <Header onToggleSidebar={handleToggleSidebar} />
-                <main className="min-h-[600px]">
+                <main className="min-h-[600px] flex-1">
                     <Outlet />
                 </main>
                 <Footer />

@@ -1,0 +1,25 @@
+{
+  "name": "",
+  "isOrdered": true,
+  "folders": {
+    "cycling-recorder": {
+      "name": "cycling-recorder",
+      "isOrdered": true,
+      "folders": {},
+      "files": {}
+    },
+    "web-app": {
+      "name": "web-app",
+      "isOrdered": true,
+      "folders": {},
+      "files": {}
+    },
+    "web-server": {
+      "name": "web-server",
+      "isOrdered": true,
+      "folders": {},
+      "files": {}
+    }
+  },
+  "files": {}
+}

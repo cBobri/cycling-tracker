@@ -1,8 +1,8 @@
 import axios from "axios";
+import { apiURL } from "../Constants";
 
 const api = axios.create({
-    // baseURL: "http://localhost:5000",
-    baseURL: "https://cycling-tracker-bobri-fe58b44c0738.herokuapp.com",
+    baseURL: apiURL,
     headers: {
         "Content-Type": "application/json",
     },

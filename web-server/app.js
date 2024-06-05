@@ -6,12 +6,17 @@ const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const cors = require("cors");
 const cron = require("node-cron");
+const bodyParser = require("body-parser");
 
 const usersRouter = require("./routes/usersRouter");
 const routesRouter = require("./routes/routesRouter");
-const processRoute = require("./helpers/processRoute"); // Uvozimo funkcijo
+const authRouter = require("./routes/authRouter");
 
 const app = express();
+
+// Increase the limit to 50MB
+app.use(bodyParser.json({ limit: "50mb" }));
+app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 
 app.use(cors());
 
@@ -36,6 +41,7 @@ app.use(express.static(path.join(__dirname, "public")));
 // Add routers
 app.use("/users", usersRouter);
 app.use("/routes", routesRouter);
+app.use("/auth", authRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -48,23 +54,15 @@ app.use(function (err, req, res, next) {
     res.locals.message = err.message;
     res.locals.error = req.app.get("env") === "development" ? err : {};
 
-    // render the error page
     res.status(err.status || 500);
     res.json({
-        //namesto res.render("error");
         message: err.message,
+        extra: err.extra,
         error: req.app.get("env") === "development" ? err : {},
     });
 });
 
 const scraper = require("./helpers/scraper");
 cron.schedule("*/15 * * * *", scraper.scrapeRecentRaces);
-
-
-//to je samo temporary
-const routeId = "665f07266eb56d440dc02bcc"; 
-processRoute(routeId)
-    .then(() => console.log('Route processed successfully on server start'))
-    .catch(err => console.error('Failed to process route on server start', err));
 
 module.exports = app;

@@ -4,6 +4,12 @@ import Home from "./views/pages/home";
 import Register from "./views/pages/register";
 import Login from "./views/pages/login";
 import { UserProvider } from "./userContext";
+import Rides from "./views/pages/rides";
+import Profile from "./views/pages/profile";
+import Dashboard from "./views/pages/dashboard";
+import UserRides from "./views/pages/userRides";
+import View from "./views/pages/view";
+import Authenticate from "./views/pages/authenticate";
 
 const router = createBrowserRouter([
     {
@@ -12,6 +18,12 @@ const router = createBrowserRouter([
             { path: "/", element: <Home /> },
             { path: "/register", element: <Register /> },
             { path: "/login", element: <Login /> },
+            { path: "/rides", element: <Rides /> },
+            { path: "/profile", element: <Profile /> },
+            { path: "/dashboard", element: <Dashboard /> },
+            { path: "/profile/rides", element: <UserRides /> },
+            { path: "/view/:id", element: <View /> },
+            { path: "/authenticate/:id", element: <Authenticate /> },
         ],
     },
 ]);

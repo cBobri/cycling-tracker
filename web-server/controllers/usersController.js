@@ -1,7 +1,13 @@
 require("dotenv").config();
 const UserModel = require("../models/userModel");
+const ExpoClientModel = require("../models/expoClientModel");
+const AuthRequestModel = require("../models/authRequestModel");
+
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const processProfile = require("../helpers/processProfile");
+const { sendAuthenticationNotification } = require("../helpers/notifications");
+const signUserToken = require("../helpers/signUserToken");
 
 module.exports = {
     register: async (req, res, next) => {
@@ -47,7 +53,7 @@ module.exports = {
     },
 
     login: async (req, res, next) => {
-        const { email_username, password } = req.body;
+        const { email_username, password, client_token, source } = req.body;
 
         try {
             const user = await UserModel.findOne({
@@ -68,30 +74,54 @@ module.exports = {
                 return next(error);
             }
 
-            const userData = {
-                userId: user._id,
-                email: user.email,
-                username: user.username,
-                weight: user.weight || null,
-                bikeWeight: user.bikeWeight || null,
-            };
+            // Handle login for mobile app - save their notification token if not yet saved
+            if (
+                source === "mobile-app" &&
+                client_token &&
+                !(await ExpoClientModel.exists({ client_token: client_token }))
+            ) {
+                const newExpoClient = new ExpoClientModel({
+                    client_token,
+                    user: user._id,
+                });
 
-            const token = jwt.sign(userData, process.env.JWT_SECRET, {
-                expiresIn: "30d",
-            });
+                await newExpoClient.save();
+            }
 
-            const { email, username, weight, bikeWeight } = userData;
+            // Handle login for website - send notification to phone, create auth_request if it doesns't exist, send response that authentication must happen
+            if (
+                source === "website" &&
+                user.enabled_2fa &&
+                (await ExpoClientModel.exists({ user: user._id }))
+            ) {
+                if (
+                    !(await AuthRequestModel.exists({
+                        user: user._id,
+                        finished_processing: false,
+                    }))
+                ) {
+                    const newAuthRequestModel = new AuthRequestModel({
+                        user: user._id,
+                    });
+                    await newAuthRequestModel.save();
+                }
+
+                sendAuthenticationNotification(user._id);
+
+                const error = new Error("Two-Factor Authentication Required");
+                error.status = 403;
+                error.extra = { userId: user._id };
+                return next(error);
+            }
+
+            const { token, tokenData } = signUserToken(user);
 
             return res.status(200).json({
                 token,
-                user: {
-                    email,
-                    username,
-                    weight,
-                    bikeWeight,
-                },
+                user: tokenData,
             });
         } catch (err) {
+            console.log(err);
             const error = new Error("Failed to login");
             error.status = 500;
             return next(error);
@@ -106,7 +136,7 @@ module.exports = {
         next();
     },
     checkUser: async (req, res, next) => {
-        const token = req.header("Authorization").replace("Bearer ", "");
+        const token = req.header("Authorization")?.replace("Bearer ", "");
 
         if (!token) {
             const error = new Error("Authentication token required");
@@ -141,13 +171,59 @@ module.exports = {
             return next(error);
         }
 
-        const { email, username, weight, bikeWeight } = req.userTokenData;
+        const { email, username, weight, bikeWeight, enabled_2fa } =
+            req.userTokenData;
 
         return res.status(200).json({
             email,
             username,
             weight,
             bikeWeight,
+            enabled_2fa,
         });
+    },
+    getUserProfile: async (req, res, next) => {
+        try {
+            const profileDetails = await processProfile(req.user);
+
+            return res.status(200).json(profileDetails);
+        } catch (err) {
+            console.log(err);
+            const error = new Error("Failed to fetch user profile");
+            error.status = 500;
+            return next(error);
+        }
+    },
+    updateUserProfile: async (req, res, next) => {
+        try {
+            const { username, weight, bikeWeight } = req.body;
+            const trimmedUsername = username.trim();
+
+            const usernameTaken = await UserModel.exists({
+                username: trimmedUsername,
+                _id: { $ne: req.user._id },
+            });
+
+            if (!trimmedUsername || usernameTaken) {
+                const error = new Error("Username is invalid or taken");
+                error.status = 400;
+                return next(error);
+            }
+
+            req.user.username = trimmedUsername;
+            req.user.weight = +weight || null;
+            req.user.bikeWeight = +bikeWeight || null;
+
+            await req.user.save();
+
+            const profileDetails = await processProfile(req.user);
+
+            return res.status(200).json(profileDetails);
+        } catch (err) {
+            console.log(err);
+            const error = new Error("Failed to update user profile");
+            error.status = 500;
+            return next(error);
+        }
     },
 };

@@ -1,16 +1,9 @@
 import api from "./service";
-import {
-    APIResponse,
-    EditProfileFormData,
-    LoginFormData,
-    RegisterFormData,
-} from "../Types";
+import { APIResponse } from "../Types";
 
-export const registerUser = async (
-    formData: RegisterFormData
-): Promise<APIResponse> => {
+export const fetchUserRides = async (): Promise<APIResponse> => {
     try {
-        const response = await api.post("/users/register", formData);
+        const response = await api.get("/routes/user");
 
         return {
             error: false,
@@ -28,14 +21,9 @@ export const registerUser = async (
     }
 };
 
-export const loginUser = async (
-    formData: LoginFormData
-): Promise<APIResponse> => {
+export const fetchPublicRides = async (): Promise<APIResponse> => {
     try {
-        const response = await api.post("/users/login", {
-            ...formData,
-            source: "website",
-        });
+        const response = await api.get("/routes");
 
         return {
             error: false,
@@ -45,25 +33,6 @@ export const loginUser = async (
     } catch (err: any) {
         console.log(err);
 
-        return {
-            error: true,
-            status: err.response.status,
-            data: err.response.data,
-        };
-    }
-};
-
-export const fetchUserDetails = async (): Promise<APIResponse> => {
-    try {
-        const response = await api.get("/users/details");
-
-        return {
-            error: false,
-            status: response.status,
-            data: response.data,
-        };
-    } catch (err: any) {
-        console.log(err);
         return {
             error: true,
             status: err.response.status,
@@ -72,9 +41,9 @@ export const fetchUserDetails = async (): Promise<APIResponse> => {
     }
 };
 
-export const fetchUserProfile = async (): Promise<APIResponse> => {
+export const fetchRideById = async (id: string): Promise<APIResponse> => {
     try {
-        const response = await api.get("/users/profile");
+        const response = await api.get(`/routes/${id}`);
 
         return {
             error: false,
@@ -83,6 +52,7 @@ export const fetchUserProfile = async (): Promise<APIResponse> => {
         };
     } catch (err: any) {
         console.log(err);
+
         return {
             error: true,
             status: err.response.status,
@@ -91,12 +61,9 @@ export const fetchUserProfile = async (): Promise<APIResponse> => {
     }
 };
 
-export const editUserProfile = async (
-    formData: EditProfileFormData
-): Promise<APIResponse> => {
+export const editRide = async (formData: any): Promise<APIResponse> => {
     try {
-        console.log(formData);
-        const response = await api.put("/users/profile", formData);
+        const response = await api.put("/routes", formData);
 
         return {
             error: false,
@@ -105,6 +72,7 @@ export const editUserProfile = async (
         };
     } catch (err: any) {
         console.log(err);
+
         return {
             error: true,
             status: err.response.status,

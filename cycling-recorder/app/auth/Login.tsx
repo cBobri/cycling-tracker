@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text } from "react-native";
 import { TextInput, Button } from "react-native-paper";
 import authStyles from "../../styles/authStyle";
-import axios from "axios";
 import { useRouter } from "expo-router";
-import {api,setToken} from "../../api/service";
+import { api, setToken } from "../../api/service";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Login = () => {
     const [email_username, setEmail_Username] = useState("");
@@ -16,22 +16,40 @@ const Login = () => {
             alert("Please fill all the fields");
             return;
         }
+
         try {
+            const client_token = await AsyncStorage.getItem("expoPushToken");
+
             const res = await api.post("/users/login", {
                 email_username: email_username.trim(),
                 password,
+                client_token,
+                source: "mobile-app",
             });
+
             if (res.status === 200) {
-                const { token } = res.data;
-                await setToken(token);
-                alert("User logged in successfully");
-                router.replace("/main/record");
+                const { token, user } = res.data;
+                console.log("user", user);
+                //check if user has 2fa enabled
+                if (user.enabled_2fa) {
+                    router.replace({
+                        pathname: "/auth/2fa",
+                        params: { token },
+                    });
+                } else {
+                    // No 2FA, proceed with setting the token
+                    await setToken(token);
+                    alert("User logged in successfully");
+                    router.replace("/main/record");
+                }
             }
         } catch (error: any) {
             if (error.response.status === 401) {
                 alert("User not found");
             } else if (error.response.status === 402) {
                 alert("Incorrect password");
+            } else {
+                alert("An error occurred");
             }
         }
     };
