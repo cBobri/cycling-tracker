@@ -3,9 +3,8 @@ import { StyleSheet, Text, TouchableOpacity, View, Image } from "react-native";
 import { Button } from "react-native-paper";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import { api, setToken } from "../../api/service";
 import authStyles from "../../styles/authStyle";
-import { djangoApi, localApi } from "@/api/service";
+import { djangoApi, localApi, setToken } from "@/api/service";
 
 enum CameraType {
   BACK = "back",
@@ -19,6 +18,7 @@ const VerifyPhoto = () => {
   const [facing, setFacing] = useState(CameraType.FRONT);
   const [permission, requestPermission] = useCameraPermissions();
   const cameraRef = useRef<CameraView | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   if (!permission) {
     // Camera permissions are still loading.
@@ -64,6 +64,7 @@ const VerifyPhoto = () => {
         // Retrieve the filename from the video URI
         const fileName = photo.split("/").pop();
         const fileType = "image/jpeg";
+        setIsLoading(true);
 
         const blob = await fetch(photo).then((r) => r.blob());
 
@@ -82,9 +83,21 @@ const VerifyPhoto = () => {
               data: base64data,
             });
 
-            const response = await djangoApi.post("/upload_photo/", jsonPayload);
+            const response = await djangoApi.post("/upload_photo/", jsonPayload, {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            });
             //const response = await localApi.post("/jwt/")
             console.log(response.data);
+            if (response.status === 200) {
+              alert("2fa was successfull");
+              await setToken(token);
+              router.replace("/main/record");
+            }else{
+              alert("2fa failed");
+              router.replace("/auth/login");
+            }
           } else {
             // Handle the case when reader.result is null
             console.error("Failed to read the blob as data URL");
@@ -101,14 +114,14 @@ const VerifyPhoto = () => {
     return (
       <View style={styles.container}>
         <View style={styles.topContainer}>
-          <Image source={{ uri: photo }} style={styles.video} />
+          <Image source={{ uri: photo }} style={[styles.video, styles.mirror]} />
         </View>
         <View style={styles.bottomContainer}>
           <TouchableOpacity style={styles.button} onPress={retry}>
             <Text style={styles.text}>Retry</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={confirm}>
-            <Text style={styles.text}>Confirm</Text>
+          <TouchableOpacity style={styles.button} onPress={!isLoading ? () => { confirm(); } : undefined}>
+          <Text style={styles.text}>{isLoading ? "Checking..." : "Confirm"}</Text>
           </TouchableOpacity>
         </View>
       </View>

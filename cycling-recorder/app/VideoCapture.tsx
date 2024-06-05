@@ -7,6 +7,7 @@ import * as FileSystem from "expo-file-system";
 import { djangoApi, localApi } from "@/api/service";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useRouter, useLocalSearchParams } from "expo-router";
 
 enum CameraType {
   BACK = "back",
@@ -14,6 +15,7 @@ enum CameraType {
 }
 const Duration = 5;
 export default function App() {
+  const router = useRouter();
   const [facing, setFacing] = useState(CameraType.FRONT);
   const [permission, requestPermission] = useCameraPermissions();
   const [isRecording, setIsRecording] = useState(false);
@@ -141,9 +143,16 @@ export default function App() {
                 data: base64data
             });
 
+            console.log("Video je bil poslan");
             const response = await djangoApi.post("/upload_video/", jsonPayload);
             //const response = await localApi.post("/jwt/")
             console.log(response.data);
+            if (response.status === 200) {
+              alert("Video uploaded successfully");
+              router.replace("/main/profile");
+            }else{
+              alert("Video upload failed");
+            }
             
           } else {
             // Handle the case when reader.result is null
