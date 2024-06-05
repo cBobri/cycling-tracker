@@ -6,10 +6,7 @@ module.exports = {
             const routes = await RouteModel.find({
                 isProcessed: true,
                 isPublic: true,
-            })
-                .sort({ createdAt: -1 })
-                .populate("user")
-                .populate("referencedRace");
+            }).sort({ createdAt: -1 });
 
             const simplifiedRoutes = routes.map(
                 ({
@@ -84,7 +81,7 @@ module.exports = {
             const route = await RouteModel.findOne({
                 _id: routeId,
                 isProcessed: true,
-            }).populate("referencedRace");
+            }).populate("referencedRaces");
 
             if (!route) {
                 const error = new Error("Route not found");
@@ -116,6 +113,7 @@ module.exports = {
 
             return res.status(200).json(simplifiedRoute);
         } catch (err) {
+            console.log(err);
             const error = new Error("Failed to fetch route");
             error.status = 500;
             return next(error);
