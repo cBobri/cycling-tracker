@@ -2,8 +2,8 @@ import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const api = axios.create({
-    // baseURL: "http://192.168.0.20:5000",
-    baseURL: "https://cycling-tracker-bobri-fe58b44c0738.herokuapp.com",
+    baseURL: "http://192.168.0.20:5000",
+    // baseURL: "https://cycling-tracker-bobri-fe58b44c0738.herokuapp.com",
     headers: {
         "Content-Type": "application/json",
     },

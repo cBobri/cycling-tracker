@@ -10,6 +10,7 @@ const bodyParser = require("body-parser");
 
 const usersRouter = require("./routes/usersRouter");
 const routesRouter = require("./routes/routesRouter");
+const authRouter = require("./routes/authRouter");
 
 const app = express();
 
@@ -40,6 +41,7 @@ app.use(express.static(path.join(__dirname, "public")));
 // Add routers
 app.use("/users", usersRouter);
 app.use("/routes", routesRouter);
+app.use("/auth", authRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
