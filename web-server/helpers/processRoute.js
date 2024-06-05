@@ -147,8 +147,17 @@ async function processRoute(routeId) {
 
         if (similarRaces && similarRaces.length > 0) {
             route.referencedRaces = similarRaces.map(race => race._id);
+
+            let totalPowerRatio = 0;
+            for (let race of similarRaces) {
+                totalPowerRatio += race.averageWattage.powerRatio;
+            }
+            const avgRacePowerRatio = totalPowerRatio / similarRaces.length;
+
+            route.proIndex = route.stats.powerRatio / avgRacePowerRatio;
         } else {
             route.referencedRaces = [];
+            route.proIndex = null;
         }
 
         await route.save();
