@@ -74,6 +74,8 @@ module.exports = {
             }
 
             // Handle login for mobile app - save their notification token if not yet saved
+            console.log("source", source)
+            console.log("client_token", client_token)
             if (
                 source === "mobile-app" &&
                 client_token &&
