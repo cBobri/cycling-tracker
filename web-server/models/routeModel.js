@@ -48,7 +48,7 @@ const routeSchema = new mongoose.Schema({
     q4: statsSchema,
     stats: statsSchema,
     proIndex: Number,
-    referencedRace: { type: mongoose.Schema.Types.ObjectId, ref: "race" },
+    referencedRaces: [{ type: mongoose.Schema.Types.ObjectId, ref: "race" }],
     user: { type: mongoose.Schema.Types.ObjectId, ref: "user" },
     recordingStart: Date,
     recordingEnd: Date,

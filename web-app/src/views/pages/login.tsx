@@ -91,8 +91,17 @@ const Login = () => {
             return;
         }
 
+        if (response.error && response.status === 403) {
+            const userId = response.data.extra.userId;
+
+            if (userId) {
+                navigate(`/authenticate/${userId}`);
+                return;
+            }
+        }
+
         if (response.error) {
-            setError(response.data);
+            setError(response.data.message);
             return;
         }
 

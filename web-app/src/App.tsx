@@ -9,6 +9,7 @@ import Profile from "./views/pages/profile";
 import Dashboard from "./views/pages/dashboard";
 import UserRides from "./views/pages/userRides";
 import View from "./views/pages/view";
+import Authenticate from "./views/pages/authenticate";
 
 const router = createBrowserRouter([
     {
@@ -22,6 +23,7 @@ const router = createBrowserRouter([
             { path: "/dashboard", element: <Dashboard /> },
             { path: "/profile/rides", element: <UserRides /> },
             { path: "/view/:id", element: <View /> },
+            { path: "/authenticate/:id", element: <Authenticate /> },
         ],
     },
 ]);

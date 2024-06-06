@@ -3,9 +3,9 @@ const calculateWattage = (
     verticalDistance,
     time,
     cyclistWeight = 70,
+    bikeWeight = 11,
     pro = false
 ) => {
-    const BIKE_WEIGHT = pro ? 7 : 11;
     const GRAVITY = 9.8067;
     const ROLLING_COEFFICIENT = 0.005;
     const HEADWIND = 0;
@@ -13,8 +13,10 @@ const calculateWattage = (
     const CDA = pro ? 0.25 : 0.4;
     const DRIVETAIN_LOSS = pro ? 2 : 3;
 
+    bikeWeight = pro ? (bikeWeight || 7) : (bikeWeight || 11);
+
     const speed = (distance + verticalDistance) / time;
-    const weight = cyclistWeight + BIKE_WEIGHT;
+    const weight = cyclistWeight + bikeWeight;
 
     const hillGrade = (verticalDistance / distance) * 100;
     const forceGravity =

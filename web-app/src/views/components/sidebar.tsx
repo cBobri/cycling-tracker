@@ -51,16 +51,16 @@ const Sidebar = ({ isOpened, onToggleSidebar }: SidebarProps) => {
     ) : (
         <>
             <Link
-                to={"/profile"}
-                aria-label="To your profile"
+                to={"/dashboard"}
+                aria-label="To your dashboard"
                 className="flex gap-2 pb-3 border-b-2 border-darkLight-200 border-opacity-0 hover:border-opacity-100 transition-colors duration-500 ease-out"
                 onClick={onToggleSidebar}
             >
                 <BiUser className="text-3xl" />
-                <span>Profile</span>
+                <span>Dashboard</span>
             </Link>
             <button
-                className="flex gap-2 pb-3 border-b-2 border-darkLight-200 border-opacity-0 hover:border-opacity-100 transition-colors duration-500 ease-out"
+                className="uppercase flex gap-2 pb-3 border-b-2 border-darkLight-200 border-opacity-0 hover:border-opacity-100 transition-colors duration-500 ease-out"
                 onClick={handleLogout}
             >
                 <BiLogOutCircle className="text-3xl" />
