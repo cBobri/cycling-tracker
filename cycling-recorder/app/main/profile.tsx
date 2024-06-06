@@ -5,6 +5,7 @@ import Logout from "@/components/Logout";
 import { useAuth } from "../auth/authContext";
 import { api, setToken } from "../../api/service";
 import useUserDetails from '../../hooks/GetUserDetails';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
 const Profile = () => {
@@ -12,14 +13,25 @@ const Profile = () => {
   const [weight, setWeight] = useState(user?.weight ? user.weight.toString() : '');
   const [bikeWeight, setBikeWeight] = useState(user?.bikeWeight ? user.bikeWeight.toString() : '');
   const [username, setUsername] = useState(user?.username || '');
+  const [token, setToken] = useState<string | null>();
+  
 
-  useEffect(() => {
+
+  useEffect(()=> {
     if (user) {
       setWeight(user.weight?.toString() || '');
       setBikeWeight(user.bikeWeight?.toString() || '');
       setUsername(user.username);
+      getToken();
     }
+    
   }, [user]);
+
+  const getToken = async () => {
+    const token = await AsyncStorage.getItem('expoPushToken');
+    setToken(token);
+  }
+
 
   const handleUpdate = async () => {
     try {
@@ -43,6 +55,7 @@ const Profile = () => {
     <SafeAreaView style={styles.container}>
       <View style={styles.headerContainer}>
         <Text style={styles.header}>Profile</Text>
+        <Text style={{ marginLeft: "auto" }}>{token}</Text>
       </View>
 
       
