@@ -25,11 +25,11 @@ const customMarkerIcon = new L.Icon({
     shadowSize: [41, 41],
 });
 
-const Map = ({ coordinates, markers }: any) => {
+const Map = ({ coordinates, markers, center }: any) => {
     return (
         <MapContainer
-            center={[46.553525, 15.646609]}
-            zoom={11}
+            center={[center.latitude, center.longitude]}
+            zoom={12}
             style={{ height: "100%", width: "100%" }}
         >
             <TileLayer

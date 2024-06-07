@@ -49,7 +49,7 @@ const RidesList = ({ rides }: any) => {
                             <span>
                                 {(ride.stats?.avgSpeed).toFixed(2)} KM/H
                             </span>
-                            <span>{(ride.stats?.power).toFixed(2)} W</span>
+                            <span>{(ride.stats?.power).toFixed(0)} W</span>
                             <span>{formatTime(ride.stats?.travelTime)}</span>
                         </div>
                     ) : (

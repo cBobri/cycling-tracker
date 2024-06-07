@@ -4,10 +4,15 @@ import { editRide, fetchRideById } from "../../api/rides";
 import { BiEdit, BiLoader } from "react-icons/bi";
 import Map from "../components/map";
 import { formatTime } from "../../helpers/timeFormatters";
-import { FaClock, FaMountain, FaRoute, FaScaleBalanced } from "react-icons/fa6";
-import { IoMdSpeedometer } from "react-icons/io";
+import { FaClock, FaMountainSun, FaRoute } from "react-icons/fa6";
+import { FaBalanceScaleLeft } from "react-icons/fa";
+import { IoIosSpeedometer, IoMdSpeedometer } from "react-icons/io";
 import { ImPower } from "react-icons/im";
 import clsx from "clsx";
+import CircularProgressBar from "../components/circularProgressBar";
+import AltitudeLineChart from "../components/altitudeLineChart";
+import StatsLineChart from "../components/statsLineChart";
+import { MdFastfood } from "react-icons/md";
 
 const View = () => {
     const { id } = useParams();
@@ -39,7 +44,7 @@ const View = () => {
                   label: "Elevation",
                   unit: "m",
                   value: ride.stats?.elevation?.toFixed(0) || 0,
-                  icon: <FaMountain />,
+                  icon: <FaMountainSun />,
               },
               {
                   label: "Time",
@@ -48,10 +53,16 @@ const View = () => {
                   icon: <FaClock />,
               },
               {
-                  label: "Speed",
+                  label: "Average Speed",
                   unit: "km/h",
                   value: ride.stats?.avgSpeed?.toFixed(2) || 0,
                   icon: <IoMdSpeedometer />,
+              },
+              {
+                  label: "Max Speed",
+                  unit: "km/h",
+                  value: ride.stats?.maxSpeed?.toFixed(2) || 0,
+                  icon: <IoIosSpeedometer />,
               },
               {
                   label: "Power",
@@ -63,13 +74,13 @@ const View = () => {
                   label: "Power Ratio",
                   unit: "W/kg",
                   value: ride.stats?.powerRatio?.toFixed(2) || 0,
-                  icon: <FaScaleBalanced />,
+                  icon: <FaBalanceScaleLeft />,
               },
               {
                   label: "Energy",
                   unit: "kcal",
                   value: ride.stats?.energy?.toFixed(1) || 0,
-                  icon: <ImPower />,
+                  icon: <MdFastfood />,
               },
           ]
         : [];
@@ -90,6 +101,7 @@ const View = () => {
             }
 
             setRide(response.data);
+            console.log(response.data);
 
             const { title, description, cyclistWeight, bikeWeight, isPublic } =
                 response.data;
@@ -201,6 +213,17 @@ const View = () => {
 
         setEditing(false);
     };
+
+    const getRaceDetailsString = (race: any) => {
+        const formattedDate = new Date(race.date).toLocaleString("en-GB", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+        });
+
+        return `${race.distance} KM | ${race.verticalMeters} M Altitude | ${formattedDate}`;
+    };
+
     return (
         <>
             <section className="py-10 px-6 xl:px-2 max-w-screen-xl mx-auto">
@@ -222,7 +245,11 @@ const View = () => {
             </section>
 
             <section className={clsx("h-[600px]")}>
-                <Map coordinates={coordinates} markers={markers} />
+                <Map
+                    coordinates={coordinates}
+                    markers={markers}
+                    center={ride.centerCoordinates}
+                />
             </section>
 
             <section className="bg-darkLight-100">
@@ -238,16 +265,147 @@ const View = () => {
                         {stats.map(({ label, unit, value, icon }) => (
                             <article
                                 key={label}
-                                className="flex items-center justify-center gap-5 p-5 border-b-2 border-darkLight-400"
+                                className="p-3 border-b-2 border-darkLight-400"
                             >
-                                <span className="text-6xl text-primary-200">
-                                    {icon}
-                                </span>
-                                <p className="text-5xl uppercase font-robotoCondensed text-darkLight-700 font-semibold">
-                                    {value} {unit}
+                                <div className="flex items-center justify-center gap-5 mb-3">
+                                    <span className="text-6xl text-primary-200">
+                                        {icon}
+                                    </span>
+                                    <p className="text-5xl uppercase font-robotoCondensed text-darkLight-700 font-semibold">
+                                        {value} {unit}
+                                    </p>
+                                </div>
+                                <p className="text-center text-xl font-semibold text-darkLight-600">
+                                    {label}
                                 </p>
                             </article>
                         ))}
+                    </div>
+                </div>
+            </section>
+
+            <section className="bg-darkLight-800 text-darkLight-200">
+                <div className="py-20 px-6 xl:px-2 max-w-screen-xl mx-auto">
+                    <div className="flex justify-around flex-wrap gap-20 mb-20">
+                        <div className="">
+                            <h3 className="mb-10 text-center text-5xl uppercase font-robotoCondensed font-semibold">
+                                Pro Index
+                            </h3>
+                            <CircularProgressBar value={ride.proIndex} />
+                        </div>
+                        <div className="">
+                            <h3 className="mb-10 text-center text-5xl uppercase font-robotoCondensed font-semibold">
+                                Winner Index
+                            </h3>
+                            <CircularProgressBar value={ride.winnerIndex} />
+                        </div>
+                    </div>
+
+                    <h3 className="mb-10 text-center text-5xl uppercase font-robotoCondensed font-semibold">
+                        Referenced Races
+                    </h3>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-14">
+                        {ride.referencedRaces.map((race: any) => (
+                            <div
+                                key={race._id}
+                                className="bg-darkLight-700 p-5 rounded-lg shadow-md"
+                            >
+                                <h3 className="text-2xl font-semibold">
+                                    {race.name}
+                                </h3>
+
+                                <p className="text-xl font-robotoCondensed text-darkLight-400 font-semibold mb-6">
+                                    {getRaceDetailsString(race)}
+                                </p>
+
+                                <div className="flex justify-start gap-10 flex-wrap">
+                                    <div>
+                                        <p className="font-semibold">
+                                            Average stats:
+                                        </p>
+                                        <ul className="list-disc ml-6">
+                                            <li>
+                                                {race.averageWattage.power.toFixed(
+                                                    0
+                                                )}{" "}
+                                                W
+                                            </li>
+                                            <li>
+                                                {race.averageWattage.powerRatio.toFixed(
+                                                    1
+                                                )}{" "}
+                                                W/kg
+                                            </li>
+                                            <li>
+                                                {race.averageWattage.energy.toFixed(
+                                                    0
+                                                )}{" "}
+                                                kcal
+                                            </li>
+                                        </ul>
+                                    </div>
+
+                                    <div>
+                                        <p className="font-semibold">
+                                            {race.winner}:
+                                        </p>
+                                        <ul className="list-disc ml-6">
+                                            <li>
+                                                {race.winnerWattage.power.toFixed(
+                                                    0
+                                                )}{" "}
+                                                W
+                                            </li>
+                                            <li>
+                                                {race.winnerWattage.powerRatio.toFixed(
+                                                    1
+                                                )}{" "}
+                                                W/kg
+                                            </li>
+                                            <li>
+                                                {race.winnerWattage.energy.toFixed(
+                                                    0
+                                                )}{" "}
+                                                kcal
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            <section className="bg-darkLight-100">
+                <div className="py-20 px-6 xl:px-2 max-w-screen-xl mx-auto">
+                    <h2
+                        className="text-5xl font-semibold font-robotoCondensed mb-16 uppercase text-center"
+                        id="statistics"
+                    >
+                        Details
+                    </h2>
+
+                    <div className="mb-10">
+                        <h3 className="text-3xl font-semibold font-robotoCondensed mb-16 uppercase text-center">
+                            Altitude over time
+                        </h3>
+                        <AltitudeLineChart data={ride.data} />
+                    </div>
+
+                    <div className="mb-10">
+                        <h3 className="text-3xl font-semibold font-robotoCondensed mb-16 uppercase text-center">
+                            Segments
+                        </h3>
+                        <StatsLineChart data={ride.segments} />
+                    </div>
+
+                    <div className="mb-10">
+                        <h3 className="text-3xl font-semibold font-robotoCondensed mb-16 uppercase text-center">
+                            Total stats over time
+                        </h3>
+                        <StatsLineChart data={ride.percentageStats} />
                     </div>
                 </div>
             </section>

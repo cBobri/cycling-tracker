@@ -1,5 +1,6 @@
 const RouteModel = require("../models/routeModel");
 const processRoute = require("../helpers/processRoute");
+const { parseGPX } = require("../helpers/parseGPX");
 module.exports = {
     getRoutes: async (req, res, next) => {
         try {
@@ -140,7 +141,7 @@ module.exports = {
             let route = await RouteModel.findOne({
                 _id: id,
                 user: req.user._id,
-            });
+            }).populate("referencedRaces");
 
             if (!route) {
                 const error = new Error("Route not found");
@@ -175,10 +176,18 @@ module.exports = {
                 };
             });
 
+            route = await RouteModel.findOne({
+                _id: id,
+                user: req.user._id,
+            }).populate("referencedRaces");
+
             const simplifiedRoute = {
                 ...route._doc,
                 data: simplifiedData,
+                editable: req.user._id.toString() == route.user.toString(),
             };
+
+            console.log(simplifiedRoute);
 
             return res.status(200).json(simplifiedRoute);
         } catch (err) {
@@ -248,6 +257,67 @@ module.exports = {
             return res.status(201).json({
                 message: "Route created successfully",
                 data: newRoute,
+            });
+        } catch (err) {
+            const error = new Error("Failed to create route");
+            error.status = 500;
+            return next(error);
+        }
+    },
+
+    importRoute: async (req, res, next) => {
+        try {
+            let { title, description, bikeWeight, cyclistWeight, isPublic } =
+                req.body;
+
+            const gpxData = req.file.buffer.toString("utf-8");
+            const { data, recordingStart, recordingEnd } = await parseGPX(
+                gpxData
+            );
+
+            const exists = await RouteModel.exists({
+                user: req.user._id,
+                recordingEnd,
+                recordingStart,
+            });
+
+            if (exists) {
+                const error = new Error("This route has already been uploaded");
+                error.status = 400;
+                return next(error);
+            }
+
+            if (!title) title = "New Imported Route";
+            if (!bikeWeight) bikeWeight = 12;
+            if (!cyclistWeight) cyclistWeight = 70;
+
+            const newRoute = new RouteModel({
+                data,
+                title,
+                description,
+                bikeWeight,
+                cyclistWeight,
+                recordingStart,
+                recordingEnd,
+                isPublic,
+                isProcessed: false,
+                q1: null,
+                q2: null,
+                q3: null,
+                q4: null,
+                stats: null,
+                proIndex: null,
+                winnerIndex: null,
+                referencedRace: null,
+                user: req.user._id,
+            });
+
+            await newRoute.save();
+            await processRoute(newRoute._id);
+
+            return res.status(201).json({
+                message: "Route imported successfully",
+                id: newRoute._id,
             });
         } catch (err) {
             const error = new Error("Failed to create route");

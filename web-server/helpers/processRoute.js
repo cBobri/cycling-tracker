@@ -1,193 +1,166 @@
-const RouteModel = require('../models/routeModel');
-const calculateWattage = require('./calculateWattage');
-const getSimilarRaces = require('./getSimilarRaces');
+const RouteModel = require("../models/routeModel");
+const { calculateDistance } = require("./calculateDistance");
+const calculateWattage = require("./calculateWattage");
+const getSimilarRaces = require("./getSimilarRaces");
 
 async function processRoute(routeId) {
     try {
         const route = await RouteModel.findById(routeId);
         if (!route) {
-            throw new Error('Route not found');
+            throw new Error("Route not found");
         }
 
         let { data } = route;
 
         if (data.length < 2) {
-            throw new Error('Not enough data points to process');
+            throw new Error("Not enough data points to process");
         }
 
         const numEntries = data.length;
-        const quartileSize = Math.ceil(numEntries / 4);
+        const numSegments = 10;
 
-        const stats = {
-            distance: 0,
-            elevation: 0,
-            travelTime: 0,
-            power: 0,
-            powerRatio: 0,
-            energy: 0
-        };
+        const segmentSize = Math.ceil(numEntries / numSegments);
 
-        const quartiles = [
-            { distance: 0, elevation: 0, travelTime: 0, power: 0, powerRatio: 0, energy: 0 },
-            { distance: 0, elevation: 0, travelTime: 0, power: 0, powerRatio: 0, energy: 0 },
-            { distance: 0, elevation: 0, travelTime: 0, power: 0, powerRatio: 0, energy: 0 },
-            { distance: 0, elevation: 0, travelTime: 0, power: 0, powerRatio: 0, energy: 0 }
-        ];
+        const segments = [];
+        for (let i = 0; i < numSegments; i++) {
+            segments.push({
+                distance: 0,
+                elevation: 0,
+                travelTime: 0,
+                power: 0,
+                powerRatio: 0,
+                energy: 0,
+                maxSpeed: 0,
+            });
+        }
 
         for (let i = 1; i < data.length; i++) {
             const prev = data[i - 1];
             const curr = data[i];
 
-            if (!curr.moving) {
+            if (!curr.moving && i != data.length - 1) {
                 continue;
             }
 
             const dist = calculateDistance(prev.gps, curr.gps);
             const elev = Math.max(0, curr.gps.altitude - prev.gps.altitude);
             const time = new Date(curr.timestamp) - new Date(prev.timestamp);
+            const seconds = time / 1000;
+            const speed = (dist / seconds) * 3.6;
 
-            stats.distance += dist;
-            stats.elevation += elev;
-            stats.travelTime += time;
+            const segmentIndex = Math.floor(i / segmentSize);
+            const segment = segments[segmentIndex];
+            segment.distance += dist;
+            segment.elevation += elev;
+            segment.travelTime += time;
 
-            const quartileIndex = Math.floor(i / quartileSize);
-            quartiles[quartileIndex].distance += dist;
-            quartiles[quartileIndex].elevation += elev;
-            quartiles[quartileIndex].travelTime += time;
+            segment.maxSpeed = Math.max(segment.maxSpeed, speed);
 
-            if ((i + 1) % quartileSize === 0 || i === data.length - 1) {
-                const quartile = quartiles[quartileIndex];
-                const firstEntry = data[quartileIndex * quartileSize];
-                const lastEntry = data[Math.min((quartileIndex + 1) * quartileSize, numEntries) - 1];
-                const elevationDiff = lastEntry.gps.altitude - firstEntry.gps.altitude;
+            if ((i + 1) % segmentSize === 0 || i === data.length - 1) {
+                const firstEntry = data[segmentIndex * segmentSize];
+                const lastEntry = curr;
+                const elevationDiff =
+                    lastEntry.gps.altitude - firstEntry.gps.altitude;
                 const { power, powerRatio, energy } = calculateWattage(
-                    quartile.distance,
+                    segment.distance,
                     elevationDiff,
-                    quartile.travelTime / 1000,
+                    segment.travelTime / 1000,
                     route.cyclistWeight,
                     route.bikeWeight
                 );
-                quartile.power = power;
-                quartile.powerRatio = powerRatio;
-                quartile.energy = energy;
+                segment.power = power;
+                segment.powerRatio = powerRatio;
+                segment.energy = energy;
             }
         }
 
-        const firstEntry = data[0];
-        const lastEntry = data[numEntries - 1];
-        const elevationDiff = lastEntry.gps.altitude - firstEntry.gps.altitude;
-        const { power, powerRatio, energy } = calculateWattage(
-            stats.distance,
-            elevationDiff,
-            stats.travelTime / 1000,
-            route.cyclistWeight,
-            route.bikeWeight
-        );
-        stats.power = power;
-        stats.powerRatio = powerRatio;
-        stats.energy = energy;
+        const center = {
+            latitude: data[0].gps.latitude,
+            longitude: data[0].gps.longitude,
+        };
 
-        stats.avgSpeed = (stats.distance / (stats.travelTime / 1000)) * 3.6;
-        quartiles.forEach(q => {
-            q.avgSpeed = (q.distance / (q.travelTime / 1000)) * 3.6; 
+        data.forEach((entry) => {
+            center.latitude += entry.gps.latitude;
+            center.longitude += entry.gps.longitude;
         });
 
-        const percentages = [25, 50, 75, 100];
-        const percentageStats = percentages.map(percentage => {
-            const endIndex = Math.floor((percentage / 100) * numEntries);
-            const subset = data.slice(0, endIndex);
+        segments.forEach((s) => {
+            s.avgSpeed = (s.distance / (s.travelTime / 1000)) * 3.6;
+        });
 
-            const subsetStats = {
+        const percentageStats = [];
+
+        for (let i = 0; i < segments.length; i++) {
+            const stats = {
                 distance: 0,
                 elevation: 0,
                 travelTime: 0,
                 power: 0,
                 powerRatio: 0,
-                energy: 0
+                energy: 0,
+                avgSpeed: 0,
+                maxSpeed: 0,
             };
 
-            subset.forEach((curr, index) => {
-                if (index === 0 || !curr.moving) return;
-                const prev = subset[index - 1];
+            for (let j = 0; j <= i; j++) {
+                const segment = segments[j];
 
-                const dist = calculateDistance(prev.gps, curr.gps);
-                const elev = Math.max(0, curr.gps.altitude - prev.gps.altitude);
-                const time = new Date(curr.timestamp) - new Date(prev.timestamp);
+                for (const key in segment) {
+                    if (key === "maxSpeed") continue;
 
-                subsetStats.distance += dist;
-                subsetStats.elevation += elev;
-                subsetStats.travelTime += time;
-            });
+                    stats[key] += segment[key];
+                }
 
-            const subsetFirstEntry = subset[0];
-            const subsetLastEntry = subset[subset.length - 1];
-            const elevationDiffSubset = subsetLastEntry.gps.altitude - subsetFirstEntry.gps.altitude;
-            const { power, powerRatio, energy } = calculateWattage(
-                subsetStats.distance,
-                elevationDiffSubset,
-                subsetStats.travelTime / 1000,
-                route.cyclistWeight,
-                route.bikeWeight
-            );
-            subsetStats.power = power;
-            subsetStats.powerRatio = powerRatio;
-            subsetStats.energy = energy;
+                stats.maxSpeed = Math.max(stats.maxSpeed, segment.maxSpeed);
+            }
 
-            subsetStats.avgSpeed = (subsetStats.distance / (subsetStats.travelTime / 1000)) * 3.6;
+            stats.avgSpeed /= i + 1;
+            stats.power /= i + 1;
+            stats.powerRatio /= i + 1;
 
-            return subsetStats;
-        });
+            percentageStats.push(stats);
+        }
 
-        route.stats = stats;
-        [route.q1, route.q2, route.q3, route.q4] = quartiles;
+        route.centerCoordinates = {
+            longitude: center.longitude / route.data.length,
+            latitude: center.latitude / route.data.length,
+        };
+
+        route.stats = percentageStats[percentageStats.length - 1];
         route.percentageStats = percentageStats;
+        route.segments = segments;
         route.isProcessed = true;
 
-        const similarRaces  = await getSimilarRaces(route);
+        const similarRaces = await getSimilarRaces(route);
 
         if (similarRaces && similarRaces.length > 0) {
-            route.referencedRaces = similarRaces.map(race => race._id);
+            route.referencedRaces = similarRaces.map((race) => race._id);
 
-            let totalPowerRatio = 0;
+            let totalWinnerPowerRatio = 0;
+            let totalAvgPowerRatio = 0;
             for (let race of similarRaces) {
-                totalPowerRatio += race.averageWattage.powerRatio;
+                totalWinnerPowerRatio += race.winnerWattage.powerRatio;
+                totalAvgPowerRatio += race.averageWattage.powerRatio;
             }
-            const avgRacePowerRatio = totalPowerRatio / similarRaces.length;
+            const avgAvgRacePowerRatio =
+                totalAvgPowerRatio / similarRaces.length;
+            const avgWinnerRacePowerRatio =
+                totalWinnerPowerRatio / similarRaces.length;
 
-            route.proIndex = route.stats.powerRatio / avgRacePowerRatio;
+            route.proIndex = route.stats.powerRatio / avgAvgRacePowerRatio;
+            route.winnerIndex =
+                route.stats.powerRatio / avgWinnerRacePowerRatio;
         } else {
             route.referencedRaces = [];
             route.proIndex = null;
+            route.winnerIndex = null;
         }
 
         await route.save();
-        console.log('Route processed successfully');
+        console.log("Route processed successfully");
     } catch (err) {
         console.error(err);
     }
-}
-
-function calculateDistance(gps1, gps2) {
-    const { latitude: lat1, longitude: lon1 } = gps1;
-    const { latitude: lat2, longitude: lon2 } = gps2;
-
-    if (lat1 == null || lon1 == null || lat2 == null || lon2 == null) {
-        return 0;
-    }
-
-    const R = 6371000; // Radius of the Earth in meters
-    const rad = Math.PI / 180; // Factor to convert degrees to radians
-    const phi1 = lat1 * rad;
-    const phi2 = lat2 * rad;
-    const deltaPhi = (lat2 - lat1) * rad;
-    const deltaLambda = (lon2 - lon1) * rad;
-
-    const a = Math.sin(deltaPhi / 2) * Math.sin(deltaPhi / 2) +
-        Math.cos(phi1) * Math.cos(phi2) *
-        Math.sin(deltaLambda / 2) * Math.sin(deltaLambda / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-    return R * c;
 }
 
 module.exports = processRoute;
