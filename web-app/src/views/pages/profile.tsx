@@ -2,20 +2,22 @@ import DefaultAvatar from "../../assets/images/default_avatar.jpg";
 import { useEffect, useState } from "react";
 import { EditProfileFormData, ProfileDetails } from "../../Types";
 import { editUserProfile, fetchUserProfile } from "../../api/auth";
-import { BiUser } from "react-icons/bi";
+import { BiCycling, BiUser } from "react-icons/bi";
 import {
     FaBicycle,
     FaClock,
-    FaMountain,
+    FaMountainSun,
     FaRoute,
     FaScaleBalanced,
     FaWeightHanging,
 } from "react-icons/fa6";
+import { MdFastfood } from "react-icons/md";
 import { IoMdSpeedometer } from "react-icons/io";
 import { ImPower } from "react-icons/im";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { formatTimeWithUnits } from "../../helpers/timeFormatters";
 import clsx from "clsx";
+import CircularProgressBar from "../components/circularProgressBar";
 
 const Profile = () => {
     const navigate = useNavigate();
@@ -34,6 +36,12 @@ const Profile = () => {
     const stats = profile
         ? [
               {
+                  label: "Rides",
+                  unit: " ",
+                  value: profile?.routesRecorded || 0,
+                  icon: <BiCycling />,
+              },
+              {
                   label: "Travelled",
                   unit: "km",
                   value: profile?.distanceTravelled.toFixed(2) || 0,
@@ -43,7 +51,7 @@ const Profile = () => {
                   label: "Elevation",
                   unit: "m",
                   value: profile?.elevationTravelled.toFixed(0) || 0,
-                  icon: <FaMountain />,
+                  icon: <FaMountainSun />,
               },
               {
                   label: "Time Cycling",
@@ -75,7 +83,7 @@ const Profile = () => {
                   label: "Energy",
                   unit: "kcal",
                   value: profile?.totalCalories?.toFixed(1) || 0,
-                  icon: <ImPower />,
+                  icon: <MdFastfood />,
               },
           ]
         : [];
@@ -283,13 +291,13 @@ const Profile = () => {
                         Statistics
                     </h2>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <div className="mb-20 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         {stats.map(({ label, unit, icon, value }) => (
                             <article
                                 className="bg-darkLight-900 border-2 mx-auto border-darkLight-600 rounded-3xl p-5 mb-5 relative w-[300px] h-[300px] flex justify-center items-center"
                                 key={label}
                             >
-                                <span className="mx-auto text-[175px] mb-4 text-darkLight-800 absolute">
+                                <span className="mx-auto text-[200px] mb-4 text-darkLight-800 absolute">
                                     {icon}
                                 </span>
 
@@ -313,6 +321,32 @@ const Profile = () => {
                             </article>
                         ))}
                     </div>
+
+                    <div className="flex justify-around flex-wrap gap-20 mb-20">
+                        <div className="">
+                            <h3 className="mb-10 text-center text-5xl uppercase font-robotoCondensed font-semibold">
+                                Pro Index
+                            </h3>
+                            <CircularProgressBar
+                                value={profile?.avgProIndex || 0}
+                            />
+                        </div>
+                        <div className="">
+                            <h3 className="mb-10 text-center text-5xl uppercase font-robotoCondensed font-semibold">
+                                Winner Index
+                            </h3>
+                            <CircularProgressBar
+                                value={profile?.avgWinnerIndex || 0}
+                            />
+                        </div>
+                    </div>
+
+                    <Link
+                        to={"/profile/rides"}
+                        className="block mx-auto w-fit text-3xl py-4 px-6 border-2 border-darkLight-200 rounded-3xl hover:bg-darkLight-200 hover:text-darkLight-900 transition-colors"
+                    >
+                        View your rides
+                    </Link>
                 </div>
             </section>
         </>

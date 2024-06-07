@@ -15,8 +15,9 @@ const processProfile = async (user) => {
         avgPower: 0,
         avgPowerRatio: 0,
         totalCalories: 0,
+        routesRecorded: 0,
         avgProIndex: 0,
-        maxProIndex: 0,
+        avgWinnerIndex: 0,
     };
 
     if (!routes || routes.length === 0) {
@@ -32,12 +33,9 @@ const processProfile = async (user) => {
             route.stats?.power * (route.stats?.travelTime / 1000) || 0;
         profileDetails.avgPowerRatio +=
             route.stats?.powerRatio * (route.stats?.travelTime / 1000) || 0;
-        profileDetails.avgProIndex += route.proIndex || 0;
-
-        profileDetails.maxProIndex =
-            route.proIndex > profileDetails.maxProIndex
-                ? route.proIndex
-                : profileDetails.maxProIndex;
+        profileDetails.avgProIndex += route._doc.proIndex || 0;
+        profileDetails.avgWinnerIndex += route._doc.winnerIndex || 0;
+        profileDetails.routesRecorded++;
     }
 
     profileDetails.avgSpeed =
@@ -45,6 +43,7 @@ const processProfile = async (user) => {
             (profileDetails.travelTime / 1000)) *
         3.6;
     profileDetails.avgProIndex /= routes.length;
+    profileDetails.avgWinnerIndex /= routes.length;
     profileDetails.avgPower /= profileDetails.travelTime;
     profileDetails.avgPowerRatio /= profileDetails.travelTime;
 

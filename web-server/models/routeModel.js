@@ -47,7 +47,14 @@ const routeSchema = new mongoose.Schema({
     q3: statsSchema,
     q4: statsSchema,
     stats: statsSchema,
-    proIndex: Number,
+    centerCoordinates: {
+        latitude: Number,
+        longitude: Number,
+    },
+    indexes: {
+        pro: Number,
+        winner: Number,
+    },
     referencedRaces: [{ type: mongoose.Schema.Types.ObjectId, ref: "race" }],
     user: { type: mongoose.Schema.Types.ObjectId, ref: "user" },
     recordingStart: Date,

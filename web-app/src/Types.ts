@@ -50,5 +50,6 @@ export type ProfileDetails = {
     avgPowerRatio: number;
     totalCalories: number;
     avgProIndex: number;
-    maxProIndex: number;
+    avgWinnerIndex: number;
+    routesRecorded: number;
 };

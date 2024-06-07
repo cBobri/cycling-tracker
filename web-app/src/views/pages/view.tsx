@@ -8,6 +8,7 @@ import { FaClock, FaMountain, FaRoute, FaScaleBalanced } from "react-icons/fa6";
 import { IoMdSpeedometer } from "react-icons/io";
 import { ImPower } from "react-icons/im";
 import clsx from "clsx";
+import CircularProgressBar from "../components/circularProgressBar";
 
 const View = () => {
     const { id } = useParams();
@@ -222,7 +223,11 @@ const View = () => {
             </section>
 
             <section className={clsx("h-[600px]")}>
-                <Map coordinates={coordinates} markers={markers} />
+                <Map
+                    coordinates={coordinates}
+                    markers={markers}
+                    center={ride.centerCoordinates}
+                />
             </section>
 
             <section className="bg-darkLight-100">
@@ -248,6 +253,25 @@ const View = () => {
                                 </p>
                             </article>
                         ))}
+                    </div>
+                </div>
+            </section>
+
+            <section className="bg-darkLight-800 text-darkLight-200">
+                <div className="py-20 px-6 xl:px-2 max-w-screen-xl mx-auto">
+                    <div className="flex justify-around flex-wrap gap-20">
+                        <div className="">
+                            <h3 className="mb-10 text-center text-5xl uppercase font-robotoCondensed font-semibold">
+                                Pro Index
+                            </h3>
+                            <CircularProgressBar value={ride.proIndex} />
+                        </div>
+                        <div className="">
+                            <h3 className="mb-10 text-center text-5xl uppercase font-robotoCondensed font-semibold">
+                                Winner Index
+                            </h3>
+                            <CircularProgressBar value={ride.winnerIndex} />
+                        </div>
                     </div>
                 </div>
             </section>

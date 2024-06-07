@@ -178,6 +178,7 @@ module.exports = {
             const simplifiedRoute = {
                 ...route._doc,
                 data: simplifiedData,
+                editable: req.user._id.toString() == route.user.toString(),
             };
 
             return res.status(200).json(simplifiedRoute);
