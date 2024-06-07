@@ -80,3 +80,27 @@ export const editRide = async (formData: any): Promise<APIResponse> => {
         };
     }
 };
+
+export const importRide = async (formData: any): Promise<APIResponse> => {
+    try {
+        const response = await api.post("/routes/import", formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        });
+
+        return {
+            error: false,
+            status: response.status,
+            data: response.data,
+        };
+    } catch (err: any) {
+        console.log(err);
+
+        return {
+            error: true,
+            status: err.response.status,
+            data: err.response.data,
+        };
+    }
+};

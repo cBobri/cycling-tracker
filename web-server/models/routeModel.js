@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 
 const statsSchema = new mongoose.Schema({
     avgSpeed: Number,
+    maxSpeed: Number,
     elevation: Number,
     distance: Number,
     travelTime: Number,
@@ -42,25 +43,20 @@ const routeSchema = new mongoose.Schema({
     description: String,
     bikeWeight: Number,
     cyclistWeight: Number,
-    q1: statsSchema,
-    q2: statsSchema,
-    q3: statsSchema,
-    q4: statsSchema,
     stats: statsSchema,
+    segments: [statsSchema],
+    percentageStats: [statsSchema],
     centerCoordinates: {
         latitude: Number,
         longitude: Number,
     },
-    indexes: {
-        pro: Number,
-        winner: Number,
-    },
+    proIndex: Number,
+    winnerIndex: Number,
     referencedRaces: [{ type: mongoose.Schema.Types.ObjectId, ref: "race" }],
     user: { type: mongoose.Schema.Types.ObjectId, ref: "user" },
     recordingStart: Date,
     recordingEnd: Date,
     createdAt: { type: Date, default: Date.now },
-    percentageStats: [statsSchema],
 });
 
 module.exports = mongoose.model("route", routeSchema);

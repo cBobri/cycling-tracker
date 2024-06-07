@@ -63,6 +63,9 @@ app.use(function (err, req, res, next) {
 });
 
 const scraper = require("./helpers/scraper");
+const processRoute = require("./helpers/processRoute");
 cron.schedule("*/15 * * * *", scraper.scrapeRecentRaces);
+
+processRoute("665f07266eb56d440dc02bcc");
 
 module.exports = app;

@@ -14,12 +14,13 @@ interface Props {
 }
 
 const StatsLineChart = ({ data }: Props) => {
-    const processedData = data.map((quartile: any) => {
+    const processedData = data.map((segment: any) => {
         return {
-            time: formatTime(quartile.travelTime),
-            averageSpeed: quartile.avgSpeed,
-            power: quartile.power,
-            elevation: quartile.elevation,
+            time: formatTime(segment.travelTime),
+            averageSpeed: segment.avgSpeed,
+            maxSpeed: segment.maxSpeed,
+            power: segment.power,
+            elevation: segment.elevation,
         };
     });
 
@@ -38,6 +39,12 @@ const StatsLineChart = ({ data }: Props) => {
                         type="natural"
                         dataKey="averageSpeed"
                         stroke="#661bde"
+                        strokeWidth={2}
+                    />
+                    <Line
+                        type="natural"
+                        dataKey="maxSpeed"
+                        stroke="#de1bce"
                         strokeWidth={2}
                     />
                     <Line

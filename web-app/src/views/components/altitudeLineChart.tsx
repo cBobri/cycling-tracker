@@ -23,15 +23,6 @@ const AltitudeLineChart = ({ data }: Props) => {
         };
     });
 
-    const minAltitude = Math.min(
-        ...altitudes.map((entry: any) => entry.altitude)
-    );
-    const maxAltitude = Math.max(
-        ...altitudes.map((entry: any) => entry.altitude)
-    );
-
-    const yDomain = [minAltitude - 5, maxAltitude + 5];
-
     const labelInterval = Math.ceil(altitudes.length / 8);
 
     const formatYAxisTick = (value: number) => `${Math.round(value)} m`;
@@ -43,7 +34,7 @@ const AltitudeLineChart = ({ data }: Props) => {
                     data={altitudes}
                     margin={{ top: 5, right: 20, left: 20, bottom: 5 }}
                 >
-                    <YAxis domain={yDomain} tickFormatter={formatYAxisTick} />
+                    <YAxis tickFormatter={formatYAxisTick} />
                     <XAxis dataKey="time" interval={labelInterval} />
                     <Tooltip />
                     <Legend />

@@ -29,7 +29,7 @@ const Map = ({ coordinates, markers, center }: any) => {
     return (
         <MapContainer
             center={[center.latitude, center.longitude]}
-            zoom={11}
+            zoom={12}
             style={{ height: "100%", width: "100%" }}
         >
             <TileLayer

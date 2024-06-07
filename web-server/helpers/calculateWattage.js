@@ -13,14 +13,15 @@ const calculateWattage = (
     const CDA = pro ? 0.25 : 0.4;
     const DRIVETAIN_LOSS = pro ? 2 : 3;
 
-    bikeWeight = pro ? (bikeWeight || 7) : (bikeWeight || 11);
+    bikeWeight = pro ? bikeWeight || 7 : bikeWeight || 11;
 
     const speed = (distance + verticalDistance) / time;
     const weight = cyclistWeight + bikeWeight;
 
     const hillGrade = (verticalDistance / distance) * 100;
-    const forceGravity =
-        GRAVITY * Math.sin(Math.atan(hillGrade / 100)) * weight;
+    let forceGravity = GRAVITY * Math.sin(Math.atan(hillGrade / 100)) * weight;
+
+    if (forceGravity < -10) forceGravity = -10;
 
     const forceRolling =
         GRAVITY *

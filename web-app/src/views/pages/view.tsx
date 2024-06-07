@@ -4,13 +4,15 @@ import { editRide, fetchRideById } from "../../api/rides";
 import { BiEdit, BiLoader } from "react-icons/bi";
 import Map from "../components/map";
 import { formatTime } from "../../helpers/timeFormatters";
-import { FaClock, FaMountain, FaRoute, FaScaleBalanced } from "react-icons/fa6";
-import { IoMdSpeedometer } from "react-icons/io";
+import { FaClock, FaMountainSun, FaRoute } from "react-icons/fa6";
+import { FaBalanceScaleLeft } from "react-icons/fa";
+import { IoIosSpeedometer, IoMdSpeedometer } from "react-icons/io";
 import { ImPower } from "react-icons/im";
 import clsx from "clsx";
 import CircularProgressBar from "../components/circularProgressBar";
 import AltitudeLineChart from "../components/altitudeLineChart";
 import StatsLineChart from "../components/statsLineChart";
+import { MdFastfood } from "react-icons/md";
 
 const View = () => {
     const { id } = useParams();
@@ -42,7 +44,7 @@ const View = () => {
                   label: "Elevation",
                   unit: "m",
                   value: ride.stats?.elevation?.toFixed(0) || 0,
-                  icon: <FaMountain />,
+                  icon: <FaMountainSun />,
               },
               {
                   label: "Time",
@@ -51,10 +53,16 @@ const View = () => {
                   icon: <FaClock />,
               },
               {
-                  label: "Speed",
+                  label: "Average Speed",
                   unit: "km/h",
                   value: ride.stats?.avgSpeed?.toFixed(2) || 0,
                   icon: <IoMdSpeedometer />,
+              },
+              {
+                  label: "Max Speed",
+                  unit: "km/h",
+                  value: ride.stats?.maxSpeed?.toFixed(2) || 0,
+                  icon: <IoIosSpeedometer />,
               },
               {
                   label: "Power",
@@ -66,13 +74,13 @@ const View = () => {
                   label: "Power Ratio",
                   unit: "W/kg",
                   value: ride.stats?.powerRatio?.toFixed(2) || 0,
-                  icon: <FaScaleBalanced />,
+                  icon: <FaBalanceScaleLeft />,
               },
               {
                   label: "Energy",
                   unit: "kcal",
                   value: ride.stats?.energy?.toFixed(1) || 0,
-                  icon: <ImPower />,
+                  icon: <MdFastfood />,
               },
           ]
         : [];
@@ -257,13 +265,18 @@ const View = () => {
                         {stats.map(({ label, unit, value, icon }) => (
                             <article
                                 key={label}
-                                className="flex items-center justify-center gap-5 p-5 border-b-2 border-darkLight-400"
+                                className="p-3 border-b-2 border-darkLight-400"
                             >
-                                <span className="text-6xl text-primary-200">
-                                    {icon}
-                                </span>
-                                <p className="text-5xl uppercase font-robotoCondensed text-darkLight-700 font-semibold">
-                                    {value} {unit}
+                                <div className="flex items-center justify-center gap-5 mb-3">
+                                    <span className="text-6xl text-primary-200">
+                                        {icon}
+                                    </span>
+                                    <p className="text-5xl uppercase font-robotoCondensed text-darkLight-700 font-semibold">
+                                        {value} {unit}
+                                    </p>
+                                </div>
+                                <p className="text-center text-xl font-semibold text-darkLight-600">
+                                    {label}
                                 </p>
                             </article>
                         ))}
@@ -375,10 +388,23 @@ const View = () => {
                     </h2>
 
                     <div className="mb-10">
+                        <h3 className="text-3xl font-semibold font-robotoCondensed mb-16 uppercase text-center">
+                            Altitude over time
+                        </h3>
                         <AltitudeLineChart data={ride.data} />
                     </div>
 
                     <div className="mb-10">
+                        <h3 className="text-3xl font-semibold font-robotoCondensed mb-16 uppercase text-center">
+                            Segments
+                        </h3>
+                        <StatsLineChart data={ride.segments} />
+                    </div>
+
+                    <div className="mb-10">
+                        <h3 className="text-3xl font-semibold font-robotoCondensed mb-16 uppercase text-center">
+                            Total stats over time
+                        </h3>
                         <StatsLineChart data={ride.percentageStats} />
                     </div>
                 </div>
