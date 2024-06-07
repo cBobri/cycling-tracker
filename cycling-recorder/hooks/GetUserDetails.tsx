@@ -10,6 +10,7 @@ interface User {
 
 const useUserDetails = () => {
   const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -19,7 +20,8 @@ const useUserDetails = () => {
       if (token) {
         const res = await api.get('/users/details');
         if (res.status === 200) {
-          setUser(res.data as User); // Type assertion
+          setUser(res.data as User);
+          setToken(token);
         } else {
           setError('Failed to fetch user details');
         }
@@ -37,7 +39,7 @@ const useUserDetails = () => {
     fetchUserDetails();
   }, []);
 
-  return { user, loading, error };
+  return { user, token, loading, error };
 };
 
 export default useUserDetails;

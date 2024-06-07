@@ -6,7 +6,8 @@
         "paths": {
             "@/*": ["./*"],
             "@app/*": ["app/*"],
-            "@components/*": ["components/*"]
+            "@components/*": ["components/*"],
+            "@hooks/*": ["hooks/*"],
         }
     },
     "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts", "babel.config.js", "components/VideoRecorder.tsx"]
