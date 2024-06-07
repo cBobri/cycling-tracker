@@ -31,10 +31,12 @@ const Login = () => {
                 const { token, user } = res.data;
                 console.log("user", user);
                 //check if user has 2fa enabled
+                
                 if (user.enabled_2fa) {
+                    const mode = "2fa_phone";
                     router.replace({
                         pathname: "/auth/2fa",
-                        params: { token },
+                        params: { token, mode},
                     });
                 } else {
                     // No 2FA, proceed with setting the token

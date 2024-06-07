@@ -1,10 +1,10 @@
 import React, { useState, useRef } from "react";
-import { StyleSheet, Text, TouchableOpacity, View, Image } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View, Image, Alert } from "react-native";
 import { Button } from "react-native-paper";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import authStyles from "../../styles/authStyle";
-import { djangoApi, localApi, setToken } from "@/api/service";
+import { djangoApi, localApi, setToken, api } from "@/api/service";
 
 enum CameraType {
   BACK = "back",
@@ -14,7 +14,7 @@ enum CameraType {
 const VerifyPhoto = () => {
   const [photo, setPhoto] = useState<string | undefined>();
   const router = useRouter();
-  const { token } = useLocalSearchParams();
+  const { token, mode } = useLocalSearchParams();
   const [facing, setFacing] = useState(CameraType.FRONT);
   const [permission, requestPermission] = useCameraPermissions();
   const cameraRef = useRef<CameraView | null>(null);
@@ -88,15 +88,30 @@ const VerifyPhoto = () => {
                 Authorization: `Bearer ${token}`,
               },
             });
-            //const response = await localApi.post("/jwt/")
             console.log(response.data);
-            if (response.status === 200) {
-              alert("2fa was successfull");
-              await setToken(token);
-              router.replace("/main/record");
-            }else{
-              alert("2fa failed");
-              router.replace("/auth/login");
+            if(mode === "2fa_phone"){
+              if (response.status === 200) {
+                alert("2fa was successfull");
+                await setToken(token);
+                router.replace("/main/record");
+              }else{
+                alert("2fa failed");
+                router.replace("/auth/login");
+              }
+            }else if(mode === "2fa_web"){
+              if (response.status === 200) {
+                alert("2fa for website was successfull");
+                const response2 = await api.post("/auth/finish");
+                if(response2.status === 200){
+                  alert("2fa for website was successfull");
+                }else{
+                  alert("2fa for website failed");
+                }
+                router.replace("/main/record");
+              }else{
+                alert("2fa for website failed");
+                router.replace("/main/record");
+              }
             }
           } else {
             // Handle the case when reader.result is null
@@ -130,7 +145,7 @@ const VerifyPhoto = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.topContainer}>
+      <View style={[styles.topContainer, styles.zoom]}>
         <CameraView
           mode="picture"
           style={styles.camera}
