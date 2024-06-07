@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
+    "scheme": "com.cbobri.cyclingrecorder",
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/images/splash.png",
@@ -17,7 +17,7 @@
     },
     "android": {
       "permissions": ["CAMERA", "RECORD_AUDIO" , "WRITE_EXTERNAL_STORAGE" ,
-      "READ_EXTERNAL_STORAGE"],
+      "READ_EXTERNAL_STORAGE", "NOTIFICATIONS"],
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
