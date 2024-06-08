@@ -1,5 +1,12 @@
 import React, { useState, useRef } from "react";
-import { StyleSheet, Text, TouchableOpacity, View, Image, Alert } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  Image,
+  Alert,
+} from "react-native";
 import { Button } from "react-native-paper";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { useRouter, useLocalSearchParams } from "expo-router";
@@ -82,33 +89,45 @@ const VerifyPhoto = () => {
               fileType: fileType,
               data: base64data,
             });
-
-            const response = await djangoApi.post("/upload_photo/", jsonPayload, {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            });
-            console.log(response.data);
-            if(mode === "2fa_phone"){
-              if (response.status === 200) {
+            var response = null;
+            try {
+              response = await djangoApi.post("/upload_photo/", jsonPayload, {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              });
+            } catch (error) {
+              console.error("Error uploading photo:", error);
+              alert("Error uploading photo, try again");
+              setPhoto(undefined);
+            }
+            console.log(response?.data);
+            if (mode === "2fa_phone") {
+              if (response?.status === 200) {
                 alert("2fa was successfull");
                 await setToken(token);
                 router.replace("/main/record");
-              }else{
+              } else {
                 alert("2fa failed");
                 router.replace("/auth/login");
               }
-            }else if(mode === "2fa_web"){
-              if (response.status === 200) {
+            } else if (mode === "2fa_web") {
+              if (response?.status === 200) {
                 alert("2fa for website was successfull");
-                const response2 = await api.post("/auth/finish");
-                if(response2.status === 200){
+                var response2 = null;
+                try{
+                  response2 = await api.post("/auth/finish");
+                }catch(error){
+                  //console.error("Error finishing 2fa:", error);
+                  alert("User was not recognized, try again.");
+                }
+                if (response2?.status === 200) {
                   alert("2fa for website was successfull");
-                }else{
+                } else {
                   alert("2fa for website failed");
                 }
                 router.replace("/main/record");
-              }else{
+              } else {
                 alert("2fa for website failed");
                 router.replace("/main/record");
               }
@@ -129,14 +148,28 @@ const VerifyPhoto = () => {
     return (
       <View style={styles.container}>
         <View style={styles.topContainer}>
-          <Image source={{ uri: photo }} style={[styles.video, styles.mirror]} />
+          <Image
+            source={{ uri: photo }}
+            style={[styles.video, styles.mirror]}
+          />
         </View>
         <View style={styles.bottomContainer}>
           <TouchableOpacity style={styles.button} onPress={retry}>
             <Text style={styles.text}>Retry</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={!isLoading ? () => { confirm(); } : undefined}>
-          <Text style={styles.text}>{isLoading ? "Checking..." : "Confirm"}</Text>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={
+              !isLoading
+                ? () => {
+                    confirm();
+                  }
+                : undefined
+            }
+          >
+            <Text style={styles.text}>
+              {isLoading ? "Checking..." : "Confirm"}
+            </Text>
           </TouchableOpacity>
         </View>
       </View>

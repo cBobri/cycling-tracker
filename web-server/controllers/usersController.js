@@ -226,4 +226,30 @@ module.exports = {
             return next(error);
         }
     },
+    enableTwoFactorAuthentication: async (req, res, next) => {
+        try {
+            const userId = req.user._id;
+            const user = await UserModel.findById(userId);
+            if (!user) {
+                const error = new Error("User not found");
+                error.status = 404;
+                return next(error);
+            }
+            user.enabled_2fa = true;
+            await user.save();
+            return res.status(200).json({
+                message: "Two-Factor Authentication enabled successfully",
+                user: {
+                    email: user.email,
+                    username: user.username,
+                    enabled_2fa: user.enabled_2fa,
+                },
+            });
+        } catch (err) {
+            console.log(err);
+            const error = new Error("Failed to enable Two-Factor Authentication");
+            error.status = 500;
+            return next(error);
+        }
+    },
 };

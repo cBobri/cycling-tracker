@@ -6,6 +6,8 @@ interface User {
   username: string;
   weight?: number;
   bikeWeight?: number;
+  email: string;
+  enabled_2fa: boolean;
 }
 
 const useUserDetails = () => {
