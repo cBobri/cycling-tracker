@@ -164,23 +164,35 @@ module.exports = {
             return next(error);
         }
     },
-    getUserDetails: (req, res, next) => {
+    getUserDetails: async (req, res, next) => {
         if (!req.user || !req.userTokenData) {
             const error = new Error("User not authenticated");
             error.status = 401;
             return next(error);
         }
 
-        const { email, username, weight, bikeWeight, enabled_2fa } =
-            req.userTokenData;
+        try {
+            const user = await UserModel.findById(req.user._id);
 
-        return res.status(200).json({
-            email,
-            username,
-            weight,
-            bikeWeight,
-            enabled_2fa,
-        });
+            if (!user) {
+                const error = new Error("User not found");
+                error.status = 404;
+                return next(error);
+            }
+
+            return res.status(200).json({
+                email: user.email,
+                username: user.username,
+                weight: user.weight,
+                bikeWeight: user.bikeWeight,
+                enabled_2fa: user.enabled_2fa,
+            });
+        } catch (err) {
+            console.log(err);
+            const error = new Error("Failed to fetch user details");
+            error.status = 500;
+            return next(error);
+        }
     },
     getUserProfile: async (req, res, next) => {
         try {
