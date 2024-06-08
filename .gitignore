@@ -133,4 +133,5 @@ dist
 .vscode
 **/.env
 
-web-server/public/*
+/web-server/public/*
+!/web-server/public/.gitignore
