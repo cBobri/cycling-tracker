@@ -39,9 +39,13 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 // Add routers
-app.use("/users", usersRouter);
-app.use("/routes", routesRouter);
-app.use("/auth", authRouter);
+app.use("/api/users", usersRouter);
+app.use("/api/routes", routesRouter);
+app.use("/api/auth", authRouter);
+
+app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "index.html"));
+});
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -63,9 +67,6 @@ app.use(function (err, req, res, next) {
 });
 
 const scraper = require("./helpers/scraper");
-const processRoute = require("./helpers/processRoute");
 cron.schedule("*/15 * * * *", scraper.scrapeRecentRaces);
-
-processRoute("665f07266eb56d440dc02bcc");
 
 module.exports = app;
