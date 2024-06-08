@@ -1,5 +1,5 @@
 # 1. Uporabi uradno Node.js sliko kot osnovo
-FROM node:14
+FROM node:19-bullseye
 
 # 2. Nastavi delovni imenik
 WORKDIR /usr/src/app
