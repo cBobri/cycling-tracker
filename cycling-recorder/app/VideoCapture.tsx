@@ -4,7 +4,7 @@ import { Button, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { ResizeMode, Video } from "expo-av";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as FileSystem from "expo-file-system";
-import { djangoApi, localApi } from "@/api/service";
+import { djangoApi, localApi, api } from "@/api/service";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter, useLocalSearchParams } from "expo-router";
@@ -149,7 +149,13 @@ export default function App() {
             console.log(response.data);
             if (response.status === 200) {
               alert("Video uploaded successfully");
-              router.replace("/main/profile");
+              const response = await api.post("/users/enable-2fa")
+              if (response.status === 200) {
+                alert("2FA enabled successfully");
+                router.replace("/main/profile");
+              } else {
+                alert("2FA failed to enable");
+              }
             }else{
               alert("Video upload failed");
             }

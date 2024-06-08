@@ -6,14 +6,14 @@ const styles = StyleSheet.create({
         backgroundColor: '#124559',
       },
       topContainer: {
-        flex: 7, // 80% of the height
+        flex: 8, // 80% of the height
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#124559', // Adjust top container color
-        paddingTop: 50,
+        marginBottom: -25
       },
       bottomContainer: {
-        flex: 3, // 20% of the height
+        flex: 2, // 20% of the height
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#01161E', // Adjust bottom container color
@@ -46,6 +46,8 @@ const styles = StyleSheet.create({
 
       },
       title:{
+        position: 'absolute',
+        top: '85%',
         color: '#FFFFFF',
         fontSize: 30,
         fontWeight: 'bold',
