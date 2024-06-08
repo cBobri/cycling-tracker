@@ -180,8 +180,6 @@ module.exports = {
                 return next(error);
             }
 
-            console.log("getUserDetails", user);
-
             return res.status(200).json({
                 email: user.email,
                 username: user.username,
