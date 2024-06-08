@@ -140,9 +140,9 @@ const Register = () => {
     };
 
     return (
-        <section className="background-image-section">
-            <div className="bg-darkLight-900 bg-opacity-25 ">
-                <div className="py-20 px-4 sm:px-10 max-w-screen-xl mx-auto text-darkLight-200">
+        <section className="background-image-section flex flex-1">
+            <div className="bg-darkLight-900 bg-opacity-25 flex-1 flex items-center">
+                <div className="py-20 px-4 sm:px-10 max-w-screen-xl mx-auto w-full text-darkLight-200">
                     <form
                         onSubmit={handleSubmit}
                         className="bg-darkLight-900 bg-opacity-80 max-w-lg mx-auto flex flex-col gap-4 p-5 rounded-xl shadow-md mb-10 border-2 border-darkLight-600"

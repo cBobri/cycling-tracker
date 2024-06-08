@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { fetchPublicRides } from "../../api/rides";
 import RidesList from "../components/ridesList";
 import { BiLoader } from "react-icons/bi";
+import BreadCrumbs from "../components/breadCrumbs";
 
 const Rides = () => {
     const [rides, setRides] = useState<any[] | null>(null);
@@ -31,7 +32,9 @@ const Rides = () => {
     }, []);
 
     return (
-        <section className="py-16 px-6 xl:px-2 max-w-screen-xl mx-auto">
+        <section className="py-16 px-6 xl:px-2 max-w-screen-xl mx-auto w-full">
+            <BreadCrumbs currentPage="Public Rides" depth={2} />
+
             <h1 className="text-primary-300 text-5xl font-semibold font-robotoCondensed mb-6 text-center uppercase">
                 Public Rides
             </h1>

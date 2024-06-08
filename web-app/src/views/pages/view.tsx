@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { editRide, fetchRideById } from "../../api/rides";
-import { BiEdit, BiLoader } from "react-icons/bi";
+import { useNavigate, useParams } from "react-router-dom";
+import { deleteRide, editRide, fetchRideById } from "../../api/rides";
+import { BiEdit, BiLoader, BiTrash } from "react-icons/bi";
 import Map from "../components/map";
 import { formatTime } from "../../helpers/timeFormatters";
 import { FaClock, FaMountainSun, FaRoute } from "react-icons/fa6";
@@ -13,14 +13,17 @@ import CircularProgressBar from "../components/circularProgressBar";
 import AltitudeLineChart from "../components/altitudeLineChart";
 import StatsLineChart from "../components/statsLineChart";
 import { MdFastfood } from "react-icons/md";
+import BreadCrumbs from "../components/breadCrumbs";
 
 const View = () => {
     const { id } = useParams();
+    const navigate = useNavigate();
 
     const [ride, setRide] = useState<any | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [editing, setEditing] = useState(false);
+    const [deleting, setDeleting] = useState(false);
 
     const [form, setForm] = useState({
         title: "",
@@ -30,6 +33,7 @@ const View = () => {
         isPublic: false,
     });
     const [formError, setFormError] = useState("");
+    const [deleteError, setDeleteError] = useState("");
     const [info, setInfo] = useState("");
 
     const stats = ride
@@ -95,13 +99,11 @@ const View = () => {
             }
 
             if (response.error) {
-                console.log(response);
                 setError(response.data);
                 return;
             }
 
             setRide(response.data);
-            console.log(response.data);
 
             const { title, description, cyclistWeight, bikeWeight, isPublic } =
                 response.data;
@@ -214,6 +216,22 @@ const View = () => {
         setEditing(false);
     };
 
+    const handleDelete = async () => {
+        const response = await deleteRide(ride._id);
+
+        if (!response) {
+            setDeleteError("Could not get a response from the server");
+            return;
+        }
+
+        if (response.error) {
+            setDeleteError(response.data.message);
+            return;
+        }
+
+        navigate("/profile/rides");
+    };
+
     const getRaceDetailsString = (race: any) => {
         const formattedDate = new Date(race.date).toLocaleString("en-GB", {
             day: "2-digit",
@@ -226,16 +244,32 @@ const View = () => {
 
     return (
         <>
-            <section className="py-10 px-6 xl:px-2 max-w-screen-xl mx-auto">
+            <section className="py-10 px-6 xl:px-2 max-w-screen-xl mx-auto w-full">
+                <BreadCrumbs
+                    currentPage={ride.title}
+                    depth={3}
+                    editableRide={ride.editable}
+                />
+
                 <h1 className="text-darkLight-800 text-5xl font-semibold font-robotoCondensed mb-3 uppercase flex justify-between flex-wrap">
                     <span>{ride.title}</span>
                     {ride.editable && (
-                        <button
-                            aria-label="Open edit modal"
-                            onClick={() => setEditing(true)}
-                        >
-                            <BiEdit />
-                        </button>
+                        <div className="flex gap-5">
+                            <button
+                                aria-label="Open edit modal"
+                                onClick={() => setEditing(true)}
+                                className="hover:text-primary-200 transition-colors"
+                            >
+                                <BiEdit />
+                            </button>
+                            <button
+                                aria-label="Open delete modal"
+                                onClick={() => setDeleting(true)}
+                                className="hover:text-primary-200 transition-colors"
+                            >
+                                <BiTrash />
+                            </button>
+                        </div>
                     )}
                 </h1>
 
@@ -410,116 +444,154 @@ const View = () => {
                 </div>
             </section>
 
-            {editing && (
-                <>
-                    <div
-                        className="fixed top-0 left-0 z-40 w-screen h-screen bg-black bg-opacity-50"
-                        onClick={() => setEditing(false)}
-                    ></div>
-                    <form
-                        className="fixed top-1/2 left-1/2 -translate-x-2/4 -translate-y-2/4 bg-primary-300 z-50 rounded-2xl shadow-md p-5 text-darkLight-200"
-                        onSubmit={handleSubmit}
-                    >
-                        <h2 className="text-center font-robotoCondensed text-4xl uppercase font-semibold mb-6">
-                            Edit Ride
-                        </h2>
+            {(editing || deleting) && (
+                <div
+                    className="fixed top-0 left-0 z-40 w-screen h-screen bg-black bg-opacity-50"
+                    onClick={() => {
+                        setEditing(false);
+                        setDeleting(false);
+                    }}
+                ></div>
+            )}
 
-                        <div className="mb-5">
-                            <label
-                                htmlFor="public"
-                                className="mb-1 mr-2 text-xl font-robotoCondensed font-semibold"
-                            >
-                                Public:
-                            </label>
-                            <input
-                                type="checkbox"
-                                name="public"
-                                id="public"
-                                checked={form.isPublic}
-                                onChange={handleChange}
-                            />
-                        </div>
+            {deleting && (
+                <div className="fixed top-1/2 left-1/2 -translate-x-2/4 -translate-y-2/4 bg-primary-300 z-50 rounded-2xl shadow-md p-10 text-darkLight-200">
+                    <h2 className="text-center font-robotoCondensed text-4xl uppercase font-semibold mb-6">
+                        Are you sure?
+                    </h2>
 
-                        <div className="mb-5">
-                            <label
-                                htmlFor="title"
-                                className="block mb-1 text-xl font-robotoCondensed font-semibold"
-                            >
-                                Title:
-                            </label>
-                            <input
-                                type="text"
-                                name="title"
-                                id="title"
-                                value={form.title}
-                                onChange={handleChange}
-                                className="bg-darkLight-900 p-2 rounded-md border-2 border-primary-200 focus:border-primary-100 outline-none text-lg min-w-[400px] transition-colors"
-                            />
-                        </div>
-                        <div className="mb-5">
-                            <label
-                                htmlFor="description"
-                                className="block mb-1 text-xl font-robotoCondensed font-semibold"
-                            >
-                                Description:
-                            </label>
-                            <textarea
-                                name="description"
-                                id="description"
-                                onChange={handleChange}
-                                value={form.description}
-                                className="bg-darkLight-900 p-2 rounded-md border-2 border-primary-200 focus:border-primary-100 outline-none text-lg min-w-[400px] transition-colors"
-                            ></textarea>
-                        </div>
-                        <div className="mb-5">
-                            <label
-                                htmlFor="cyclistWeight"
-                                className="block mb-1 text-xl font-robotoCondensed font-semibold"
-                            >
-                                Your Weight (kg):
-                            </label>
-                            <input
-                                type="number"
-                                name="cyclistWeight"
-                                id="cyclistWeight"
-                                value={form.cyclistWeight || ""}
-                                onChange={handleChange}
-                                className="bg-darkLight-900 p-2 rounded-md border-2 border-primary-200 focus:border-primary-100 outline-none text-lg min-w-[400px] transition-colors"
-                            />
-                        </div>
-                        <div className="mb-5">
-                            <label
-                                htmlFor="bikeWeight"
-                                className="block mb-1 text-xl font-robotoCondensed font-semibold"
-                            >
-                                Bike Weight (kg):
-                            </label>
-                            <input
-                                type="number"
-                                name="bikeWeight"
-                                id="bikeWeight"
-                                value={form.bikeWeight || ""}
-                                onChange={handleChange}
-                                className="bg-darkLight-900 p-2 rounded-md border-2 border-primary-200 focus:border-primary-100 outline-none text-lg min-w-[400px] transition-colors"
-                            />
-                        </div>
+                    <p>
+                        This will{" "}
+                        <strong className="text-red-500">delete</strong> your
+                        route{" "}
+                        <strong className="text-red-500">permanently</strong>!
+                    </p>
 
-                        <p className="my-3 text-darkLight-200 font-semibold text-center">
-                            {info}
-                        </p>
-
-                        <p className="my-3 text-red-600 font-semibold text-center">
-                            {formError}
-                        </p>
-
+                    <div className="flex justify-between mt-10">
                         <button
-                            type="submit"
-                            className="w-full mt-6 p-4 border-2 text-xl uppercase font-semibold border-darkLight-200 hover:bg-darkLight-200 hover:text-darkLight-900 rounded-md transition-colors duration-300"
+                            className="py-3 px-6 text-xl uppercase font-semibold bg-primary-100 hover:bg-primary-50 rounded-md transition-colors duration-300"
+                            onClick={() => setDeleting(false)}
                         >
-                            Apply Changes
+                            Cancel
                         </button>
-                    </form>
-                </>
+                        <button
+                            className="border-2 py-3 px-6 text-xl uppercase font-semibold border-red-600 hover:bg-red-600 text-red-600 hover:text-darkLight-900 rounded-md transition-colors duration-300"
+                            onClick={handleDelete}
+                        >
+                            Delete
+                        </button>
+                    </div>
+
+                    <p className="my-3 text-red-600 font-semibold text-center mt-5">
+                        {deleteError}
+                    </p>
+                </div>
+            )}
+
+            {editing && (
+                <form
+                    className="fixed top-1/2 left-1/2 -translate-x-2/4 -translate-y-2/4 bg-primary-300 z-50 rounded-2xl shadow-md p-10 text-darkLight-200"
+                    onSubmit={handleSubmit}
+                >
+                    <h2 className="text-center font-robotoCondensed text-4xl uppercase font-semibold mb-6">
+                        Edit Ride
+                    </h2>
+
+                    <div className="mb-5">
+                        <label
+                            htmlFor="public"
+                            className="mb-1 mr-2 text-xl font-robotoCondensed font-semibold"
+                        >
+                            Public:
+                        </label>
+                        <input
+                            type="checkbox"
+                            name="public"
+                            id="public"
+                            checked={form.isPublic}
+                            onChange={handleChange}
+                        />
+                    </div>
+
+                    <div className="mb-5">
+                        <label
+                            htmlFor="title"
+                            className="block mb-1 text-xl font-robotoCondensed font-semibold"
+                        >
+                            Title:
+                        </label>
+                        <input
+                            type="text"
+                            name="title"
+                            id="title"
+                            value={form.title}
+                            onChange={handleChange}
+                            className="bg-darkLight-900 p-2 rounded-md border-2 border-primary-200 focus:border-primary-100 outline-none text-lg min-w-[400px] transition-colors"
+                        />
+                    </div>
+                    <div className="mb-5">
+                        <label
+                            htmlFor="description"
+                            className="block mb-1 text-xl font-robotoCondensed font-semibold"
+                        >
+                            Description:
+                        </label>
+                        <textarea
+                            name="description"
+                            id="description"
+                            onChange={handleChange}
+                            value={form.description}
+                            className="bg-darkLight-900 p-2 rounded-md border-2 border-primary-200 focus:border-primary-100 outline-none text-lg min-w-[400px] transition-colors"
+                        ></textarea>
+                    </div>
+                    <div className="mb-5">
+                        <label
+                            htmlFor="cyclistWeight"
+                            className="block mb-1 text-xl font-robotoCondensed font-semibold"
+                        >
+                            Your Weight (kg):
+                        </label>
+                        <input
+                            type="number"
+                            name="cyclistWeight"
+                            id="cyclistWeight"
+                            value={form.cyclistWeight || ""}
+                            onChange={handleChange}
+                            className="bg-darkLight-900 p-2 rounded-md border-2 border-primary-200 focus:border-primary-100 outline-none text-lg min-w-[400px] transition-colors"
+                        />
+                    </div>
+                    <div className="mb-5">
+                        <label
+                            htmlFor="bikeWeight"
+                            className="block mb-1 text-xl font-robotoCondensed font-semibold"
+                        >
+                            Bike Weight (kg):
+                        </label>
+                        <input
+                            type="number"
+                            name="bikeWeight"
+                            id="bikeWeight"
+                            value={form.bikeWeight || ""}
+                            onChange={handleChange}
+                            className="bg-darkLight-900 p-2 rounded-md border-2 border-primary-200 focus:border-primary-100 outline-none text-lg min-w-[400px] transition-colors"
+                        />
+                    </div>
+
+                    <p className="my-3 text-darkLight-200 font-semibold text-center">
+                        {info}
+                    </p>
+
+                    <p className="my-3 text-red-600 font-semibold text-center">
+                        {formError}
+                    </p>
+
+                    <button
+                        type="submit"
+                        className="w-full mt-6 p-4 border-2 text-xl uppercase font-semibold border-darkLight-200 hover:bg-darkLight-200 hover:text-darkLight-900 rounded-md transition-colors duration-300"
+                    >
+                        Apply Changes
+                    </button>
+                </form>
             )}
         </>
     );

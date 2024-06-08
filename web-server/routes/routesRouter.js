@@ -11,6 +11,7 @@ const {
     getUserRoutes,
     updateRouteById,
     importRoute,
+    deleteRouteById,
 } = require("../controllers/routesController");
 const { requireUser, checkUser } = require("../controllers/usersController");
 
@@ -28,5 +29,6 @@ router.get("/", checkUser, getRoutes);
 router.put("/", checkUser, requireUser, updateRouteById);
 router.get("/user", checkUser, requireUser, getUserRoutes);
 router.get("/:id", checkUser, getRouteById);
+router.delete("/:id", checkUser, requireUser, deleteRouteById);
 
 module.exports = router;

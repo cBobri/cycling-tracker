@@ -74,15 +74,41 @@ async function processRoute(routeId) {
             }
         }
 
+        const centerCalculations = {
+            minLat: Infinity,
+            maxLat: 0,
+            minLong: Infinity,
+            maxLong: 0,
+        };
+
         const center = {
-            latitude: data[0].gps.latitude,
-            longitude: data[0].gps.longitude,
+            latitude: 0,
+            longitude: 0,
         };
 
         data.forEach((entry) => {
-            center.latitude += entry.gps.latitude;
-            center.longitude += entry.gps.longitude;
+            centerCalculations.minLat = Math.min(
+                entry.gps.latitude,
+                centerCalculations.minLat
+            );
+            centerCalculations.minLong = Math.min(
+                entry.gps.longitude,
+                centerCalculations.minLong
+            );
+            centerCalculations.maxLat = Math.max(
+                entry.gps.latitude,
+                centerCalculations.maxLat
+            );
+            centerCalculations.maxLong = Math.max(
+                entry.gps.longitude,
+                centerCalculations.maxLong
+            );
         });
+
+        center.latitude =
+            (centerCalculations.minLat + centerCalculations.maxLat) / 2;
+        center.longitude =
+            (centerCalculations.minLong + centerCalculations.maxLong) / 2;
 
         segments.forEach((s) => {
             s.avgSpeed = (s.distance / (s.travelTime / 1000)) * 3.6;
@@ -122,8 +148,8 @@ async function processRoute(routeId) {
         }
 
         route.centerCoordinates = {
-            longitude: center.longitude / route.data.length,
-            latitude: center.latitude / route.data.length,
+            longitude: center.longitude,
+            latitude: center.latitude,
         };
 
         route.stats = percentageStats[percentageStats.length - 1];

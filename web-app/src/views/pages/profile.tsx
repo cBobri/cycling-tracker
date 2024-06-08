@@ -18,6 +18,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { formatTimeWithUnits } from "../../helpers/timeFormatters";
 import clsx from "clsx";
 import CircularProgressBar from "../components/circularProgressBar";
+import BreadCrumbs from "../components/breadCrumbs";
 
 const Profile = () => {
     const navigate = useNavigate();
@@ -105,7 +106,6 @@ const Profile = () => {
                 return;
             }
 
-            console.log(response.data);
             setProfile(response.data);
         };
 
@@ -169,7 +169,9 @@ const Profile = () => {
 
     return (
         <>
-            <section className="py-16 px-6 xl:px-2 max-w-screen-xl mx-auto">
+            <section className="py-16 px-6 xl:px-2 max-w-screen-xl mx-auto w-full">
+                <BreadCrumbs currentPage="Profile" depth={2} />
+
                 <h1 className="text-primary-300 text-5xl font-semibold font-robotoCondensed mb-6 text-center uppercase">
                     Profile
                 </h1>

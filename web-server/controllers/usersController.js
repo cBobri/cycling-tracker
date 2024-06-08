@@ -75,8 +75,8 @@ module.exports = {
             }
 
             // Handle login for mobile app - save their notification token if not yet saved
-            console.log("source", source)
-            console.log("client_token", client_token)
+            console.log("source", source);
+            console.log("client_token", client_token);
             if (
                 source === "mobile-app" &&
                 client_token &&
@@ -141,9 +141,7 @@ module.exports = {
         const token = req.header("Authorization")?.replace("Bearer ", "");
 
         if (!token) {
-            const error = new Error("Authentication token required");
-            error.status = 401;
-            return next(error);
+            return next();
         }
 
         try {

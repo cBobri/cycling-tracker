@@ -27,7 +27,7 @@ const Authenticate = () => {
             } else {
                 setUserData(user);
                 localStorage.setItem("token", token);
-                navigate("/");
+                navigate("/dashboard");
             }
         };
 

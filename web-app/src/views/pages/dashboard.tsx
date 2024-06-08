@@ -4,6 +4,7 @@ import { BiUser } from "react-icons/bi";
 import { FaBicycle, FaRoute } from "react-icons/fa6";
 import { useState } from "react";
 import { importRide } from "../../api/rides";
+import BreadCrumbs from "../components/breadCrumbs";
 
 interface FormData {
     title: string;
@@ -95,13 +96,13 @@ const Dashboard = () => {
         }
 
         setInfo(response.data.message);
-        setTimeout(() => {
-            navigate(`/view/${response.data.id}`);
-        }, 2000);
+        navigate(`/view/${response.data.id}`);
     };
 
     return (
-        <section className="py-16 px-6 xl:px-2 max-w-screen-xl mx-auto">
+        <section className="py-16 px-6 xl:px-2 max-w-screen-xl mx-auto w-full">
+            <BreadCrumbs currentPage="Dashboard" depth={2} />
+
             <h1 className="text-5xl mb-6">
                 Welcome,{" "}
                 <span className="text-primary-300">

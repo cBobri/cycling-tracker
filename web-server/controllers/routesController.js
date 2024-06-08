@@ -109,7 +109,7 @@ module.exports = {
             const simplifiedRoute = {
                 ...route._doc,
                 data: simplifiedData,
-                editable: req.user._id.toString() == route.user.toString(),
+                editable: req.user?._id?.toString() == route.user.toString(),
             };
 
             return res.status(200).json(simplifiedRoute);
@@ -186,8 +186,6 @@ module.exports = {
                 data: simplifiedData,
                 editable: req.user._id.toString() == route.user.toString(),
             };
-
-            console.log(simplifiedRoute);
 
             return res.status(200).json(simplifiedRoute);
         } catch (err) {
@@ -321,6 +319,31 @@ module.exports = {
             });
         } catch (err) {
             const error = new Error("Failed to create route");
+            error.status = 500;
+            return next(error);
+        }
+    },
+
+    deleteRouteById: async (req, res, next) => {
+        try {
+            const routeId = req.params.id;
+
+            const result = await RouteModel.findOneAndDelete({
+                _id: routeId,
+                user: req.user._id,
+            });
+
+            if (!result) {
+                const error = new Error("Route not found");
+                error.status = 404;
+                return next(error);
+            }
+
+            return res
+                .status(200)
+                .json({ message: "Route deleted successfully" });
+        } catch (err) {
+            const error = new Error("Failed to delete route");
             error.status = 500;
             return next(error);
         }

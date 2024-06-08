@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import {
+    BiHome,
     BiLogInCircle,
     BiMenuAltRight,
     BiSolidUserAccount,
@@ -7,6 +8,7 @@ import {
 } from "react-icons/bi";
 import Logo from "../../assets/images/logo.png";
 import { useUserContext } from "../../userContext";
+import { FaRoute } from "react-icons/fa6";
 
 type HeaderProps = {
     onToggleSidebar: () => void;
@@ -81,9 +83,10 @@ const Header = ({ onToggleSidebar }: HeaderProps) => {
                         <Link
                             to={"/"}
                             aria-label="To homepage"
-                            className="relative w-fit block after:block after:content-[''] after:absolute after:h-[2px] after:bg-darkLight-200 after:w-full after:scale-x-0 after:hover:scale-x-100 after:transition after:duration-200 after:origin-right"
+                            className="flex justify-center items-center gap-2 py-2 hover:-translate-y-1 transition-transform duration-100"
                         >
-                            Home
+                            <BiHome />
+                            <span>Home</span>
                         </Link>
                     </div>
 
@@ -91,9 +94,10 @@ const Header = ({ onToggleSidebar }: HeaderProps) => {
                         <Link
                             to={"/rides"}
                             aria-label="To users rides"
-                            className="relative w-fit block after:block after:content-[''] after:absolute after:h-[2px] after:bg-darkLight-200 after:w-full after:scale-x-0 after:hover:scale-x-100 after:transition after:duration-200 after:origin-right"
+                            className="flex justify-center items-center gap-2 py-2 hover:-translate-y-1 transition-transform duration-100"
                         >
-                            Routes
+                            <FaRoute />
+                            <span>Public Routes</span>
                         </Link>
                     </div>
 

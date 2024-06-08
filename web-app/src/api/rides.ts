@@ -104,3 +104,23 @@ export const importRide = async (formData: any): Promise<APIResponse> => {
         };
     }
 };
+
+export const deleteRide = async (id: string): Promise<APIResponse> => {
+    try {
+        const response = await api.delete(`/routes/${id}`);
+
+        return {
+            error: false,
+            status: response.status,
+            data: response.data,
+        };
+    } catch (err: any) {
+        console.log(err);
+
+        return {
+            error: true,
+            status: err.response.status,
+            data: err.response.data,
+        };
+    }
+};
