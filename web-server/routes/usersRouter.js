@@ -7,12 +7,14 @@ const {
     getUserDetails,
     getUserProfile,
     updateUserProfile,
+    enableTwoFactorAuthentication,
 } = require("../controllers/usersController");
 const router = express.Router();
 
 /* GET users listing. */
 router.post("/register", register);
 router.post("/login", login);
+router.post("/enable-2fa", checkUser, enableTwoFactorAuthentication);
 
 router.get("/details", checkUser, getUserDetails);
 

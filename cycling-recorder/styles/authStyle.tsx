@@ -7,7 +7,7 @@ const authStyle = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#AEC3B0',
+    backgroundColor: 'white',
   },
   input: {
     width: '100%',
@@ -18,12 +18,18 @@ const authStyle = StyleSheet.create({
     width: '80%',
     padding: 10,
     borderRadius: 30,
-    backgroundColor: '#124559',
+    backgroundColor: '#01161E',
+    marginTop: 20,
   },
   buttonText: {
     color: '#fff',
     textAlign: 'center',
     fontSize: 18,
+  },
+  title: {
+    fontSize: 30,
+    marginBottom: 50,
+    fontWeight: '500',
   },
 });
 

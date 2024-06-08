@@ -46,6 +46,7 @@ const Register = () => {
     };
     return (
         <View style={authStyles.container}>
+          <Text style={authStyles.title}>Sign up now</Text>
           <TextInput
             label="Email"
             value={email}

@@ -58,6 +58,7 @@ const Login = () => {
 
     return (
         <View style={authStyles.container}>
+            <Text style={authStyles.title}>Log in now</Text>
             <TextInput
                 label="Email or Username"
                 value={email_username}
