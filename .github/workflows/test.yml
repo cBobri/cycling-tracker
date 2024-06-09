@@ -20,7 +20,9 @@ jobs:
           node-version: '19' # Specify the Node.js version
 
       - name: Install dependencies
-        run: npm install
+        run: |
+          cd web-server
+          npm install
 
       - name: Set environment variables
         run: |
@@ -37,4 +39,6 @@ jobs:
           PASSWORD_SALT: ${{ secrets.PASSWORD_SALT }}
           TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
           TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
-        run: npm test
+        run: |
+          cd web-server
+          npm test
