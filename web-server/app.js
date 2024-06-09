@@ -68,8 +68,10 @@ app.use(function (err, req, res, next) {
 
 if (process.env.NODE_ENV !== "test") {
     const scraper = require("./helpers/scraper");
+    const cleanAuthRequests = require("./helpers/cleanAuthRequests");
 
     cron.schedule("*/15 * * * *", scraper.scrapeRecentRaces);
+    cron.schedule("*/15 * * * *", cleanAuthRequests);
 }
 
 module.exports = app;

@@ -91,7 +91,8 @@ module.exports = {
                 return next(error);
             }
 
-            await AuthRequestModel.findByIdAndDelete(authRequest._id);
+            authRequest.finished_processing = true;
+            await authRequest.save();
 
             if (!authRequest.result) {
                 const message = "Failed to authenticate";
