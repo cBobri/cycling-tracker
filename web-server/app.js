@@ -66,7 +66,10 @@ app.use(function (err, req, res, next) {
     });
 });
 
-const scraper = require("./helpers/scraper");
-cron.schedule("*/15 * * * *", scraper.scrapeRecentRaces);
+if (process.env.NODE_ENV !== "test") {
+    const scraper = require("./helpers/scraper");
+
+    cron.schedule("*/15 * * * *", scraper.scrapeRecentRaces);
+}
 
 module.exports = app;

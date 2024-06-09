@@ -170,6 +170,7 @@ module.exports = {
             error.status = 401;
             return next(error);
         }
+
         try {
             const user = await UserModel.findById(req.user._id);
 
@@ -178,6 +179,7 @@ module.exports = {
                 error.status = 404;
                 return next(error);
             }
+
             return res.status(200).json({
                 email: user.email,
                 username: user.username,

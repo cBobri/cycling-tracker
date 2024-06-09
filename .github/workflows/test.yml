@@ -1,0 +1,44 @@
+name: Test Workflow
+
+on:
+  push:
+    branches:
+      - production
+      - main
+
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '19' # Specify the Node.js version
+
+      - name: Install dependencies
+        run: |
+          cd web-server
+          npm install
+
+      - name: Set environment variables
+        run: |
+          echo "DB_URI=${{ secrets.DB_URI }}" >> $GITHUB_ENV
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> $GITHUB_ENV
+          echo "PASSWORD_SALT=${{ secrets.PASSWORD_SALT }}" >> $GITHUB_ENV
+          echo "TEST_USERNAME=${{ secrets.TEST_USERNAME }}" >> $GITHUB_ENV
+          echo "TEST_PASSWORD=${{ secrets.TEST_PASSWORD }}" >> $GITHUB_ENV
+
+      - name: Run tests
+        env:
+          DB_URI: ${{ secrets.DB_URI }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          PASSWORD_SALT: ${{ secrets.PASSWORD_SALT }}
+          TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
+          TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
+        run: |
+          cd web-server
+          npm test
