@@ -185,7 +185,7 @@ async function processRoute(routeId) {
         await route.save();
         console.log("Route processed successfully");
     } catch (err) {
-        console.error(err);
+        throw err; // Re-throw the error to be caught by the test
     }
 }
 
