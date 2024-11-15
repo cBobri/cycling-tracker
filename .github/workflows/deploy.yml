@@ -39,7 +39,7 @@ jobs:
 
       - name: Build Docker Image
         run: |
-          docker build -t my-app-image:latest .
+          run: docker build -t my-app-image:latest ./web-server
 
       - name: Set up SSH key
         uses: webfactory/ssh-agent@v0.5.3
