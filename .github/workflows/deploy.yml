@@ -51,8 +51,8 @@ jobs:
         run: docker save my-app-image:latest | bzip2 | ssh -o StrictHostKeyChecking=no -o ConnectTimeout=60 -p 33051 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} 'bunzip2 | docker load'
 
       - name: Run Docker Container
-        run: ssh -o StrictHostKeyChecking=no -p 33051 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} '
+        run: ssh -o StrictHostKeyChecking=no -p 33052 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} '
           docker stop my-app-container || true &&
           docker rm my-app-container || true &&
-          docker run -d --name my-app-container -p 33051:3000 my-app-image:latest
+          docker run -d --name my-app-container -p 33052:3000 my-app-image:latest
           '
