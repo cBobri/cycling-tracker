@@ -38,21 +38,20 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Login to Heroku Container Registry
-        env:
-          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+      - name: Build Docker Image
         run: |
-          echo $HEROKU_API_KEY | docker login --username=_ --password-stdin registry.heroku.com
+          docker build -t my-app-image:latest .
 
-      - name: Build Docker image
+      - name: Set up SSH key
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Deploy to Linux Server
         run: |
-          cd web-server
-          docker build -t registry.heroku.com/${{ secrets.HEROKU_APP_NAME }}/web .
-
-      - name: Push Docker image to Heroku
-        run: docker push registry.heroku.com/${{ secrets.HEROKU_APP_NAME }}/web
-
-      - name: Deploy to Heroku
-        env:
-          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-        run: heroku container:release web --app ${{ secrets.HEROKU_APP_NAME }}
+          docker save my-app-image:latest | bzip2 | ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} 'bunzip2 | docker load'
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} '
+            docker stop my-app-container || true &&
+            docker rm my-app-container || true &&
+            docker run -d --name my-app-container -p 33051:3000 my-app-image:latest
+          '
