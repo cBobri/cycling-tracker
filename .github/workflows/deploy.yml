@@ -54,5 +54,5 @@ jobs:
         run: ssh -o StrictHostKeyChecking=no -p 33051 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} '
           docker stop my-app-container || true &&
           docker rm my-app-container || true &&
-          docker run -d --name my-app-container -p 33052:3000 my-app-image:latest
+          docker run -d --name my-app-container -p 3000:5000 --env-file /etc/docker/env-files/project.env my-app-image
           '
