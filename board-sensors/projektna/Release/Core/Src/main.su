@@ -1,0 +1,16 @@
+../Core/Src/main.c:83:9:i2c1_pisiRegister	32	static
+../Core/Src/main.c:89:6:i2c1_beriRegistre	24	static
+../Core/Src/main.c:97:6:initLSM303DLHC	8	static
+../Core/Src/main.c:114:7:convertToG	0	static
+../Core/Src/main.c:120:6:pavza	0	static,ignoring_inline_asm
+../Core/Src/main.c:127:9:spi1_beriRegister	32	static
+../Core/Src/main.c:143:6:spi1_pisiRegister	24	static
+../Core/Src/main.c:157:6:spi1_beriRegistre	32	static
+../Core/Src/main.c:169:9:spi1_preberiTemperaturo	8	static
+../Core/Src/main.c:173:7:pretvori_v_dps	8	static
+../Core/Src/main.c:177:6:initL3GD20	8	static
+../Core/Src/main.c:189:6:enableDataReadyINT2	0	static
+../Core/Src/main.c:318:6:SystemClock_Config	128	static,ignoring_inline_asm
+../Core/Src/main.c:200:5:main	120	static,ignoring_inline_asm
+../Core/Src/main.c:521:6:HAL_GPIO_EXTI_Callback	0	static
+../Core/Src/main.c:541:6:Error_Handler	0	static,ignoring_inline_asm
