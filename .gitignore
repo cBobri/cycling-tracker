@@ -135,3 +135,8 @@ dist
 
 /web-server/public/*
 !/web-server/public/.gitignore
+
+# STM32CubeIDE
+.metadata/
+.settings/
+*.Id
